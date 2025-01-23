@@ -1,0 +1,6 @@
+﻿  Worker.c
+C:\Users\talsh\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Worker.c(20,12): warning C4013: 'isspace' undefined; assuming extern returning int
+C:\Users\talsh\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Worker.c(166,28): warning C4028: formal parameter 1 different from declaration
+C:\Users\talsh\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Worker.c(166,44): warning C4028: formal parameter 2 different from declaration
+C:\Users\talsh\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Worker.c(166,5): warning C4029: declared formal parameter list different from definition
+  clothing_store.vcxproj -> C:\Users\talsh\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\x64\Debug\clothing_store.exe
