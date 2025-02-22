@@ -73,28 +73,16 @@ Worker* readWorker(FILE* file) {
     char* temp_permission_level = (char*)malloc(PERMISSION_LEVEL_LENGTH * sizeof(char));
 
     // Validate memory allocation
-    if (!temp_username || !temp_private_name || !temp_password || !temp_permission_level) {
-        free(temp_username);
-        free(temp_private_name);
-        free(temp_password);
-        free(temp_permission_level);
-        return NULL; // Memory allocation failed
-    }
+    assert(temp_username);
+    assert(temp_private_name);
+    assert(temp_password);
+    assert(temp_permission_level);
 
     // Read details of the worker
-    if (fread(temp_username, sizeof(char), USERNAME_LENGTH - 1, file) != USERNAME_LENGTH - 1 ||
-        fread(temp_private_name, sizeof(char), PRIVATE_NAME_LENGTH - 1, file) != PRIVATE_NAME_LENGTH - 1 ||
-        fread(temp_password, sizeof(char), PASSWORD_LENGTH - 1, file) != PASSWORD_LENGTH - 1 ||
-        fread(temp_permission_level, sizeof(char), PERMISSION_LEVEL_LENGTH - 1, file) != PERMISSION_LEVEL_LENGTH - 1) {
-
-        // Free allocated memory on failure
-        free(temp_username);
-        free(temp_private_name);
-        free(temp_password);
-        free(temp_permission_level);
-
-        return NULL; // End of file or read error
-    }
+    fread(temp_username, sizeof(char), USERNAME_LENGTH, file);
+    fread(temp_private_name, sizeof(char), PRIVATE_NAME_LENGTH, file);
+    fread(temp_password, sizeof(char), PASSWORD_LENGTH, file);
+    fread(temp_permission_level, sizeof(char), PERMISSION_LEVEL_LENGTH, file);
 
     temp_username = trimwhitespace(temp_username);
     temp_private_name = trimwhitespace(temp_private_name);
@@ -123,11 +111,7 @@ int checkCredentials(char* username, char* password) {
     return 0; // Credentials do not match
 }
 
-void displayMenu(char* username, char* password) {
-    FILE* file = fopen(WORKERS_FILE, "r");
-    Worker* worker = readWorker(file);
-    printf("Menu:\n");
-    char permissionLevel = *(worker->permissionLevel);
+void menuItems(int permissionLevel) {
     if (permissionLevel <= '3') {
         printf("1. View Items.\n");
         printf("2. Add New Item.\n");
@@ -145,20 +129,64 @@ void displayMenu(char* username, char* password) {
     }
 }
 
+void displayMenu(char* username, char* password) {
+    FILE* file = fopen(WORKERS_FILE, "r");
+    Worker* worker = readWorker(file);
+    printf("Menu:\n");
+    char permissionLevel = *(worker->permissionLevel);
+    menuItems(permissionLevel);
+    while (1) {
+        int user_choice;
+        clearBuffer();
+        printf("please enter a choice: ");
+        scanf("%d", &user_choice);
+        switch (user_choice) {
+        case 1:
+            viewItems();    
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        case 4:
+            break;
+        case 5:
+            break;
+        case 6:
+            break;
+        case 7:
+            break;
+        case 8:
+            break;
+        case 9:
+            break;
+        default:
+            clrscr();
+            printf("No choice was detected, please try again!\n");
+            menuItems(permissionLevel);
+        }
+    }
+}
+
 void identifyWorker() {
+    int granted_access = 0;
+    char* username = NULL;
+    char* password = NULL;
     // Check if the file exists, otherwise create it
     if (!isFileExists(WORKERS_FILE)) {
         // Create a new admin worker and write to file
         Worker* worker = createWorker("admin", "manager", "12345678", "1");
         writeWorker(worker, WORKERS_FILE);
-        printf("No workers file exists! File created and you signed in as an Admin!\n");
+        printf("No workers file exists!");
+        printf("Workers.txt file was created and signed you in as an Admin!\n");
+        granted_access = 1;
     }
     else {
         int user_attemps = 0;
         while (user_attemps < ALLOWED_ATTEMPS) {
             // Check for existing worker
-            char* username = (char*)malloc(USERNAME_LENGTH * sizeof(char));
-            char* password = (char*)malloc(PASSWORD_LENGTH * sizeof(char));
+            username = (char*)malloc(USERNAME_LENGTH * sizeof(char));
+            password = (char*)malloc(PASSWORD_LENGTH * sizeof(char));
 
             assert(username != NULL);
             assert(password != NULL);
@@ -171,18 +199,24 @@ void identifyWorker() {
 
             if (checkCredentials(username, password)) {
                 printf("Granted Access!\n");
-                displayMenu(username, password);
+                granted_access = 1;
                 break;
             }
             else {
                 printf("Access Denied!\n");
                 if (user_attemps == ALLOWED_ATTEMPS - 1) {
-                    printf("Access denied. You have entered incorrect credentials three times. Please try again later.");
-                    exit(EXIT_FAILURE);
+                    printf("You have entered incorrect credentials three times. Please try again later.");
                 }
 
                 user_attemps++;
             }
+        }
+        if (granted_access == 0) {
+            printf("Access denied.");
+            exit(EXIT_FAILURE);
+        }
+        else {
+            displayMenu(username, password);
         }
     }
 }

@@ -122,3 +122,16 @@ Product* readProduct(FILE* file) {
 
     return product;
 }
+
+void viewItemsMenu() {
+    printf("1. Search By Text.\n");
+    printf("2. Search By Number.\n");
+    printf("3. Search By Equals.\n");
+    printf("4. Search By Date.\n");
+}
+
+void viewItems() {
+    int user_choice;
+    printf("How would you want to view items?");
+
+}

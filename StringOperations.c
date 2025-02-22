@@ -42,3 +42,13 @@ int compareStrings(const char* str1, const char* str2) {
         return 0; // Strings are different
     }
 }
+
+void clearBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {}
+}
+
+void clrscr()
+{
+    system("@cls||clear");
+}
