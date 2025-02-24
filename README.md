@@ -27,7 +27,7 @@ This project, part of the Advanced Programming Laboratory, involves developing a
   - Verify inventory availability.
   - Limit purchases to three items per transaction.
   - Log transactions.
-- **Returns**: Allow product returns within 14 business days.
+- **Returns**: Allow item returns within 14 business days.
 - **Search and Sort**:
   - Search items by attributes (e.g., price range, inventory status, or dates).
   - Sort items and customers by specific fields (e.g., serial number, registration date).

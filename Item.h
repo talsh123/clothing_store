@@ -1,7 +1,7 @@
-#ifndef PRODUCT_H
-#define PRODUCT_H
+#ifndef ITEM_H
+#define ITEM_H
 
-typedef struct {
+typedef struct item {
     char* serialNumber; // 13 Characters
     char* brand; // 31 characters
     char* type; // 21 Characters - Shirt, Pants etc...
@@ -9,6 +9,6 @@ typedef struct {
     int isPopular;
     char* releaseDate; // DD-MM-YYYY Format, 11 characters
     int stock;
-} Product;
+} Item;
 
-#endif // PRODUCT_H
+#endif // ITEM_H

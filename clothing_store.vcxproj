@@ -121,18 +121,18 @@
   <ItemGroup>
     <ClCompile Include="FileOperations.c" />
     <ClCompile Include="main.c" />
-    <ClCompile Include="Product.c" />
+    <ClCompile Include="Item.c" />
     <ClCompile Include="StringOperations.c" />
-    <ClCompile Include="Worker.c" />
+    <ClCompile Include="Employee.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileOperations.h" />
-    <ClInclude Include="Product.h" />
+    <ClInclude Include="Item.h" />
     <ClInclude Include="StringOperations.h" />
-    <ClInclude Include="Worker.h" />
+    <ClInclude Include="Employee.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="products.bin" />
+    <None Include="items.bin" />
     <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
