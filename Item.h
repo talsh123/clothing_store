@@ -18,7 +18,12 @@ Item* readItem(FILE* file);
 void viewItemsMenu();
 void printItems(Item* items, int itemCount);
 Item* findByBrandType(char* userBrand, char* userType, int filterType);
+Item* findByPrice(double price, char identifier);
+Item* findByStock(int stock, char identifier);
+Item* findByProperty(char* property, void* value);
 void searchByBrandOrType();
+void searchByPriceorStock();
+void searchByEquals();
 void viewItems();
 
 #endif // ITEM_H

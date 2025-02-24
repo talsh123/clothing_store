@@ -393,6 +393,101 @@ Item* findByStock(int stock, char identifier) {
     return matchingItems;
 }
 
+Item* findByProperty(char* property, void* value) {
+    FILE* file = fopen(ITEMS_FILE, "rb");
+    if (file == NULL) {
+        printf("Error: Could not open file %s\n", ITEMS_FILE);
+        return NULL;
+    }
+
+    // Dynamic array to store matching items
+    Item* matchingItems = NULL;
+
+    // Read items one by one
+    Item* item;
+    int count = 0;
+    while ((item = readItem(file)) != NULL) {
+        // Check for end of file after attempting to read
+        if (feof(file)) {
+            break;
+        }
+
+        int matches = 0;
+
+        // Check property and compare value
+        if (strcmp(property, "serial_number") == 0) {
+            if (strcmp(item->serialNumber, (char*)value) == 0) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "brand") == 0) {
+            if (strcmp(item->brand, (char*)value) == 0) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "type") == 0) {
+            if (strcmp(item->type, (char*)value) == 0) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "price") == 0) {
+            if (item->price == *(double*)value) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "stock") == 0) {
+            if (item->stock == *(int*)value) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "is_popular") == 0) {
+            if (item->isPopular == *(int*)value) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "release_date") == 0) {
+            if (strcmp(item->releaseDate, (char*)value) == 0) {
+                matches = 1;
+            }
+        }
+        else {
+            printf("Invalid property: %s\n", property);
+            fclose(file);
+            return NULL;
+        }
+
+        // If item matches, add it to the dynamic array
+        if (matches) {
+            count++;
+            // Resize array to hold another item
+            Item* tempArray = realloc(matchingItems, sizeof(Item) * count);
+            if (tempArray == NULL) {
+                printf("Error: Memory allocation failed.\n");
+                fclose(file);
+                return NULL;
+            }
+            matchingItems = tempArray;
+            matchingItems[count - 1] = *item;
+        }
+
+        // Free the memory for the current item
+        free(item);
+    }
+
+    fclose(file);
+
+    // If no items matched, free memory and return NULL
+    if (count == 0) {
+        printf("There are no items that matched your search!\n");
+    }
+    // Print all the matching Items
+    else {
+        // Also print all the matching Items
+        printItems(matchingItems, count);
+    }
+    return matchingItems;
+}
+
 
 void searchByBrandOrType() {
     int exit = 0;
@@ -506,6 +601,113 @@ void searchByPriceorStock() {
     }
 }
 
+void searchByEquals() {
+    int exit = 0;
+    clrscr();
+    printf("Search a property:\n");
+    printf("1. Search By Serial Number.\n");
+    printf("2. Search By Brand.\n");
+    printf("3. Search By Type.\n");
+    printf("4. Search By Price.\n");
+    printf("5. Search By Is Popular.\n");
+    printf("6. Search By Release Date.\n");
+    printf("7. Search By Stock.\n");
+    printf("0. Exit\n");
+    while (1) {
+        int user_choice;
+        printf("Please select: ");
+        clearBuffer();
+        scanf("%d", &user_choice);
+        clearBuffer(); // Clear buffer after number input
+
+        Item* matchingItems = NULL;
+        void* property = NULL;
+
+        switch (user_choice) {
+        case 1: // Serial Number
+        {
+            char* serialNumber = (char*)malloc(SERIAL_NUMBER_LENGTH * sizeof(char));
+            printf("Enter Serial Number: ");
+            scanf("%s", serialNumber);
+            property = serialNumber;
+            matchingItems = findByProperty("serial_number", property);
+            free(serialNumber); // Free memory after use
+            break;
+        }
+        case 2: // Brand
+        {
+            char* brand = (char*)malloc(BRAND_LENGTH * sizeof(char));
+            printf("Enter Brand: ");
+            scanf("%s", brand);
+            property = brand;
+            matchingItems = findByProperty("brand", property);
+            free(brand);
+            break;
+        }
+        case 3: // Type
+        {
+            char* type = (char*)malloc(TYPE_LENGTH * sizeof(char));
+            printf("Enter Type: ");
+            scanf("%s", type);
+            property = type;
+            matchingItems = findByProperty("type", property);
+            free(type);
+            break;
+        }
+        case 4: // Price
+        {
+            double price;
+            printf("Enter Price: ");
+            scanf("%lf", &price);
+            property = &price;
+            matchingItems = findByProperty("price", property);
+            break;
+        }
+        case 5: // Is Popular
+        {
+            int isPopular;
+            printf("Enter Is Popular (0 or 1): ");
+            scanf("%d", &isPopular);
+            property = &isPopular;
+            matchingItems = findByProperty("is_popular", property);
+            break;
+        }
+        case 6: // Release Date
+        {
+            char* releaseDate = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
+            printf("Enter Release Date (DD-MM-YYYY): ");
+            scanf("%s", releaseDate);
+            property = releaseDate;
+            matchingItems = findByProperty("release_date", property);
+            free(releaseDate);
+            break;
+        }
+        case 7: // Stock
+        {
+            int stock;
+            printf("Enter Stock: ");
+            scanf("%d", &stock);
+            property = &stock;
+            matchingItems = findByProperty("stock", property);
+            break;
+        }
+        case 0:
+            exit = 1;
+            break;
+        default:
+            clrscr();
+            printf("Invalid choice, please try again!\n");
+        }
+
+        if (matchingItems) {
+            // TODO: Print matching items or process them
+        }
+
+        if (exit == 1)
+            break;
+    }
+}
+
 void viewItems() {
     while (1) {
         int exit = 0;
@@ -523,7 +725,7 @@ void viewItems() {
             searchByPriceorStock();
             break;
         case 3:
-            //searchByEquals();
+            searchByEquals();
             break;
         case 4:
             //searchByDate();
