@@ -18,8 +18,7 @@
 // User Validation Attemps
 #define ALLOWED_ATTEMPS 3
 
-
-Employee* createEmployee(char* username, char* privateName, char* password, char* permissionLevel) {
+Employee* createEmployee(char* username, char* privateName, char* password, char* level) {
     Employee* employee = (Employee*)malloc(sizeof(Employee));
 
     employee->username = (char*)malloc(USERNAME_LENGTH);
@@ -35,8 +34,8 @@ Employee* createEmployee(char* username, char* privateName, char* password, char
     employee->password[strlen(password)] = '\0'; // Ensure null termination
 
     employee->level = (char*)malloc(LEVEL_LENGTH);
-    strncpy(employee->level, permissionLevel, strlen(permissionLevel));
-    employee->level[strlen(permissionLevel)] = '\0'; // Ensure null termination
+    strncpy(employee->level, level, strlen(level));
+    employee->level[strlen(level)] = '\0'; // Ensure null termination
 
     return employee;
 }
@@ -66,48 +65,87 @@ Employee* readEmployee(FILE* file) {
         return NULL; // File pointer is NULL
     }
 
-    // Dynamically allocates the Employee properties
-    char* temp_username = (char*)malloc(USERNAME_LENGTH * sizeof(char));
-    char* temp_private_name = (char*)malloc(PRIVATE_NAME_LENGTH * sizeof(char));
-    char* temp_password = (char*)malloc(PASSWORD_LENGTH * sizeof(char));
-    char* temp_permission_level = (char*)malloc(LEVEL_LENGTH * sizeof(char));
+    // Buffer to store the line from the file
+    char line[512]; // Adjust size as needed
+
+    // Read a line from the file
+    if (fgets(line, sizeof(line), file) == NULL) {
+        // If fgets() returns NULL, it means end-of-file or an error occurred
+        return NULL;
+    }
+
+    // Allocate memory for Employee
+    Employee* employee = (Employee*)malloc(sizeof(Employee));
+    if (employee == NULL) {
+        printf("Error: Memory allocation failed.\n");
+        return NULL;
+    }
+
+    // Allocate memory for strings
+    employee->username = (char*)malloc(USERNAME_LENGTH);
+    employee->privateName = (char*)malloc(PRIVATE_NAME_LENGTH);
+    employee->password = (char*)malloc(PASSWORD_LENGTH);
+    employee->level = (char*)malloc(LEVEL_LENGTH);
 
     // Validate memory allocation
-    assert(temp_username);
-    assert(temp_private_name);
-    assert(temp_password);
-    assert(temp_permission_level);
+    if (!employee->username || !employee->privateName ||
+        !employee->password || !employee->level) {
+        printf("Error: Memory allocation failed.\n");
+        free(employee); // Free employee struct memory
+        return NULL;
+    }
 
-    // Read details of the Employee
-    fread(temp_username, sizeof(char), USERNAME_LENGTH, file);
-    fread(temp_private_name, sizeof(char), PRIVATE_NAME_LENGTH, file);
-    fread(temp_password, sizeof(char), 128, file);
-    fread(temp_permission_level, sizeof(char), LEVEL_LENGTH, file);
+    // Parse the line using sscanf
+    int numParsed = sscanf(line, "%s %s %s %s",
+        employee->username,
+        employee->privateName,
+        employee->password,
+        employee->level
+    );
 
-    temp_username = trimwhitespace(temp_username);
-    temp_private_name = trimwhitespace(temp_private_name);
-    temp_password = trimwhitespace(temp_password);
-    temp_permission_level = trimwhitespace(temp_permission_level);
+    // If all 4 fields are not parsed, free memory and return NULL
+    if (numParsed != 4) {
+        free(employee->username);
+        free(employee->privateName);
+        free(employee->password);
+        free(employee->level);
+        free(employee);
+        return NULL;
+    }
 
-    // Creates a new Employee
-    Employee* Employee = createEmployee(temp_username, temp_private_name, temp_password, temp_permission_level);
-
-    return Employee;
+    return employee;
 }
 
 Employee* checkCredentials(char* username, char* password) {
     FILE* file = fopen(EMPLOYEES_FILE, "r");
-    while (1) {
+    if (file == NULL) {
+        printf("Error: Could not open file.\n");
+        return NULL;
+    }
+
+    while (!feof(file)) {  // Check if end of file is reached
         Employee* employee = readEmployee(file);
+
+        // Validate the employee object
         if (employee == NULL) {
-            break; // Exit the loop if no more Employees can be read
+            break;  // Exit the loop if no more Employees can be read
         }
 
         // Compare the credentials
         if (!strcmp(employee->username, username) && !strcmp(employee->password, password)) {
+            fclose(file);  // Close the file before returning
             return employee; // Credentials match
         }
+
+        // Free the employee if credentials do not match
+        free(employee->username);
+        free(employee->privateName);
+        free(employee->password);
+        free(employee->level);
+        free(employee);
     }
+
+    fclose(file); // Close the file before returning
     return NULL; // Credentials do not match
 }
 
@@ -184,19 +222,13 @@ Employee login() {
                 strncpy(tempEmployee.password, employeePtr->password, PASSWORD_LENGTH);
                 strncpy(tempEmployee.level, employeePtr->level, LEVEL_LENGTH);
 
-                // Ensure null termination
-                tempEmployee.username[USERNAME_LENGTH - 1] = '\0';
-                tempEmployee.privateName[PRIVATE_NAME_LENGTH - 1] = '\0';
-                tempEmployee.password[PASSWORD_LENGTH - 1] = '\0';
-                tempEmployee.level[LEVEL_LENGTH - 1] = '\0';
-
                 free(username);
                 free(password);
 
                 return tempEmployee;
             }
             else {
-                printf("Access Denied!\n");
+                printf("You have entered incorrect credentials. Please try again!\n");
                 if (user_attempts == ALLOWED_ATTEMPS - 1) {
                     printf("You have entered incorrect credentials three times. Please try again later.\n");
                     exit(EXIT_FAILURE);
@@ -210,17 +242,15 @@ Employee login() {
 }
 
 void showMenu() {
-    FILE* file = fopen(EMPLOYEES_FILE, "r");
-    Employee* employee = readEmployee(file);
     printf("Menu:\n");
-    char level = *(employee->level);
-    menuItems(level);
+    menuItems(currentEmployee.level);
     while (1) {
         int user_choice;
         clearBuffer();
         printf("please enter a choice: ");
         scanf("%d", &user_choice);
         switch (user_choice) {
+
         }
     }
 }

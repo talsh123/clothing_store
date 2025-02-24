@@ -8,6 +8,9 @@ typedef struct {
     char* level;
 } Employee;
 
+// Extern declaration for global variable
+extern Employee currentEmployee;
+
 Employee* createEmployee(char* username, char* privateName, char* password, char* permissionLevel);
 void writeEmployee(Employee* Employee, const char* fileName);
 Employee* readEmployee(FILE* file);
