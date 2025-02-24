@@ -58,7 +58,7 @@ int compareitems(const Item* item1, const Item* item2) {
     return 1;
 }
 
-void writeitem(Item* item, const char* fileName) {
+void writeItem(Item* item, const char* fileName) {
     FILE* file = fopen(fileName, "wb");
 
     fwrite(item->serialNumber, SERIAL_NUMBER_LENGTH, 1, file);
@@ -72,16 +72,18 @@ void writeitem(Item* item, const char* fileName) {
     fclose(file);
 }
 
-Item* readitem(FILE* file) {
+Item* readItem(FILE* file) {
     if (file == NULL) {
         return NULL; // File pointer is NULL
     }
 
-    // Allocate memory for string fields
     char* temp_serial_number = (char*)malloc(SERIAL_NUMBER_LENGTH * sizeof(char));
     char* temp_brand = (char*)malloc(BRAND_LENGTH * sizeof(char));
     char* temp_type = (char*)malloc(TYPE_LENGTH * sizeof(char));
+    double temp_price;
+    int temp_isPopular;
     char* temp_releaseDate = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
+    int temp_stock;
 
     // Validate memory allocation for strings
     assert(temp_serial_number);
@@ -89,30 +91,21 @@ Item* readitem(FILE* file) {
     assert(temp_type);
     assert(temp_releaseDate);
 
-    // Declare variables for primitive fields
-    double temp_price;
-    int temp_isPopular;
-    int temp_stock;
-
     // Read data from the binary file
-    fread(temp_serial_number, sizeof(char), SERIAL_NUMBER_LENGTH - 1, file);
-    temp_serial_number[SERIAL_NUMBER_LENGTH - 1] = '\0'; // Null-terminate the string
-
-    fread(temp_brand, sizeof(char), BRAND_LENGTH - 1, file);
-    temp_brand[BRAND_LENGTH - 1] = '\0'; // Null-terminate the string
-
-    fread(temp_type, sizeof(char), TYPE_LENGTH - 1, file);
-    temp_type[TYPE_LENGTH - 1] = '\0'; // Null-terminate the string
-
+    fread(temp_serial_number, sizeof(char), SERIAL_NUMBER_LENGTH, file);
+    char* trimmed_serial_number = trimwhitespace(temp_serial_number);
+    fread(temp_brand, sizeof(char), BRAND_LENGTH, file);
+    char* trimmed_brand = trimwhitespace(temp_brand);
+    fread(temp_type, sizeof(char), TYPE_LENGTH, file);
+    char* trimmed_type = trimwhitespace(temp_type);
     fread(&temp_price, sizeof(double), 1, file);
     fread(&temp_isPopular, sizeof(int), 1, file);
-    fread(temp_releaseDate, sizeof(char), RELEASE_DATE_LENGTH - 1, file);
-    temp_releaseDate[RELEASE_DATE_LENGTH - 1] = '\0'; // Null-terminate the string
-
+    fread(temp_releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file);
+    char* trimmed_releaseDate = trimwhitespace(temp_releaseDate);
     fread(&temp_stock, sizeof(int), 1, file);
 
     // Create a new item
-    Item* item = createItem(temp_serial_number, temp_brand, temp_type, temp_price, temp_isPopular, temp_releaseDate, temp_stock);
+    Item* item = createItem(trimmed_serial_number, trimmed_brand, trimmed_type, temp_price, temp_isPopular, trimmed_releaseDate, temp_stock);
 
     // Free temporary memory
     free(temp_serial_number);
@@ -128,7 +121,165 @@ void viewItemsMenu() {
     printf("2. Search By Price and/or Stock.\n");
     printf("3. Search By Equals.\n");
     printf("4. Search By Date.\n");
-    printf("5. Exit\n");
+    printf("0. Exit\n");
+}
+
+// Function to print all items in one line each
+void printItems(Item* items, int itemCount) {
+    if (items == NULL || itemCount <= 0) {
+        printf("No items to display.\n");
+        return;
+    }
+
+    printf("\n--- Items List ---\n");
+    for (int i = 0; i < itemCount; i++) {
+        printf("%s, %s, %s, %.2f, %s, %s, %d\n",
+            items[i].serialNumber,
+            items[i].brand,
+            items[i].type,
+            items[i].price,
+            items[i].isPopular ? "Yes" : "No",
+            items[i].releaseDate,
+            items[i].stock
+        );
+    }
+    printf("--------------------\n");
+}
+
+Item* findByBrandType(char* userBrand, char* userType, int filterType) {
+    // Open the binary file for reading
+    FILE* file = fopen(ITEMS_FILE, "rb");
+    if (file == NULL) {
+        printf("Error: Could not open file %s\n", ITEMS_FILE);
+        return NULL;
+    }
+
+    // Dynamic array to store matching items
+    Item* matchingItems = NULL;
+    int count = 0;
+
+    // Read items one by one
+    Item* item;
+    while ((item = readItem(file)) != NULL) {
+        // Check for end of file after attempting to read
+        if (feof(file)) {
+            break;
+        }
+
+        int matches = 0;
+
+        // Apply filter type logic
+        if (filterType == 1) {
+            // Filter by brand
+            if (strcmp(item->brand, userBrand) == 0) {
+                matches = 1;
+            }
+        }
+        else if (filterType == 2) {
+            // Filter by type
+            if (strcmp(item->type, userType) == 0) {
+                matches = 1;
+            }
+        }
+        else if (filterType == 3) {
+            // Filter by both brand and type
+            if (strcmp(item->brand, userBrand) == 0 && strcmp(item->type, userType) == 0) {
+                matches = 1;
+            }
+        }
+
+        // If item matches, add it to the dynamic array
+        if (matches) {
+            // Resize array to hold another item
+            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
+            if (tempArray == NULL) {
+                printf("Error: Memory allocation failed.\n");
+                free(matchingItems); // Free previously allocated memory
+                fclose(file);
+                return NULL;
+            }
+            matchingItems = tempArray;
+
+            // Copy the item into the array
+            matchingItems[count] = *item;
+            count++;
+        }
+
+        // Free the memory for the current item
+    }
+
+    fclose(file);
+
+    // If no items matched, free memory and return NULL
+    if (count == 0) {
+        free(matchingItems);
+        return NULL;
+    }
+    else {
+        // Also print all the matching Items
+        printItems(matchingItems, count);
+    }
+
+    return matchingItems;
+}
+
+
+void searchByBrandOrType() {
+    int exit = 0;
+    clrscr();
+    printf("How would you like to filter?\n");
+    printf("1. Search By Brand.\n");
+    printf("2. Search By Type\n");
+    printf("3. Search By Both [Seperated by Space]\n");
+    printf("0. Exit\n");
+    while (1) {
+        int user_choice;
+        printf("Please select: ");
+        // Get User Brand and Type
+        char* userBrand = NULL;
+        char* userType = NULL;
+        clearBuffer();
+        scanf("%d", &user_choice);
+        Item* matchingItems = NULL;
+        switch (user_choice) {
+        case 1:
+            userBrand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+            printf("Please enter Brand: ");
+            clearBuffer();
+            scanf("%30s", userBrand);
+            matchingItems = findByBrandType(userBrand, userType, 1);
+            break;
+        case 2:
+            userType = (char*)malloc(sizeof(char) * TYPE_LENGTH);
+            printf("Please enter Type: ");
+            clearBuffer();
+            scanf("%11s", userBrand);
+            matchingItems = findByBrandType(userBrand, userType, 2);
+            break;
+        case 3:
+            userBrand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+            userType = (char*)malloc(sizeof(char) * TYPE_LENGTH);
+            printf("Please enter Brand: ");
+            scanf("%30s", userBrand);
+            printf("Please enter Type: ");
+            scanf("%11s", userBrand);
+            matchingItems = findByBrandType(userBrand, userType, 3);
+            break;
+        case 0:
+            exit = 1;
+            break;
+        default:
+            clrscr();
+            printf("No choice was detected, please try again!\n");
+            printf("How would you like to filter?\n");
+            printf("1. Search By Brand.\n");
+            printf("2. Search By Type\n");
+            printf("3. Search By Both [Seperated by Space]\n");
+            printf("0. Exit\n");
+        }
+        if (exit == 1)
+            break;
+    }
 }
 
 void viewItems() {
@@ -136,28 +287,20 @@ void viewItems() {
     while (1) {
         int user_choice;
         clearBuffer();
-        printf("How would you want to view items? ");
+        printf("Please select: ");
         scanf("%d", &user_choice);
         switch (user_choice) {
         case 1:
-            printf("Please enter text: ");
-
+            searchByBrandOrType();
             break;
         case 2:
+            //searchByPriceorStock();
             break;
         case 3:
+            //searchByEquals();
             break;
         case 4:
-            break;
-        case 5:
-            break;
-        case 6:
-            break;
-        case 7:
-            break;
-        case 8:
-            break;
-        case 9:
+            //searchByDate();
             break;
         default:
             clrscr();

@@ -1,5 +1,6 @@
-﻿  Employee.c
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(246,30): warning C4047: 'function': 'int' differs in levels of indirection from 'char *'
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(246,30): warning C4024: 'menuItems': different types for formal and actual parameter 1
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(249,9): warning C4013: 'clearBuffer' undefined; assuming extern returning int
+﻿  Item.c
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,21): warning C4047: 'function': 'const char *' differs in levels of indirection from 'const int'
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,21): warning C4024: 'strcmp': different types for formal and actual parameter 1
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,39): warning C4047: 'function': 'const char *' differs in levels of indirection from 'const int'
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,39): warning C4024: 'strcmp': different types for formal and actual parameter 2
   clothing_store.vcxproj -> C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\x64\Debug\clothing_store.exe

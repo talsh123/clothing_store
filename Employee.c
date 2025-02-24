@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "Employee.h"
+#include "Item.h"
 #include "FileOperations.h"
 #include "StringOperations.h"
 #include <assert.h>
@@ -243,14 +244,17 @@ Employee login() {
 
 void showMenu() {
     printf("Menu:\n");
-    menuItems(currentEmployee.level);
+    menuItems(atoi(currentEmployee.level));
     while (1) {
         int user_choice;
         clearBuffer();
         printf("please enter a choice: ");
         scanf("%d", &user_choice);
         switch (user_choice) {
-
+        case 1:
+            clrscr();
+            viewItems();
+            break;
         }
     }
 }
