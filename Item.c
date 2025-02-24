@@ -225,6 +225,174 @@ Item* findByBrandType(char* userBrand, char* userType, int filterType) {
     return matchingItems;
 }
 
+Item* findByPrice(double price, char identifier) {
+    // Open the binary file for reading
+    FILE* file = fopen(ITEMS_FILE, "rb");
+    if (file == NULL) {
+        printf("Error: Could not open file %s\n", ITEMS_FILE);
+        return NULL;
+    }
+
+    // Dynamic array to store matching items
+    Item* matchingItems = NULL;
+    int count = 0;
+
+    int identifierType;
+
+    // Map identifier
+    if (identifier == '>')
+        identifierType = 1;
+    else if (identifier == '<')
+        identifierType = 2;
+    else
+        identifierType = 3;
+
+    // Read items one by one
+    Item* item;
+    while ((item = readItem(file)) != NULL) {
+        // Check for end of file after attempting to read
+        if (feof(file)) {
+            break;
+        }
+
+        int matches = 0;
+
+        // Apply filter type logic
+        if (identifierType == 1) {
+            if (item->price > price) {
+                matches = 1;
+            }
+        }
+        else if (identifierType == 2) {
+            if (item->price < price) {
+                matches = 1;
+            }
+        }
+        else if (identifierType == 3) {
+            if (item->price == price) {
+                matches = 1;
+            }
+        }
+
+        // If item matches, add it to the dynamic array
+        if (matches) {
+            // Resize array to hold another item
+            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
+            if (tempArray == NULL) {
+                printf("Error: Memory allocation failed.\n");
+                free(matchingItems); // Free previously allocated memory
+                fclose(file);
+                return NULL;
+            }
+            matchingItems = tempArray;
+
+            // Copy the item into the array
+            matchingItems[count] = *item;
+            count++;
+        }
+
+        // Free the memory for the current item
+    }
+
+    fclose(file);
+
+    // If no items matched, free memory and return NULL
+    if (count == 0) {
+        printf("There are no items that matched your search!\n");
+    }
+    // Print all the matching Items
+    else {
+        // Also print all the matching Items
+        printItems(matchingItems, count);
+    }
+    return matchingItems;
+}
+
+Item* findByStock(int stock, char identifier) {
+    // Open the binary file for reading
+    FILE* file = fopen(ITEMS_FILE, "rb");
+    if (file == NULL) {
+        printf("Error: Could not open file %s\n", ITEMS_FILE);
+        return NULL;
+    }
+
+    // Dynamic array to store matching items
+    Item* matchingItems = NULL;
+    int count = 0;
+
+    int identifierType;
+
+    // Map identifier
+    if (identifier == '>')
+        identifierType = 1;
+    else if (identifier == '<')
+        identifierType = 2;
+    else if (identifier == '=')
+        identifierType = 3;
+    else
+        return matchingItems;
+
+    // Read items one by one
+    Item* item;
+    while ((item = readItem(file)) != NULL) {
+        // Check for end of file after attempting to read
+        if (feof(file)) {
+            break;
+        }
+
+        int matches = 0;
+
+        // Apply filter type logic
+        if (identifierType == 1) {
+            if (item->stock > stock) {
+                matches = 1;
+            }
+        }
+        else if (identifierType == 2) {
+            if (item->stock < stock) {
+                matches = 1;
+            }
+        }
+        else if (identifierType == 3) {
+            if (item->stock == stock) {
+                matches = 1;
+            }
+        }
+
+        // If item matches, add it to the dynamic array
+        if (matches) {
+            // Resize array to hold another item
+            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
+            if (tempArray == NULL) {
+                printf("Error: Memory allocation failed.\n");
+                free(matchingItems); // Free previously allocated memory
+                fclose(file);
+                return NULL;
+            }
+            matchingItems = tempArray;
+
+            // Copy the item into the array
+            matchingItems[count] = *item;
+            count++;
+        }
+
+        // Free the memory for the current item
+    }
+
+    fclose(file);
+
+    // If no items matched, free memory and return NULL
+    if (count == 0) {
+        printf("There are no items that matched your search!\n");
+    }
+    // Print all the matching Items
+    else {
+        // Also print all the matching Items
+        printItems(matchingItems, count);
+    }
+    return matchingItems;
+}
+
 
 void searchByBrandOrType() {
     int exit = 0;
@@ -276,7 +444,61 @@ void searchByBrandOrType() {
             printf("How would you like to filter?\n");
             printf("1. Search By Brand.\n");
             printf("2. Search By Type\n");
-            printf("3. Search By Both [Seperated by Space]\n");
+            printf("3. Search By Both\n");
+            printf("0. Exit\n");
+        }
+        if (exit == 1)
+            break;
+    }
+}
+
+void searchByPriceorStock() {
+    int exit = 0;
+    clrscr();
+    printf("Search By Price and/or Stock Menu:\n");
+    printf("1. Search By Price.\n");
+    printf("2. Search By Stock\n");
+    printf("0. Exit\n");
+    while (1) {
+        int user_choice;
+        printf("Please select: ");
+        // Get User Price and Stock
+        double userPrice = 0;
+        int userStock = 0;
+        char identifier;
+        clearBuffer();
+        scanf("%d", &user_choice);
+        Item* matchingItems = NULL;
+        switch (user_choice) {
+        case 1:
+            printf("Please enter a price: ");
+            clearBuffer();
+            scanf("%lf", &userPrice);
+            printf("Please enter an identifier[>, <, =]: ");
+            clearBuffer();
+            scanf("%c", &identifier);
+            matchingItems = findByPrice(userPrice, identifier);
+            break;
+        case 2:
+            printf("Please enter a stock: ");
+            clearBuffer();
+            scanf("%d", &userStock);
+            printf("Please enter an identifier[>, <, =]: ");
+            clearBuffer();
+            scanf("%c", &identifier);
+            matchingItems = findByStock(userStock, identifier);
+            break;
+        case 3:
+            break;
+        case 0:
+            exit = 1;
+            break;
+        default:
+            clrscr();
+            printf("No choice was detected, please try again!\n");
+            printf("Search By Price and/or Stock Menu:\n");
+            printf("1. Search By Price.\n");
+            printf("2. Search By Stock\n");
             printf("0. Exit\n");
         }
         if (exit == 1)
@@ -298,7 +520,7 @@ void viewItems() {
             searchByBrandOrType();
             break;
         case 2:
-            //searchByPriceorStock();
+            searchByPriceorStock();
             break;
         case 3:
             //searchByEquals();
