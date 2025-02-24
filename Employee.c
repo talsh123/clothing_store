@@ -151,6 +151,8 @@ Employee* checkCredentials(char* username, char* password) {
 }
 
 void menuItems(int level) {
+    printf("Welcome to the RTS System!\n");
+    printf("Menu:\n");
     if (level <= '3') {
         printf("1. View Items.\n");
         printf("2. Add New Item.\n");
@@ -166,6 +168,7 @@ void menuItems(int level) {
     if (level == '1') {
         printf("9. Add New Employee.\n");
     }
+    printf("10. Exit the RTS System.\n");
 }
 
 int checkIfEmployeeFileExists() {
@@ -215,8 +218,6 @@ Employee login() {
             Employee* employeePtr = checkCredentials(username, password);
 
             if (employeePtr != NULL) {
-                printf("Welcome to the RTS System!\n");
-
                 // Deep copy each string
                 strncpy(tempEmployee.username, employeePtr->username, USERNAME_LENGTH);
                 strncpy(tempEmployee.privateName, employeePtr->privateName, PRIVATE_NAME_LENGTH);
@@ -243,9 +244,10 @@ Employee login() {
 }
 
 void showMenu() {
-    printf("Menu:\n");
-    menuItems(atoi(currentEmployee.level));
     while (1) {
+        int exit = 0;
+        clrscr();
+        menuItems(atoi(currentEmployee.level));
         int user_choice;
         clearBuffer();
         printf("please enter a choice: ");
@@ -255,6 +257,12 @@ void showMenu() {
             clrscr();
             viewItems();
             break;
+        case 10:
+            exit = 1;
+            break;
         }
+        if (exit == 1)
+            break;
     }
+
 }

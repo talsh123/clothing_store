@@ -117,6 +117,7 @@ Item* readItem(FILE* file) {
 }
 
 void viewItemsMenu() {
+    printf("View Items Menu:\n");
     printf("1. Search By Brand and/or Type.\n");
     printf("2. Search By Price and/or Stock.\n");
     printf("3. Search By Equals.\n");
@@ -212,14 +213,15 @@ Item* findByBrandType(char* userBrand, char* userType, int filterType) {
 
     // If no items matched, free memory and return NULL
     if (count == 0) {
+        printf("There are no items that matched your search!\n");
         free(matchingItems);
-        return NULL;
     }
+    // Print all the matching Items
     else {
         // Also print all the matching Items
         printItems(matchingItems, count);
+        free(matchingItems);
     }
-
     return matchingItems;
 }
 
@@ -227,10 +229,10 @@ Item* findByBrandType(char* userBrand, char* userType, int filterType) {
 void searchByBrandOrType() {
     int exit = 0;
     clrscr();
-    printf("How would you like to filter?\n");
+    printf("Search By Brand and/or Type Menu:\n");
     printf("1. Search By Brand.\n");
     printf("2. Search By Type\n");
-    printf("3. Search By Both [Seperated by Space]\n");
+    printf("3. Search By Both\n");
     printf("0. Exit\n");
     while (1) {
         int user_choice;
@@ -253,7 +255,7 @@ void searchByBrandOrType() {
             userType = (char*)malloc(sizeof(char) * TYPE_LENGTH);
             printf("Please enter Type: ");
             clearBuffer();
-            scanf("%11s", userBrand);
+            scanf("%11s", userType);
             matchingItems = findByBrandType(userBrand, userType, 2);
             break;
         case 3:
@@ -262,7 +264,7 @@ void searchByBrandOrType() {
             printf("Please enter Brand: ");
             scanf("%30s", userBrand);
             printf("Please enter Type: ");
-            scanf("%11s", userBrand);
+            scanf("%11s", userType);
             matchingItems = findByBrandType(userBrand, userType, 3);
             break;
         case 0:
@@ -283,8 +285,10 @@ void searchByBrandOrType() {
 }
 
 void viewItems() {
-    viewItemsMenu();
     while (1) {
+        int exit = 0;
+        clrscr();
+        viewItemsMenu();
         int user_choice;
         clearBuffer();
         printf("Please select: ");
@@ -302,10 +306,11 @@ void viewItems() {
         case 4:
             //searchByDate();
             break;
-        default:
-            clrscr();
-            printf("No choice was detected, please try again!\n");
-            viewItemsMenu();
+        case 0:
+            exit = 1;
+            break;
         }
+        if (exit == 1)
+            break;
     }
 }
