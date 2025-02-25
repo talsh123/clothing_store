@@ -708,6 +708,38 @@ void searchByEquals() {
     }
 }
 
+void searchByDate() {
+    clrscr();
+    int exit = 0;
+    int user_choice;
+    printf("Search By Date Menu\n");
+    printf("1. Choose Release Date (DD-MM-YYYY)\n");
+    printf("0. Exit\n");
+    void* property;
+    while (1) {
+        printf("Please select: ");
+        clearBuffer();
+        scanf("%d", &user_choice);
+        switch (user_choice) {
+        case 1: {
+            char* type = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
+            void* userDate_pointer;
+            printf("Please enter Release Date (DD-MM-YYYY): ");
+            scanf("%s", type);
+            property = type;
+            findByProperty("release_date", property);
+            free(type);
+            break;
+        }
+        case 0:
+            exit = 1;
+            break;
+        }
+        if (exit == 1)
+            break;
+    }
+}
+
 void viewItems() {
     while (1) {
         int exit = 0;
@@ -728,7 +760,7 @@ void viewItems() {
             searchByEquals();
             break;
         case 4:
-            //searchByDate();
+            searchByDate();
             break;
         case 0:
             exit = 1;
