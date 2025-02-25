@@ -25,5 +25,7 @@ void searchByBrandOrType();
 void searchByPriceorStock();
 void searchByEquals();
 void viewItems();
+void addNewItem();
+Item* getAllItems();
 
 #endif // ITEM_H

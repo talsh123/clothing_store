@@ -153,22 +153,23 @@ Employee* checkCredentials(char* username, char* password) {
 void menuItems(int level) {
     printf("Welcome to the RTS System!\n");
     printf("Menu:\n");
-    if (level <= '3') {
+    if (level <= 3) {
         printf("1. View Items.\n");
         printf("2. Add New Item.\n");
         printf("3. Add New Customer.\n");
         printf("4. View Customer Purchases.\n");
     }
-    if (level <= '2') {
+    if (level <= 2) {
         printf("5. Remove an Item.\n");
         printf("6. Remove a Customer.\n");
         printf("7. Update Item.\n");
         printf("8. Sell an Item.\n");
     }
-    if (level == '1') {
+    if (level == 1) {
         printf("9. Add New Employee.\n");
     }
-    printf("10. Exit the RTS System.\n");
+    printf("10. Show all Items.\n");
+    printf("11. Exit the RTS System.\n");
 }
 
 int checkIfEmployeeFileExists() {
@@ -257,7 +258,19 @@ void showMenu() {
             clrscr();
             viewItems();
             break;
-        case 10:
+        case 2:
+            clrscr();
+            addNewItem();
+            break;
+        case 10: {
+            char user;
+            getAllItems();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
+        case 11:
             exit = 1;
             break;
         }

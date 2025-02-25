@@ -59,8 +59,11 @@ int compareitems(const Item* item1, const Item* item2) {
 }
 
 void writeItem(Item* item, const char* fileName) {
-    FILE* file = fopen(fileName, "wb");
-
+    FILE* file = fopen(fileName, "ab");
+    if (file == NULL) {
+        printf("Error opening file for appending.\n");
+        return;
+    }
     fwrite(item->serialNumber, SERIAL_NUMBER_LENGTH, 1, file);
     fwrite(item->brand, BRAND_LENGTH, 1, file);
     fwrite(item->type, TYPE_LENGTH, 1, file);
@@ -68,7 +71,6 @@ void writeItem(Item* item, const char* fileName) {
     fwrite(&item->isPopular, IS_POPULAR_LENGTH, 1, file);
     fwrite(item->releaseDate, RELEASE_DATE_LENGTH, 1, file);
     fwrite(&item->stock, STOCK_LENGTH, 1, file);
-
     fclose(file);
 }
 
@@ -114,6 +116,50 @@ Item* readItem(FILE* file) {
     free(temp_releaseDate);
 
     return item;
+}
+
+// Function to read all items from the binary file
+Item* getAllItems() {
+    FILE* fp = fopen(ITEMS_FILE, "rb");
+    if (fp == NULL) {
+        printf("Error opening file.\n");
+        return NULL;
+    }
+
+    Item* items = NULL;
+    int itemCount = 0;
+    Item* tempItem;
+    
+    // Read all Items
+    while ((tempItem = readItem(fp)) != NULL) {
+        // Check for end of file after attempting to read
+        if (feof(fp)) {
+            break;
+        }
+
+        // Dynamically allocate memory
+        items = realloc(items, sizeof(Item) * (itemCount + 1));
+
+        // Hard copy the Item
+        items[itemCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+        items[itemCount].type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
+        items[itemCount].brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+        items[itemCount].releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
+        strcpy(items[itemCount].serialNumber, (*tempItem).serialNumber);
+        strcpy(items[itemCount].brand, (*tempItem).brand);
+        strcpy(items[itemCount].type, (*tempItem).type);
+        items[itemCount].price = (*tempItem).price;
+        items[itemCount].isPopular = (*tempItem).isPopular;
+        strcpy(items[itemCount].releaseDate, (*tempItem).releaseDate);
+        items[itemCount].stock = (*tempItem).stock;
+
+        // Increment the itemCount
+        itemCount++;
+    }
+
+    fclose(fp);
+    printItems(items, itemCount);
+    return items;
 }
 
 void viewItemsMenu() {
@@ -917,4 +963,36 @@ void viewItems() {
         if (exit == 1)
             break;
     }
+}
+
+void addNewItem() {
+    int exit = 0;
+    clrscr();
+    char* serial_number = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+    char* brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+    char* type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
+    double* price = malloc(sizeof(double));
+    int* isPopular = (int*)malloc(sizeof(int));
+    char* releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
+    int* stock = (int*)malloc(sizeof(int));
+    clearBuffer();
+    printf("Add Item Menu:\n");
+    printf("Please enter Serial Number: ");
+    scanf("%s", serial_number);
+    printf("Please enter Brand: ");
+    scanf("%s", brand);
+    printf("Please enter Type: ");
+    scanf("%s", type);
+    printf("Please enter price: ");
+    scanf("%lf", price);
+    printf("Is the Item Popular? [1 - Yes/0 - No]: ");
+    scanf("%d", isPopular);
+    printf("Please enter Release Date: ");
+    scanf("%s", releaseDate);
+    printf("Please enter Stock: ");
+    scanf("%d", stock);
+    Item* item = createItem(serial_number, brand, type, *price, *isPopular, releaseDate, *stock);
+    printItems(item, 1);
+    writeItem(item, ITEMS_FILE);
+    printf("Item has been written to file successfully!\n");
 }
