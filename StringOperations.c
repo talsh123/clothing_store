@@ -105,3 +105,23 @@ int compareDates(const char* dateStr1, const char* dateStr2) {
 
     return 0; // Dates are equal
 }
+
+// Function to check if dateToCheck is between startDate and endDate
+int isDateBetween(const char* startDate, const char* endDate, const char* dateToCheck) {
+    // Validate all three dates
+    if (!isValidDateFormat(startDate) || !isValidDateFormat(endDate) || !isValidDateFormat(dateToCheck)) {
+        return 0;
+    }
+
+    // Compare the dates
+    int cmpStart = compareDates(startDate, dateToCheck); // startDate <= dateToCheck
+    int cmpEnd = compareDates(dateToCheck, endDate);     // dateToCheck <= endDate
+
+    // Check if dateToCheck is between startDate and endDate (inclusive)
+    if (cmpStart <= 0 && cmpEnd <= 0) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
