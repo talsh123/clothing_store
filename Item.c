@@ -488,6 +488,81 @@ Item* findByProperty(char* property, void* value) {
     return matchingItems;
 }
 
+Item* findByDate(char* userDate, char identifier) {
+    // Open the binary file for reading
+    FILE* file = fopen(ITEMS_FILE, "rb");
+    if (file == NULL) {
+        printf("Error: Could not open file %s\n", ITEMS_FILE);
+        return NULL;
+    }
+
+    // Dynamic array to store matching items
+    Item* matchingItems = NULL;
+    int count = 0;
+
+    int identifierType;
+
+    // Map identifier
+    if (identifier == '>')
+        identifierType = 1;
+    else if (identifier == '<')
+        identifierType = -1;
+    else if (identifier == '=')
+        identifierType = 0;
+    else
+        return matchingItems;
+
+    // Read items one by one
+    Item* item;
+    while ((item = readItem(file)) != NULL) {
+        // Check for end of file after attempting to read
+        if (feof(file)) {
+            break;
+        }
+
+        int matches = 0;
+
+        // Compare the dates
+        // -1 if the first date is before the second.
+        // 1 if the first date is after the second.
+        // 0 if both dates are equal.
+        int result = compareDates(item->releaseDate, userDate);
+
+        if(identifierType == result)
+            matches = 1;
+
+        // If item matches, add it to the dynamic array
+        if (matches) {
+            // Resize array to hold another item
+            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
+            if (tempArray == NULL) {
+                printf("Error: Memory allocation failed.\n");
+                free(matchingItems); // Free previously allocated memory
+                fclose(file);
+                return NULL;
+            }
+            matchingItems = tempArray;
+
+            // Copy the item into the array
+            matchingItems[count] = *item;
+            count++;
+        }
+    }
+
+    fclose(file);
+
+    // If no items matched, free memory and return NULL
+    if (count == 0) {
+        printf("There are no items that matched your search!\n");
+    }
+    // Print all the matching Items
+    else {
+        // Also print all the matching Items
+        printItems(matchingItems, count);
+    }
+    return matchingItems;
+}
+
 
 void searchByBrandOrType() {
     int exit = 0;
@@ -722,13 +797,14 @@ void searchByDate() {
         scanf("%d", &user_choice);
         switch (user_choice) {
         case 1: {
-            char* type = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
-            void* userDate_pointer;
-            printf("Please enter Release Date (DD-MM-YYYY): ");
-            scanf("%s", type);
-            property = type;
-            findByProperty("release_date", property);
-            free(type);
+            char identifier;
+            char* releaseDate = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
+            printf("Enter Release Date (DD-MM-YYYY): ");
+            scanf("%s", releaseDate);
+            printf("Please enter an identifier[>, <, =]: ");
+            clearBuffer();
+            scanf("%c", &identifier);
+            findByDate(releaseDate, identifier);
             break;
         }
         case 0:
