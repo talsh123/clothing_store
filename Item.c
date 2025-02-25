@@ -121,10 +121,6 @@ Item* readItem(FILE* file) {
 // Function to read all items from the binary file
 Item* getAllItems() {
     FILE* fp = fopen(ITEMS_FILE, "rb");
-    if (fp == NULL) {
-        printf("Error opening file.\n");
-        return NULL;
-    }
 
     Item* items = NULL;
     int itemCount = 0;
@@ -155,6 +151,11 @@ Item* getAllItems() {
 
         // Increment the itemCount
         itemCount++;
+
+        if (fp == NULL) {
+            printf("Error opening file.\n");
+            return NULL;
+        }
     }
 
     fclose(fp);

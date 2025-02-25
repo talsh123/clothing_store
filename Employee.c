@@ -42,7 +42,7 @@ Employee* createEmployee(char* username, char* privateName, char* password, char
 }
 
 void writeEmployee(Employee* Employee, const char* fileName) {
-    FILE* file = fopen(fileName, "w");
+    FILE* file = fopen(fileName, "a");
 
     // %-*s - string is left-aligned and padded with spaces up to the specified length
 
@@ -150,6 +150,65 @@ Employee* checkCredentials(char* username, char* password) {
     return NULL; // Credentials do not match
 }
 
+// Function to print all employees in one line each
+void printEmployees(Employee* employees, int employeeCount) {
+    if (employees == NULL || employeeCount <= 0) {
+        printf("No employees to display.\n");
+        return;
+    }
+
+    printf("\n--- Employees List ---\n");
+    for (int i = 0; i < employeeCount; i++) {
+        printf("%s, %s, %s, %s\n",
+            employees[i].username,
+            employees[i].privateName,
+            employees[i].password,
+            employees[i].level
+        );
+    }
+    printf("--------------------\n");
+}
+
+Employee* getAllEmployees() {
+    FILE* fp = fopen(EMPLOYEES_FILE, "r");
+    if (fp == NULL) {
+        printf("Error opening file.\n");
+        return NULL;
+    }
+
+    Employee* employees = NULL;
+    int employeeCount = 0;
+    Employee* tempEmployee;
+
+    // Read all Employees
+    while ((tempEmployee = readEmployee(fp)) != NULL) {
+        // Dynamically allocate memory
+        employees = realloc(employees, sizeof(Item) * (employeeCount + 1));
+
+        // Hard copy the Item
+        employees[employeeCount].username = (char*)malloc(sizeof(char) * USERNAME_LENGTH);
+        employees[employeeCount].privateName = (char*)malloc(sizeof(char) * PRIVATE_NAME_LENGTH);
+        employees[employeeCount].password = (char*)malloc(sizeof(char) * PASSWORD_LENGTH);
+        employees[employeeCount].level = (char*)malloc(sizeof(char) * LEVEL_LENGTH);
+        strcpy(employees[employeeCount].username, (*tempEmployee).username);
+        strcpy(employees[employeeCount].privateName, (*tempEmployee).privateName);
+        strcpy(employees[employeeCount].password, (*tempEmployee).password);
+        strcpy(employees[employeeCount].level, (*tempEmployee).level);
+
+        // Increment the itemCount
+        employeeCount++;
+
+        // Check for end of file after attempting to read
+        if (feof(fp)) {
+            break;
+        }
+    }
+
+    fclose(fp);
+    printEmployees(employees, employeeCount);
+    return employees;
+}
+
 void menuItems(int level) {
     printf("Welcome to the RTS System!\n");
     printf("Menu:\n");
@@ -169,7 +228,8 @@ void menuItems(int level) {
         printf("9. Add New Employee.\n");
     }
     printf("10. Show all Items.\n");
-    printf("11. Exit the RTS System.\n");
+    printf("11. Show all Employees.\n");
+    printf("12. Exit the RTS System.\n");
 }
 
 int checkIfEmployeeFileExists() {
@@ -244,6 +304,28 @@ Employee login() {
     return tempEmployee;
 }
 
+void addNewEmployee() {
+    clrscr();
+    char* username = (char*)malloc(sizeof(char) * USERNAME_LENGTH);
+    char* privateName = (char*)malloc(sizeof(char) * PRIVATE_NAME_LENGTH);
+    char* password = (char*)malloc(sizeof(char) * PASSWORD_LENGTH);
+    char* level = (char*)malloc(sizeof(char) * LEVEL_LENGTH);
+    clearBuffer();
+    printf("Add Item Menu:\n");
+    printf("Please enter Username: ");
+    scanf("%s", username);
+    printf("Please enter Private Name: ");
+    scanf("%s", privateName);
+    printf("Please enter Password: ");
+    scanf("%s", password);
+    printf("Please enter level: ");
+    scanf("%s", level);
+    Employee* employee = createEmployee(username, privateName, password, level);
+    writeEmployee(employee, EMPLOYEES_FILE);
+    printItems(employee, 1);
+    printf("Employee has been added successfully!\n");
+}
+
 void showMenu() {
     while (1) {
         int exit = 0;
@@ -262,6 +344,14 @@ void showMenu() {
             clrscr();
             addNewItem();
             break;
+        case 9: {
+            char user;
+            addNewEmployee();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
         case 10: {
             char user;
             getAllItems();
@@ -270,7 +360,15 @@ void showMenu() {
             clearBuffer();
             break;
         }
-        case 11:
+        case 11: {
+            char user;
+            getAllEmployees();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
+        case 12:
             exit = 1;
             break;
         }
