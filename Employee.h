@@ -11,7 +11,7 @@ typedef struct {
 // Extern declaration for global variable
 extern Employee currentEmployee;
 
-Employee* createEmployee(char* username, char* privateName, char* password, char* permissionLevel);
+Employee* createCustomer(char* username, char* privateName, char* password, char* permissionLevel);
 void writeEmployee(Employee* Employee, const char* fileName);
 Employee* readEmployee(FILE* file);
 Employee* checkCredentials(char* username, char* password);

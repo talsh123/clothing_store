@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "Employee.h"
+#include "Customer.h"
 #include "Item.h"
 #include "FileOperations.h"
 #include "StringOperations.h"
@@ -229,7 +230,8 @@ void menuItems(int level) {
     }
     printf("10. Show all Items.\n");
     printf("11. Show all Employees.\n");
-    printf("12. Exit the RTS System.\n");
+    printf("12. Show all Customers.\n");
+    printf("13. Exit the RTS System.\n");
 }
 
 int checkIfEmployeeFileExists() {
@@ -242,7 +244,7 @@ int checkIfEmployeeFileExists() {
 }
 
 void createDefaultAdmin() {
-    Employee* employee = createEmployee("admin", "manager", "12345678", "1");
+    Employee* employee = createCustomer("admin", "manager", "12345678", "1");
     writeEmployee(employee, EMPLOYEES_FILE);
     printf("Employees.txt file was created!\n");
 }
@@ -320,7 +322,7 @@ void addNewEmployee() {
     scanf("%s", password);
     printf("Please enter level: ");
     scanf("%s", level);
-    Employee* employee = createEmployee(username, privateName, password, level);
+    Employee* employee = createCustomer(username, privateName, password, level);
     writeEmployee(employee, EMPLOYEES_FILE);
     printItems(employee, 1);
     printf("Employee has been added successfully!\n");
@@ -343,6 +345,10 @@ void showMenu() {
         case 2:
             clrscr();
             addNewItem();
+            break;
+        case 3:
+            clrscr();
+            addNewCustomer();
             break;
         case 9: {
             char user;
@@ -368,7 +374,15 @@ void showMenu() {
             clearBuffer();
             break;
         }
-        case 12:
+        case 12: {
+            char user;
+            getAllCustomers();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
+        case 13:
             exit = 1;
             break;
         }

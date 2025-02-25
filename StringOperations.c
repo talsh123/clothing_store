@@ -6,27 +6,27 @@
 #include <string.h>
 
 char* trimwhitespace(char* str) {
-
     // Skip leading whitespace
-    while (isspace((unsigned char)*str))
-        str++;
+    while (isspace((unsigned char)*str)) str++;
 
-    // Set the start of the string
-    char* start = str;
+    // If all characters were spaces
+    if (*str == 0)
+        return strdup(""); // Return an empty string
 
-    // Forward till the end of the string
-    while (!isspace((unsigned char)*str))
-        str++;
-    char* end = str;
+    // Find the end of the string
+    char* end = str + strlen(str) - 1;
 
-    // Calculate the length of the trimmed string and allocate memory
-    size_t newLength = (end - start);
+    // Move backward to remove trailing whitespace
+    while (end > str && isspace((unsigned char)*end))
+        end--;
 
-    char* newString = (char*)malloc(newLength); // +1 for null terminator
-    strncpy(newString, start, newLength);
-    newString[newLength] = '\0';
-    return newString;
+    // Set the new end of the string
+    end[1] = '\0';
+
+    // Return the trimmed string
+    return strdup(str);
 }
+
 
 int compareStrings(const char* str1, const char* str2) {
     // Check if both strings are non-NULL
