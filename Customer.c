@@ -288,5 +288,6 @@ void checkCustomerPurchases() {
     printf("Check Customer Purchases Menu:\n");
     printf("Please enter Customer ID: ");
     scanf("%s", id);
-    findUserByProperty("id", id);
+    Customer* customer = findUserByProperty("id", id);
+    printf("Customer has purchased %d items.\n", customer->itemsPurchased);
 }

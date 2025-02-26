@@ -74,6 +74,27 @@ void writeItem(Item* item, const char* fileName) {
     fclose(file);
 }
 
+void writeItems(Item* items, int itemCount, const char* fileName) {
+    FILE* file = fopen(fileName, "wb");
+    if (file == NULL) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    for (int i = 0; i < itemCount; i++) {
+        fwrite(items[i].serialNumber, SERIAL_NUMBER_LENGTH, 1, file);
+        fwrite(items[i].brand, BRAND_LENGTH, 1, file);
+        fwrite(items[i].type, TYPE_LENGTH, 1, file);
+        fwrite(&items[i].price, sizeof(double), 1, file);
+        fwrite(&items[i].isPopular, sizeof(int), 1, file);
+        fwrite(items[i].releaseDate, RELEASE_DATE_LENGTH, 1, file);
+        fwrite(&items[i].stock, sizeof(int), 1, file);
+    }
+
+    fclose(file);
+}
+
+
 Item* readItem(FILE* file) {
     if (file == NULL) {
         return NULL; // File pointer is NULL
@@ -118,14 +139,13 @@ Item* readItem(FILE* file) {
     return item;
 }
 
-// Function to read all items from the binary file
-Item* getAllItems() {
+Item* getAllItems(int* itemCount) {
     FILE* fp = fopen(ITEMS_FILE, "rb");
 
     Item* items = NULL;
-    int itemCount = 0;
+    *itemCount = 0;
     Item* tempItem;
-    
+
     // Read all Items
     while ((tempItem = readItem(fp)) != NULL) {
         // Check for end of file after attempting to read
@@ -134,23 +154,23 @@ Item* getAllItems() {
         }
 
         // Dynamically allocate memory
-        items = realloc(items, sizeof(Item) * (itemCount + 1));
+        items = realloc(items, sizeof(Item) * (*itemCount + 1));
 
         // Hard copy the Item
-        items[itemCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-        items[itemCount].type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
-        items[itemCount].brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
-        items[itemCount].releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
-        strcpy(items[itemCount].serialNumber, (*tempItem).serialNumber);
-        strcpy(items[itemCount].brand, (*tempItem).brand);
-        strcpy(items[itemCount].type, (*tempItem).type);
-        items[itemCount].price = (*tempItem).price;
-        items[itemCount].isPopular = (*tempItem).isPopular;
-        strcpy(items[itemCount].releaseDate, (*tempItem).releaseDate);
-        items[itemCount].stock = (*tempItem).stock;
+        items[*itemCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+        items[*itemCount].type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
+        items[*itemCount].brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+        items[*itemCount].releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
+        strcpy(items[*itemCount].serialNumber, (*tempItem).serialNumber);
+        strcpy(items[*itemCount].brand, (*tempItem).brand);
+        strcpy(items[*itemCount].type, (*tempItem).type);
+        items[*itemCount].price = (*tempItem).price;
+        items[*itemCount].isPopular = (*tempItem).isPopular;
+        strcpy(items[*itemCount].releaseDate, (*tempItem).releaseDate);
+        items[*itemCount].stock = (*tempItem).stock;
 
         // Increment the itemCount
-        itemCount++;
+        (*itemCount)++;
 
         if (fp == NULL) {
             printf("Error opening file.\n");
@@ -159,7 +179,7 @@ Item* getAllItems() {
     }
 
     fclose(fp);
-    printItems(items, itemCount);
+    printItems(items, *itemCount);
     return items;
 }
 
@@ -670,6 +690,82 @@ Item* findDatesInRange(char* userDate1, char* userDate2) {
         printItems(matchingItems, count);
     }
     return matchingItems;
+}
+
+Item* removeItem(char* serialNumber) {
+    int itemCount = 0;
+    Item* items = getAllItems(&itemCount);
+    if (items == NULL || itemCount == 0) {
+        printf("No items to remove.\n");
+        return NULL;
+    }
+
+    Item* removedItem = NULL;
+    int foundIndex = -1;
+
+    // Search for the item with the given serialNumber
+    for (int i = 0; i < itemCount; i++) {
+        if (strcmp(items[i].serialNumber, serialNumber) == 0) {
+            foundIndex = i;
+            break;
+        }
+    }
+
+    // If item is found
+    if (foundIndex != -1) {
+        // Allocate memory for the removed item and copy its data
+        removedItem = (Item*)malloc(sizeof(Item));
+        removedItem->serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+        removedItem->brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+        removedItem->type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
+        removedItem->releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
+
+        // Copy item data to the removed item
+        strcpy(removedItem->serialNumber, items[foundIndex].serialNumber);
+        strcpy(removedItem->brand, items[foundIndex].brand);
+        strcpy(removedItem->type, items[foundIndex].type);
+        strcpy(removedItem->releaseDate, items[foundIndex].releaseDate);
+        removedItem->price = items[foundIndex].price;
+        removedItem->isPopular = items[foundIndex].isPopular;
+        removedItem->stock = items[foundIndex].stock;
+
+        // Shift items to remove the found item
+        for (int i = foundIndex; i < itemCount - 1; i++) {
+            items[i] = items[i + 1];
+        }
+
+        // Reallocate memory to shrink the items array
+        items = realloc(items, sizeof(Item) * (itemCount - 1));
+        itemCount--;
+
+        // Update the binary file after removal
+        writeItems(items, itemCount, ITEMS_FILE);
+
+        printf("Item with serial number %s has been removed.\n", serialNumber);
+    }
+    else {
+        printf("Item with serial number %s not found.\n", serialNumber);
+    }
+
+    // Free the dynamically allocated memory for items array
+    for (int i = 0; i < itemCount; i++) {
+        free(items[i].serialNumber);
+        free(items[i].type);
+        free(items[i].brand);
+        free(items[i].releaseDate);
+    }
+    free(items);
+
+    return removedItem;
+}
+
+void removeItemMenu() {
+    clrscr();
+    printf("Remove Item Menu:\n");
+    printf("Please enter Item Serial Number: ");
+    char* userSerialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+    scanf("%s", userSerialNumber);
+    removeItem(userSerialNumber);
 }
 
 

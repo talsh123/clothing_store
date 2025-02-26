@@ -359,6 +359,15 @@ void showMenu() {
             clearBuffer();
             break;
         }
+        case 5: {
+            char user;
+            clrscr();
+            removeItemMenu();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
         case 9: {
             char user;
             addNewEmployee();
@@ -369,7 +378,8 @@ void showMenu() {
         }
         case 10: {
             char user;
-            getAllItems();
+            int itemCount = 0;
+            getAllItems(&itemCount);
             printf("Press any key to continue! ");
             scanf("%c", &user);
             clearBuffer();

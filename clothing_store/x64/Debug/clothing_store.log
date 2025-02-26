@@ -1,6 +1,7 @@
-﻿  Employee.c
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(327,16): warning C4133: 'function': incompatible types - from 'Employee *' to 'Item *'
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(351,13): warning C4013: 'addNewCustomer' undefined; assuming extern returning int
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(356,13): warning C4013: 'checkCustomerPurchases' undefined; assuming extern returning int
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(388,13): warning C4013: 'getAllCustomers' undefined; assuming extern returning int
+﻿  Item.c
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,21): warning C4047: 'function': 'const char *' differs in levels of indirection from 'const int'
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,21): warning C4024: 'strcmp': different types for formal and actual parameter 1
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,39): warning C4047: 'function': 'const char *' differs in levels of indirection from 'const int'
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,39): warning C4024: 'strcmp': different types for formal and actual parameter 2
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(1000,11): warning C4101: 'property': unreferenced local variable
   clothing_store.vcxproj -> C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\x64\Debug\clothing_store.exe
