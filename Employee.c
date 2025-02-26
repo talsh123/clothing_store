@@ -9,7 +9,7 @@
 #include "StringOperations.h"
 #include <assert.h>
 
-#define EMPLOYEES_FILE "Employees.txt"
+#define EMPLOYEES_FILE "employees.txt"
 
 // Employee FILE properties LIMIT
 #define USERNAME_LENGTH 64
@@ -244,9 +244,10 @@ int checkIfEmployeeFileExists() {
 }
 
 void createDefaultAdmin() {
-    Employee* employee = createCustomer("admin", "manager", "12345678", "1");
+    Employee* employee = createEmployee("admin", "manager", "12345678", "1");
     writeEmployee(employee, EMPLOYEES_FILE);
-    printf("Employees.txt file was created!\n");
+    printf("No employees.txt file found!\n");
+    printf("employees.txt file created and signed you in as Admin!\n");
 }
 
 Employee login() {
@@ -346,10 +347,15 @@ void showMenu() {
             clrscr();
             addNewItem();
             break;
-        case 3:
+        case 3: {
+            char user;
             clrscr();
             addNewCustomer();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
             break;
+        }
         case 4: {
             char user;
             clrscr();
@@ -363,6 +369,15 @@ void showMenu() {
             char user;
             clrscr();
             removeItemMenu();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
+        case 6: {
+            char user;
+            clrscr();
+            removeCustomerMenu();
             printf("Press any key to continue! ");
             scanf("%c", &user);
             clearBuffer();
@@ -395,7 +410,8 @@ void showMenu() {
         }
         case 12: {
             char user;
-            getAllCustomers();
+            int customersCount;
+            getAllCustomers(&customersCount);
             printf("Press any key to continue! ");
             scanf("%c", &user);
             clearBuffer();

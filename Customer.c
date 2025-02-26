@@ -40,18 +40,53 @@ Customer* createCustomer(char* id, char* name, char* joinDate, double totalAmoun
 }
 
 void writeCustomer(Customer* customer, const char* fileName) {
-    FILE* file = fopen(fileName, "a");
+    FILE* file = fopen(fileName, "a");  // Open in append mode
     if (file == NULL) {
         printf("Error: Unable to open file for writing.\n");
         return;
     }
 
-    // Write Customer fields with space as separator
-    fprintf(file, "%-*s", ID_LENGTH, customer->id);                // ID as string
-    fprintf(file, "%-*s", NAME_LENGTH, customer->name);             // Name as string
-    fprintf(file, "%-*s", JOIN_DATE_LENGTH, customer->joinDate);    // Join date as string
-    fprintf(file, "%lf", customer->totalAmountSpent);             // Total amount spent as double
-    fprintf(file, "%d\n", customer->itemsPurchased);                 // Items purchased as int
+    // Write each field in a text-friendly format with space as a separator
+    fprintf(file, "%-*s ", ID_LENGTH - 1, customer->id);                // ID as string
+    fprintf(file, "%-*s ", NAME_LENGTH - 1, customer->name);             // Name as string
+    fprintf(file, "%-*s ", JOIN_DATE_LENGTH - 1, customer->joinDate);    // Join date as string
+    fprintf(file, "%.2f ", customer->totalAmountSpent);                  // Total amount spent as double with 2 decimal places
+    fprintf(file, "%d\n", customer->itemsPurchased);                     // Items purchased as int with newline
+
+    fclose(file);
+}
+
+
+void writeCustomers(Customer* customers, int customerCount, const char* fileName) {
+    FILE* file = fopen(fileName, "w");
+    if (file == NULL) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    // Temporary buffers with the exact lengths specified
+    char idBuffer[ID_LENGTH];
+    char nameBuffer[NAME_LENGTH];
+    char dateBuffer[JOIN_DATE_LENGTH];
+
+    for (int i = 0; i < customerCount; i++) {
+        // Copy the strings to temporary buffers, ensuring null-termination
+        strncpy(idBuffer, customers[i].id, ID_LENGTH - 1);
+        idBuffer[ID_LENGTH - 1] = '\0';
+
+        strncpy(nameBuffer, customers[i].name, NAME_LENGTH - 1);
+        nameBuffer[NAME_LENGTH - 1] = '\0';
+
+        strncpy(dateBuffer, customers[i].joinDate, JOIN_DATE_LENGTH - 1);
+        dateBuffer[JOIN_DATE_LENGTH - 1] = '\0';
+
+        // Write each field to the file with space separators
+        fprintf(file, "%-9s ", idBuffer);    // 9 characters + 1 null
+        fprintf(file, "%-63s ", nameBuffer); // 63 characters + 1 null
+        fprintf(file, "%-10s ", dateBuffer); // 10 characters + 1 null
+        fprintf(file, "%f ", customers[i].totalAmountSpent); // 8 bytes (double)
+        fprintf(file, "%d\n", customers[i].itemsPurchased);    // 4 bytes (int) with newline
+    }
 
     fclose(file);
 }
@@ -74,28 +109,18 @@ Customer* readCustomer(FILE* file) {
     customer->name = (char*)malloc(sizeof(char) * NAME_LENGTH);
     customer->joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
 
-    // Read fixed-length fields from the file
-    fread(customer->id, sizeof(char), ID_LENGTH, file);
-    customer->id[ID_LENGTH - 1] = '\0'; // Ensure null-termination
-    char* trimmed_customer_id = trimwhitespace(customer->id);
-    customer->id = trimmed_customer_id;
-
-    fread(customer->name, sizeof(char), NAME_LENGTH, file);
-    customer->name[NAME_LENGTH - 1] = '\0'; // Ensure null-termination
-    char* trimmed_customer_name = trimwhitespace(customer->name);
-    customer->name = trimmed_customer_name;
-
-    fread(customer->joinDate, sizeof(char), JOIN_DATE_LENGTH, file);
-    customer->joinDate[JOIN_DATE_LENGTH - 1] = '\0'; // Ensure null-termination
-    char* trimmed_customer_join_date = trimwhitespace(customer->joinDate);
-    customer->joinDate = trimmed_customer_join_date;
-
-    fscanf(file, "%lf %d", &(customer->totalAmountSpent), &(customer->itemsPurchased));
-
-    // Check for end of file or error
-    if (feof(file) || ferror(file)) {
-        // Return the customer you've just read
-        return customer;
+    // Read each field from the text file
+    if (fscanf(file, "%9s %63[^\n] %10s %lf %d",
+        customer->id,
+        customer->name,
+        customer->joinDate,
+        &(customer->totalAmountSpent),
+        &(customer->itemsPurchased)) != 5) {
+        free(customer->id);
+        free(customer->name);
+        free(customer->joinDate);
+        free(customer);
+        return NULL;
     }
 
     return customer;
@@ -104,11 +129,11 @@ Customer* readCustomer(FILE* file) {
 // Function to print all employees in one line each
 void printCustomers(Customer* customers, int customerCount) {
     if (customers == NULL || customerCount <= 0) {
-        printf("No employees to display.\n");
+        printf("No customers to display.\n");
         return;
     }
 
-    printf("\n--- Employees List ---\n");
+    printf("\n--- Customers List ---\n");
     for (int i = 0; i < customerCount; i++) {
         printf("%s, %s, %s, %.2lf, %d\n",
             customers[i].id,
@@ -121,7 +146,7 @@ void printCustomers(Customer* customers, int customerCount) {
     printf("--------------------\n");
 }
 
-Customer* getAllCustomers() {
+Customer* getAllCustomers(int* customerCount) {
     FILE* fp = fopen(CUSTOMERS_FILE, "r");
     if (fp == NULL) {
         printf("Error opening file.\n");
@@ -129,26 +154,27 @@ Customer* getAllCustomers() {
     }
 
     Customer* customers = NULL;
-    int customerCount = 0;
+    *customerCount = 0;
     Customer* tempCustomer;
 
     // Read all Employees
     while ((tempCustomer = readCustomer(fp)) != NULL) {
         // Dynamically allocate memory
-        customers = realloc(customers, sizeof(Customer) * (customerCount + 1));
+        customers = realloc(customers, sizeof(Customer) * (*customerCount + 1));
 
         // Hard copy the Item
-        customers[customerCount].id = (char*)malloc(sizeof(char) * ID_LENGTH);
-        customers[customerCount].name = (char*)malloc(sizeof(char) * NAME_LENGTH);
-        customers[customerCount].joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
-        strcpy(customers[customerCount].id, (*tempCustomer).id);
-        strcpy(customers[customerCount].name, (*tempCustomer).name);
-        strcpy(customers[customerCount].joinDate, (*tempCustomer).joinDate);
-        customers[customerCount].totalAmountSpent = tempCustomer->totalAmountSpent;
-        customers[customerCount].itemsPurchased = tempCustomer->itemsPurchased;
+        customers[*customerCount].id = (char*)malloc(sizeof(char) * ID_LENGTH);
+        customers[*customerCount].name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+        customers[*customerCount].joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
+        strcpy(customers[*customerCount].id, (*tempCustomer).id);
+        strcpy(customers[*customerCount].name, (*tempCustomer).name);
+        customers[*customerCount].name = trimwhitespace(customers[*customerCount].name);
+        strcpy(customers[*customerCount].joinDate, (*tempCustomer).joinDate);
+        customers[*customerCount].totalAmountSpent = tempCustomer->totalAmountSpent;
+        customers[*customerCount].itemsPurchased = tempCustomer->itemsPurchased;
         
         // Increment the itemCount
-        customerCount++;
+        (*customerCount)++;
 
         // Check for end of file after attempting to read
         if (feof(fp)) {
@@ -157,7 +183,7 @@ Customer* getAllCustomers() {
     }
 
     fclose(fp);
-    printCustomers(customers, customerCount);
+    printCustomers(customers, *customerCount);
     return customers;
 }
 
@@ -255,8 +281,80 @@ Customer* findUserByProperty(char* property, void* value) {
     return matchingCustomers;
 }
 
-void addNewCustomer() {
+Customer* removeCustomer(char* id) {
+    int customerCount = 0;
+    Customer* customers = getAllCustomers(&customerCount);
+    if (customers == NULL || customerCount == 0) {
+        printf("No customers to remove.\n");
+        return NULL;
+    }
+
+    Customer* removedCustomer = NULL;
+    int foundIndex = -1;
+
+    // Search for the customer with the given id
+    for (int i = 0; i < customerCount; i++) {
+        if (strcmp(customers[i].id, id) == 0) {
+            foundIndex = i;
+            break;
+        }
+    }
+
+    // If customer is found
+    if (foundIndex != -1) {
+        // Allocate memory for the removed customer and copy its data
+        removedCustomer = (Customer*)malloc(sizeof(Customer));
+        removedCustomer->id = (char*)malloc(sizeof(char) * ID_LENGTH);
+        removedCustomer->name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+        removedCustomer->joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
+
+        // Copy customer data to the removed customer
+        strcpy(removedCustomer->id, customers[foundIndex].id);
+        strcpy(removedCustomer->name, customers[foundIndex].name);
+        removedCustomer->name = trimwhitespace(removedCustomer->name);
+        strcpy(removedCustomer->joinDate, customers[foundIndex].joinDate);
+        removedCustomer->totalAmountSpent = customers[foundIndex].totalAmountSpent;
+        removedCustomer->itemsPurchased = customers[foundIndex].itemsPurchased;
+
+        // Shift customers to remove the found item
+        for (int i = foundIndex; i < customerCount - 1; i++) {
+            customers[i] = customers[i + 1];
+        }
+
+        // Reallocate memory to shrink the customers array
+        customers = realloc(customers, sizeof(Customer) * (customerCount - 1));
+        customerCount--;
+
+        // Update the text file after removal
+        writeCustomers(customers, customerCount, CUSTOMERS_FILE);
+
+        printf("Customer with ID %s has been removed.\n", id);
+    }
+    else {
+        printf("Customer with ID %s not found.\n", id);
+    }
+
+    // Free the dynamically allocated memory for customers array
+    for (int i = 0; i < customerCount; i++) {
+        free(customers[i].id);
+        free(customers[i].name);
+        free(customers[i].joinDate);
+    }
+    free(customers);
+
+    return removedCustomer;
+}
+
+void removeCustomerMenu() {
     clrscr();
+    printf("Remove Customer Menu:\n");
+    printf("Please enter Customer ID: ");
+    char* customerID = (char*)malloc(sizeof(char) * ID_LENGTH);
+    scanf("%s", customerID);
+    removeCustomer(customerID);
+}
+
+void addNewCustomer() {
     char* id = (char*)malloc(sizeof(char) * ID_LENGTH);
     char* name = (char*)malloc(sizeof(char) * NAME_LENGTH);
     char* joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
