@@ -383,6 +383,15 @@ void showMenu() {
             clearBuffer();
             break;
         }
+        case 7: {
+            char user;
+            clrscr();
+            updateItemMenu();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
         case 9: {
             char user;
             addNewEmployee();

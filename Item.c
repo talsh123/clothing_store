@@ -64,13 +64,16 @@ void writeItem(Item* item, const char* fileName) {
         printf("Error opening file for appending.\n");
         return;
     }
-    fwrite(item->serialNumber, SERIAL_NUMBER_LENGTH, 1, file);
-    fwrite(item->brand, BRAND_LENGTH, 1, file);
-    fwrite(item->type, TYPE_LENGTH, 1, file);
-    fwrite(&item->price, PRICE_LENGTH, 1, file);
-    fwrite(&item->isPopular, IS_POPULAR_LENGTH, 1, file);
-    fwrite(item->releaseDate, RELEASE_DATE_LENGTH, 1, file);
-    fwrite(&item->stock, STOCK_LENGTH, 1, file);
+
+    // Write each field with the exact length
+    fwrite(item->serialNumber, sizeof(char), SERIAL_NUMBER_LENGTH, file);
+    fwrite(item->brand, sizeof(char), BRAND_LENGTH, file);
+    fwrite(item->type, sizeof(char), TYPE_LENGTH, file);
+    fwrite(&(item->price), sizeof(double), 1, file);
+    fwrite(&(item->isPopular), sizeof(int), 1, file);
+    fwrite(item->releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file);
+    fwrite(&(item->stock), sizeof(int), 1, file);
+
     fclose(file);
 }
 
@@ -82,59 +85,57 @@ void writeItems(Item* items, int itemCount, const char* fileName) {
     }
 
     for (int i = 0; i < itemCount; i++) {
-        fwrite(items[i].serialNumber, SERIAL_NUMBER_LENGTH, 1, file);
-        fwrite(items[i].brand, BRAND_LENGTH, 1, file);
-        fwrite(items[i].type, TYPE_LENGTH, 1, file);
-        fwrite(&items[i].price, sizeof(double), 1, file);
-        fwrite(&items[i].isPopular, sizeof(int), 1, file);
-        fwrite(items[i].releaseDate, RELEASE_DATE_LENGTH, 1, file);
-        fwrite(&items[i].stock, sizeof(int), 1, file);
+        // Write each field with the exact length
+        fwrite(items[i].serialNumber, sizeof(char), SERIAL_NUMBER_LENGTH, file);
+        fwrite(items[i].brand, sizeof(char), BRAND_LENGTH, file);
+        fwrite(items[i].type, sizeof(char), TYPE_LENGTH, file);
+        fwrite(&(items[i].price), sizeof(double), 1, file);
+        fwrite(&(items[i].isPopular), sizeof(int), 1, file);
+        fwrite(items[i].releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file);
+        fwrite(&(items[i].stock), sizeof(int), 1, file);
     }
 
     fclose(file);
 }
-
 
 Item* readItem(FILE* file) {
     if (file == NULL) {
         return NULL; // File pointer is NULL
     }
 
-    char* temp_serial_number = (char*)malloc(SERIAL_NUMBER_LENGTH * sizeof(char));
-    char* temp_brand = (char*)malloc(BRAND_LENGTH * sizeof(char));
-    char* temp_type = (char*)malloc(TYPE_LENGTH * sizeof(char));
-    double temp_price;
-    int temp_isPopular;
-    char* temp_releaseDate = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
-    int temp_stock;
+    // Allocate memory for the item
+    Item* item = (Item*)malloc(sizeof(Item));
+    if (item == NULL) {
+        printf("Memory allocation failed.\n");
+        return NULL;
+    }
 
-    // Validate memory allocation for strings
-    assert(temp_serial_number);
-    assert(temp_brand);
-    assert(temp_type);
-    assert(temp_releaseDate);
+    // Allocate memory for strings
+    item->serialNumber = (char*)malloc(SERIAL_NUMBER_LENGTH * sizeof(char));
+    item->brand = (char*)malloc(BRAND_LENGTH * sizeof(char));
+    item->type = (char*)malloc(TYPE_LENGTH * sizeof(char));
+    item->releaseDate = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
 
-    // Read data from the binary file
-    fread(temp_serial_number, sizeof(char), SERIAL_NUMBER_LENGTH, file);
-    char* trimmed_serial_number = trimwhitespace(temp_serial_number);
-    fread(temp_brand, sizeof(char), BRAND_LENGTH, file);
-    char* trimmed_brand = trimwhitespace(temp_brand);
-    fread(temp_type, sizeof(char), TYPE_LENGTH, file);
-    char* trimmed_type = trimwhitespace(temp_type);
-    fread(&temp_price, sizeof(double), 1, file);
-    fread(&temp_isPopular, sizeof(int), 1, file);
-    fread(temp_releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file);
-    char* trimmed_releaseDate = trimwhitespace(temp_releaseDate);
-    fread(&temp_stock, sizeof(int), 1, file);
+    // Validate memory allocation
+    assert(item->serialNumber);
+    assert(item->brand);
+    assert(item->type);
+    assert(item->releaseDate);
 
-    // Create a new item
-    Item* item = createItem(trimmed_serial_number, trimmed_brand, trimmed_type, temp_price, temp_isPopular, trimmed_releaseDate, temp_stock);
+    // Read data from the binary file in the same order as it was written
+    fread(item->serialNumber, sizeof(char), SERIAL_NUMBER_LENGTH, file);
+    fread(item->brand, sizeof(char), BRAND_LENGTH, file);
+    fread(item->type, sizeof(char), TYPE_LENGTH, file);
+    fread(&(item->price), sizeof(double), 1, file);
+    fread(&(item->isPopular), sizeof(int), 1, file);
+    fread(item->releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file);
+    fread(&(item->stock), sizeof(int), 1, file);
 
-    // Free temporary memory
-    free(temp_serial_number);
-    free(temp_brand);
-    free(temp_type);
-    free(temp_releaseDate);
+    // Ensure null-termination for strings
+    item->serialNumber[SERIAL_NUMBER_LENGTH - 1] = '\0';
+    item->brand[BRAND_LENGTH - 1] = '\0';
+    item->type[TYPE_LENGTH - 1] = '\0';
+    item->releaseDate[RELEASE_DATE_LENGTH - 1] = '\0';
 
     return item;
 }
@@ -158,15 +159,26 @@ Item* getAllItems(int* itemCount) {
 
         // Hard copy the Item
         items[*itemCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-        items[*itemCount].type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
         items[*itemCount].brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+        items[*itemCount].type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
         items[*itemCount].releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
+        
         strcpy(items[*itemCount].serialNumber, (*tempItem).serialNumber);
+        items[*itemCount].serialNumber = trimwhitespace(items[*itemCount].serialNumber);
+        
         strcpy(items[*itemCount].brand, (*tempItem).brand);
+        items[*itemCount].brand = trimwhitespace(items[*itemCount].brand);
+        
         strcpy(items[*itemCount].type, (*tempItem).type);
+        items[*itemCount].type = trimwhitespace(items[*itemCount].type);
+        
         items[*itemCount].price = (*tempItem).price;
+        
         items[*itemCount].isPopular = (*tempItem).isPopular;
+        
         strcpy(items[*itemCount].releaseDate, (*tempItem).releaseDate);
+        items[*itemCount].releaseDate = trimwhitespace(items[*itemCount].releaseDate);
+        
         items[*itemCount].stock = (*tempItem).stock;
 
         // Increment the itemCount
@@ -692,6 +704,66 @@ Item* findDatesInRange(char* userDate1, char* userDate2) {
     return matchingItems;
 }
 
+Item* updateItem(char* userSerialNumber, int property, void* value) {
+    int itemCount = 0;
+    Item* items = getAllItems(&itemCount);
+
+    if (items == NULL || itemCount == 0) {
+        printf("No items found.\n");
+        return NULL;
+    }
+
+    int foundIndex = -1;
+    // Find the item with the given Serial Number
+    for (int i = 0; i < itemCount; i++) {
+        if (strcmp(items[i].serialNumber, userSerialNumber) == 0) {
+            foundIndex = i;
+            break;
+        }
+    }
+
+    if (foundIndex == -1) {
+        printf("Item with Serial Number %s not found.\n", userSerialNumber);
+        return NULL;
+    }
+
+    // Update the specified property
+    switch (property) {
+    case 1: // Brand
+        strncpy(items[foundIndex].brand, (char*)value, BRAND_LENGTH - 1);
+        items[foundIndex].brand[BRAND_LENGTH - 1] = '\0'; // Ensure null-termination
+        break;
+    case 2: // Type
+        strncpy(items[foundIndex].type, (char*)value, TYPE_LENGTH - 1);
+        items[foundIndex].type[TYPE_LENGTH - 1] = '\0'; // Ensure null-termination
+        break;
+    case 3: // Price
+        items[foundIndex].price = *(double*)value;
+        break;
+    case 4: // Is Popular
+        items[foundIndex].isPopular = *(int*)value;
+        break;
+    case 5: // Release Date
+        strncpy(items[foundIndex].releaseDate, (char*)value, RELEASE_DATE_LENGTH - 1);
+        items[foundIndex].releaseDate[RELEASE_DATE_LENGTH - 1] = '\0'; // Ensure null-termination
+        break;
+    case 6: // Stock
+        items[foundIndex].stock = *(int*)value;
+        break;
+    default:
+        printf("Invalid property.\n");
+        return NULL;
+    }
+
+    // Save the updated items back to the file
+    writeItems(items, itemCount, ITEMS_FILE);
+
+    printf("Item with Serial Number %s has been updated.\n", userSerialNumber);
+
+    return &(items[foundIndex]);
+}
+
+
 Item* removeItem(char* serialNumber) {
     int itemCount = 0;
     Item* items = getAllItems(&itemCount);
@@ -766,6 +838,71 @@ void removeItemMenu() {
     char* userSerialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
     scanf("%s", userSerialNumber);
     removeItem(userSerialNumber);
+}
+
+void updateItemMenu() {
+    clrscr();
+    char* userSerialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+    printf("Update Item Menu:\n");
+    printf("Please enter the item's Serial Number: ");
+    scanf("%s", userSerialNumber);
+    printf("Which property would you like to update:\n");
+    printf("1. Update Brand.\n");
+    printf("2. Update Type.\n");
+    printf("3. Update Price.\n");
+    printf("4. Update Is Popular.\n");
+    printf("5. Update Release Date.\n");
+    printf("6. Update Stock.\n");
+    printf("0. Exit\n");
+    printf("Please select a property: ");
+    int property;
+    scanf("%d", &property);
+
+    printf("Please enter a new value: ");
+    switch (property) {
+    case 1: {
+        char* brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+        scanf("%s", brand);
+        updateItem(userSerialNumber, property, brand);
+        free(brand);
+        break;
+    }
+    case 2: {
+        char* type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
+        scanf("%s", type);
+        updateItem(userSerialNumber, property, type);
+        free(type);
+        break;
+    }
+    case 3: {
+        double price;
+        scanf("%lf", &price);
+        updateItem(userSerialNumber, property, &price);
+        break;
+    }
+    case 4: {
+        int isPopular;
+        scanf("%d", &isPopular);
+        updateItem(userSerialNumber, property, &isPopular);
+        break;
+    }
+    case 5: {
+        char* releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
+        scanf("%s", releaseDate);
+        updateItem(userSerialNumber, property, releaseDate);
+        free(releaseDate);
+        break;
+    }
+    case 6: {
+        int stock;
+        scanf("%d", &stock);
+        updateItem(userSerialNumber, property, &stock);
+        break;
+    }
+    default:
+        printf("Invalid choice.\n");
+    }
+    free(userSerialNumber);
 }
 
 
@@ -862,8 +999,6 @@ void searchByPriceorStock() {
             clearBuffer();
             scanf("%c", &identifier);
             matchingItems = findByStock(userStock, identifier);
-            break;
-        case 3:
             break;
         case 0:
             exit = 1;

@@ -1,4 +1,7 @@
-﻿  Customer.c
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Customer.c(233,36): warning C4133: '==': incompatible types - from 'double *' to 'char *'
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Customer.c(238,42): warning C4047: '==': 'int' differs in levels of indirection from 'int *'
+﻿  Item.c
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,21): warning C4047: 'function': 'const char *' differs in levels of indirection from 'const int'
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,21): warning C4024: 'strcmp': different types for formal and actual parameter 1
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,39): warning C4047: 'function': 'const char *' differs in levels of indirection from 'const int'
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(53,39): warning C4024: 'strcmp': different types for formal and actual parameter 2
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Item.c(1134,11): warning C4101: 'property': unreferenced local variable
   clothing_store.vcxproj -> C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\x64\Debug\clothing_store.exe
