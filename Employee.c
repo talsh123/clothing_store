@@ -350,6 +350,15 @@ void showMenu() {
             clrscr();
             addNewCustomer();
             break;
+        case 4: {
+            char user;
+            clrscr();
+            checkCustomerPurchases();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
         case 9: {
             char user;
             addNewEmployee();

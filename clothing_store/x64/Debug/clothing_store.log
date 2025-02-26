@@ -1,7 +1,6 @@
-﻿  Customer.c
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Customer.c(36,34): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Customer.c(93,18): warning C4477: 'fscanf' : format string '%lf' requires an argument of type 'double *', but variadic argument 1 has type 'float *'
-      C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Customer.c(93,18):
-      consider using '%f' in the format string
-  
+﻿  Employee.c
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(327,16): warning C4133: 'function': incompatible types - from 'Employee *' to 'Item *'
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(351,13): warning C4013: 'addNewCustomer' undefined; assuming extern returning int
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(356,13): warning C4013: 'checkCustomerPurchases' undefined; assuming extern returning int
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\Employee.c(388,13): warning C4013: 'getAllCustomers' undefined; assuming extern returning int
   clothing_store.vcxproj -> C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\x64\Debug\clothing_store.exe

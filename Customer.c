@@ -170,6 +170,91 @@ int checkIfCustomerFileExists() {
     return 0;
 }
 
+Customer* findUserByProperty(char* property, void* value) {
+    FILE* file = fopen(CUSTOMERS_FILE, "r");
+    if (file == NULL) {
+        printf("Error: Could not open file %s\n", CUSTOMERS_FILE);
+        return NULL;
+    }
+
+    // Dynamic array to store matching customers
+    Customer* matchingCustomers = NULL;
+
+    // Read items one by one
+    Customer* customer;
+    int count = 0;
+    while ((customer = readCustomer(file)) != NULL) {
+
+        int matches = 0;
+
+        // Check property and compare value
+        if (strcmp(property, "id") == 0) {
+            if (strcmp(customer->id, (char*)value) == 0) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "name") == 0) {
+            if (strcmp(customer->name, (char*)value) == 0) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "join_date") == 0) {
+            if (strcmp(customer->joinDate, (char*)value) == 0) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "total_amount_spent") == 0) {
+            if (customer->joinDate == (double*)value) {
+                matches = 1;
+            }
+        }
+        else if (strcmp(property, "items_purchased") == 0) {
+            if (customer->itemsPurchased == (int*)value) {
+                matches = 1;
+            }
+        }
+        else {
+            printf("Invalid property: %s\n", property);
+            fclose(file);
+            return NULL;
+        }
+        // If item matches, add it to the dynamic array
+        if (matches) {
+            count++;
+            // Resize array to hold another item
+            Customer* tempArray = realloc(matchingCustomers, sizeof(Customer) * count);
+            if (tempArray == NULL) {
+                printf("Error: Memory allocation failed.\n");
+                fclose(file);
+                return NULL;
+            }
+            matchingCustomers = tempArray;
+            matchingCustomers[count - 1] = *customer;
+        }
+
+        // Check for end of file after attempting to read
+        if (feof(file)) {
+            break;
+        }
+
+        // Free the memory for the current item
+        free(customer);
+    }
+
+    fclose(file);
+
+    // If no items matched, free memory and return NULL
+    if (count == 0) {
+        printf("There are no items that matched your search!\n");
+    }
+    // Print all the matching Items
+    else {
+        // Also print all the matching Items
+        printCustomers(matchingCustomers, count);
+    }
+    return matchingCustomers;
+}
+
 void addNewCustomer() {
     clrscr();
     char* id = (char*)malloc(sizeof(char) * ID_LENGTH);
@@ -196,4 +281,12 @@ void addNewCustomer() {
     writeCustomer(customer, CUSTOMERS_FILE);
     printCustomers(customer , 1);
     printf("Customer has been added successfully!\n");
+}
+
+void checkCustomerPurchases() {
+    char* id = (char*)malloc(sizeof(char) * ID_LENGTH);
+    printf("Check Customer Purchases Menu:\n");
+    printf("Please enter Customer ID: ");
+    scanf("%s", id);
+    findUserByProperty("id", id);
 }
