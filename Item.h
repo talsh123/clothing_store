@@ -11,21 +11,42 @@ typedef struct item {
     int stock;
 } Item;
 
+#define ITEMS_FILE "items.bin"
+
+// Item FILE STRUCTURE
+#define SERIAL_NUMBER_LENGTH 13
+#define BRAND_LENGTH 31
+#define TYPE_LENGTH 12
+#define PRICE_LENGTH 8
+#define IS_POPULAR_LENGTH 4
+#define RELEASE_DATE_LENGTH 11
+#define STOCK_LENGTH 4
+
 Item* createItem(char* serialNumber, char* brand, char* type, double price, int isPopular, char* releaseDate, int stock);
 int compareitems(const Item* item1, const Item* item2);
 void writeItem(Item* item, const char* fileName);
+void writeItems(Item* items, int itemCount, const char* fileName);
 Item* readItem(FILE* file);
+Item* getAllItems(int* itemCount);
 void viewItemsMenu();
 void printItems(Item* items, int itemCount);
 Item* findByBrandType(char* userBrand, char* userType, int filterType);
 Item* findByPrice(double price, char identifier);
 Item* findByStock(int stock, char identifier);
 Item* findByProperty(char* property, void* value);
+Item* findByDate(char* userDate, char identifier);
+Item* findDatesInRange(char* userDate1, char* userDate2);
+Item* updateItem(char* userSerialNumber, int property, void* value);
+Item* removeItem(char* serialNumber);
+Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount);
+void sellItemMenu();
+void removeItemMenu();
+void updateItemMenu();
 void searchByBrandOrType();
 void searchByPriceorStock();
 void searchByEquals();
+void searchByDate();
 void viewItems();
 void addNewItem();
-Item* getAllItems(int * itemCount);
 
 #endif // ITEM_H

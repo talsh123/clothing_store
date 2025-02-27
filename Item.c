@@ -4,21 +4,10 @@
 #include <string.h>
 #include <stdio.h>
 #include "Item.h"
+#include "Customer.h"
 #include "FileOperations.h"
 #include "StringOperations.h"
 #include <assert.h>
-
-#define ITEMS_FILE "items.bin"
-
-// Item FILE STRUCTURE
-#define SERIAL_NUMBER_LENGTH 13
-#define BRAND_LENGTH 31
-#define TYPE_LENGTH 12
-#define PRICE_LENGTH 8
-#define IS_POPULAR_LENGTH 4
-#define RELEASE_DATE_LENGTH 11
-#define STOCK_LENGTH 4
-
 
 Item* createItem(char* serialNumber, char* brand, char* type, double price, int isPopular, char* releaseDate, int stock) {
     Item* item = (Item*)malloc(sizeof(Item));
@@ -829,6 +818,112 @@ Item* removeItem(char* serialNumber) {
     free(items);
 
     return removedItem;
+}
+
+Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount) {
+    Item* item = findByProperty("serial_number", itemSerialNumber);
+    if (amount > 3) {
+        printf("Cannot sell more than 3 items in a single purchase.\n");
+        return NULL;
+    }
+    
+    if (item == NULL) {
+        printf("Item not found.\n");
+        return NULL;
+    }
+
+    if (item->stock <= 0) {
+        printf("Item is out of stock.\n");
+        return NULL;
+    }
+
+    Customer* customer = malloc(sizeof(Customer));
+    // Deep copy of customer data
+    customer->id = (char*)malloc(sizeof(char) * ID_LENGTH);
+    customer->name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+    customer->joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
+
+    customer = findCustomersByID(userCustomerID);
+    if (customer == NULL) {
+        printf("Customer not found.\n");
+        return NULL;
+    }
+
+    // Update stock and customer details
+    item->stock = item->stock - amount;
+    customer->totalAmountSpent += (item->price) * amount;
+    customer->itemsPurchased = customer->itemsPurchased + amount;
+
+    // Save updates to file
+    updateItem(itemSerialNumber, 6, &(item->stock));
+    updateCustomer(userCustomerID, 4, &(customer->totalAmountSpent));
+    updateCustomer(userCustomerID, 5, &(customer->itemsPurchased));
+
+    // TODO: Log the transaction
+
+    printf("Item sold successfully.\n");
+    return item;
+}
+
+void sellItemMenu() {
+    clrscr();
+    printf("Sell Item Menu:\n");
+
+    // Get Customer ID
+    printf("Please enter Customer ID: ");
+    char* userCustomerID = (char*)malloc(sizeof(char) * ID_LENGTH);
+    scanf("%s", userCustomerID);
+
+    int totalItemsSold = 0;
+    char continueSelling = 'y';
+
+    while (totalItemsSold < 3 && (continueSelling == 'y' || continueSelling == 'Y')) {
+        // Get Item Serial Number
+        printf("Please enter Item Serial Number: ");
+        char* userSerialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+        scanf("%s", userSerialNumber);
+
+        // Get Item Amount
+        int itemAmount;
+        printf("Please enter the amount you want to sell: ");
+        scanf("%d", &itemAmount);
+
+        // Validate amount
+        if (itemAmount <= 0) {
+            printf("Invalid amount. It must be a positive integer.\n");
+            free(userSerialNumber);
+            continue;
+        }
+
+        // Check if total will exceed 3 items
+        if (totalItemsSold + itemAmount > 3) {
+            printf("Cannot sell this amount. Total items sold would exceed the limit of 3.\n");
+            free(userSerialNumber);
+            continue;
+        }
+
+        // Call sellItem() with the required parameters
+        Item* soldItem = sellItem(userSerialNumber, userCustomerID, itemAmount);
+        if (soldItem != NULL) {
+            printf("Item sold successfully.\n");
+            totalItemsSold += itemAmount;
+        }
+
+        // Ask if the user wants to sell more items
+        if (totalItemsSold < 3) {
+            printf("Would you like to sell more items to this customer? [y/n]: ");
+            scanf(" %c", &continueSelling);  // Space before %c to ignore newline
+        }
+        else {
+            printf("You have reached the maximum of 3 items for this customer.\n");
+        }
+
+        // Free allocated memory
+        free(userSerialNumber);
+    }
+
+    // Free allocated memory for Customer ID
+    free(userCustomerID);
 }
 
 void removeItemMenu() {

@@ -323,7 +323,7 @@ void addNewEmployee() {
     scanf("%s", password);
     printf("Please enter level: ");
     scanf("%s", level);
-    Employee* employee = createCustomer(username, privateName, password, level);
+    Employee* employee = createEmployee(username, privateName, password, level);
     writeEmployee(employee, EMPLOYEES_FILE);
     printItems(employee, 1);
     printf("Employee has been added successfully!\n");
@@ -387,6 +387,14 @@ void showMenu() {
             char user;
             clrscr();
             updateItemMenu();
+            printf("Press any key to continue! ");
+            scanf("%c", &user);
+            clearBuffer();
+            break;
+        }
+        case 8: {
+            char user;
+            sellItemMenu();
             printf("Press any key to continue! ");
             scanf("%c", &user);
             clearBuffer();

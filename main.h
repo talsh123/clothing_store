@@ -5,4 +5,6 @@
 
 Employee currentEmployee;
 
+int main();
+
 #endif // MAIN_H
