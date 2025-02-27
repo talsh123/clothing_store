@@ -694,8 +694,7 @@ void addNewCustomer() {
     scanf("%s", id);
     clearBuffer();
     printf("Please enter Customer Name: ");
-    fgets(name, NAME_LENGTH, stdin);
-    name[strcspn(name, "\n")] = 0;
+    getInputString(name, NAME_LENGTH);
     Customer* customer = createCustomer(id, name);
     writeCustomer(customer, CUSTOMERS_FILE);
     printCustomers(customer , 1);

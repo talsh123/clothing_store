@@ -8,77 +8,88 @@
 #include "StringOperations.h"
 #include <assert.h>
 
-#define EMPLOYEES_FILE "employees.txt"
-
-// Employee FILE properties LIMIT
-#define USERNAME_LENGTH 64
-#define PRIVATE_NAME_LENGTH 64
-#define PASSWORD_LENGTH 128
-#define LEVEL_LENGTH 2
-
-// User Validation Attemps
-#define ALLOWED_ATTEMPS 3
-
 Employee* createEmployee(char* username, char* privateName, char* password, char* level) {
     Employee* employee = (Employee*)malloc(sizeof(Employee));
+    if (employee == NULL) {
+        printf("Error: Memory allocation failed for Employee.\n");
+        return NULL;
+    }
 
+    // Allocate and copy username
     employee->username = (char*)malloc(USERNAME_LENGTH);
-    strncpy(employee->username, username, strlen(username));
-    employee->username[strlen(username)] = '\0'; // Ensure null termination
+    if (employee->username == NULL) {
+        printf("Error: Memory allocation failed for username.\n");
+        free(employee);
+        return NULL;
+    }
+    strncpy(employee->username, username, USERNAME_LENGTH - 1);
+    employee->username[USERNAME_LENGTH - 1] = '\0';
 
+    // Allocate and copy privateName
     employee->privateName = (char*)malloc(PRIVATE_NAME_LENGTH);
-    strncpy(employee->privateName, privateName, strlen(privateName));
-    employee->privateName[strlen(privateName)] = '\0'; // Ensure null termination
+    if (employee->privateName == NULL) {
+        printf("Error: Memory allocation failed for privateName.\n");
+        free(employee->username);
+        free(employee);
+        return NULL;
+    }
+    strncpy(employee->privateName, privateName, PRIVATE_NAME_LENGTH - 1);
+    employee->privateName[PRIVATE_NAME_LENGTH - 1] = '\0';
 
+    // Allocate and copy password
     employee->password = (char*)malloc(PASSWORD_LENGTH);
-    strncpy(employee->password, password, strlen(password));
-    employee->password[strlen(password)] = '\0'; // Ensure null termination
+    if (employee->password == NULL) {
+        printf("Error: Memory allocation failed for password.\n");
+        free(employee->privateName);
+        free(employee->username);
+        free(employee);
+        return NULL;
+    }
+    strncpy(employee->password, password, PASSWORD_LENGTH - 1);
+    employee->password[PASSWORD_LENGTH - 1] = '\0';
 
+    // Allocate and copy level
     employee->level = (char*)malloc(LEVEL_LENGTH);
-    strncpy(employee->level, level, strlen(level));
-    employee->level[strlen(level)] = '\0'; // Ensure null termination
+    if (employee->level == NULL) {
+        printf("Error: Memory allocation failed for level.\n");
+        free(employee->password);
+        free(employee->privateName);
+        free(employee->username);
+        free(employee);
+        return NULL;
+    }
+    strncpy(employee->level, level, LEVEL_LENGTH - 1);
+    employee->level[LEVEL_LENGTH - 1] = '\0';
 
     return employee;
 }
 
-void writeEmployee(Employee* Employee, const char* fileName) {
+void writeEmployee(Employee* employee, const char* fileName) {
     FILE* file = fopen(fileName, "a");
+    if (file == NULL) {
+        printf("Error: Could not open file %s for writing.\n", fileName);
+        return;
+    }
 
-    // %-*s - string is left-aligned and padded with spaces up to the specified length
-
-    // Write username with fixed length
-    fprintf(file, "%-*s", USERNAME_LENGTH, Employee->username);
-
-    // Write privateName with fixed length
-    fprintf(file, "%-*s", PRIVATE_NAME_LENGTH, Employee->privateName);
-
-    // Write password with fixed length
-    fprintf(file, "%-*s", PASSWORD_LENGTH, Employee->password);
-
-    // Write permissionLevel with fixed length (convert integer to string if necessary)
-    fprintf(file, "%-*s", LEVEL_LENGTH, Employee->level);
+    // Write each field with fixed length, left-aligned and padded with spaces
+    fprintf(file, "%-*s", USERNAME_LENGTH - 1, employee->username);
+    fprintf(file, "%-*s", PRIVATE_NAME_LENGTH - 1, employee->privateName);
+    fprintf(file, "%-*s", PASSWORD_LENGTH - 1, employee->password);
+    fprintf(file, "%-*s\n", LEVEL_LENGTH - 1, employee->level);
 
     fclose(file);
 }
 
 Employee* readEmployee(FILE* file) {
     if (file == NULL) {
-        return NULL; // File pointer is NULL
-    }
-
-    // Buffer to store the line from the file
-    char line[512]; // Adjust size as needed
-
-    // Read a line from the file
-    if (fgets(line, sizeof(line), file) == NULL) {
-        // If fgets() returns NULL, it means end-of-file or an error occurred
+        printf("Error: Invalid file pointer.\n");
         return NULL;
     }
 
     // Allocate memory for Employee
     Employee* employee = (Employee*)malloc(sizeof(Employee));
     if (employee == NULL) {
-        printf("Error: Memory allocation failed.\n");
+        printf("Error: Memory allocation failed for Employee.\n");
         return NULL;
     }
 
@@ -91,21 +102,7 @@ Employee* readEmployee(FILE* file) {
     // Validate memory allocation
     if (!employee->username || !employee->privateName ||
         !employee->password || !employee->level) {
-        printf("Error: Memory allocation failed.\n");
-        free(employee); // Free employee struct memory
-        return NULL;
-    }
-
-    // Parse the line using sscanf
-    int numParsed = sscanf(line, "%s %s %s %s",
-        employee->username,
-        employee->privateName,
-        employee->password,
-        employee->level
-    );
-
-    // If all 4 fields are not parsed, free memory and return NULL
-    if (numParsed != 4) {
+        printf("Error: Memory allocation failed for strings.\n");
         free(employee->username);
         free(employee->privateName);
         free(employee->password);
@@ -113,6 +110,31 @@ Employee* readEmployee(FILE* file) {
         free(employee);
         return NULL;
     }
+
+    // Read each field as fixed-length strings
+    if (fgets(employee->username, USERNAME_LENGTH, file) == NULL ||
+        fgets(employee->privateName, PRIVATE_NAME_LENGTH, file) == NULL ||
+        fgets(employee->password, PASSWORD_LENGTH, file) == NULL ||
+        fgets(employee->level, LEVEL_LENGTH, file) == NULL) {
+
+        // Free allocated memory on read failure
+        free(employee->username);
+        free(employee->privateName);
+        free(employee->password);
+        free(employee->level);
+        free(employee);
+        return NULL;
+    }
+
+    // Free remaining "\n" character in file
+    int ch;
+    while ((ch = fgetc(file)) != '\n' && ch != EOF);
+
+    // Trim whitespace from each field
+    employee->username = trimwhitespace(employee->username);
+    employee->privateName = trimwhitespace(employee->privateName);
+    employee->password = trimwhitespace(employee->password);
+    employee->level = trimwhitespace(employee->level);
 
     return employee;
 }
@@ -280,7 +302,7 @@ void createDefaultAdmin() {
     Employee* employee = createEmployee("admin", "manager", "12345678", "1");
     writeEmployee(employee, EMPLOYEES_FILE);
     printf("No employees.txt file found!\n");
-    printf("employees.txt file created and signed you in as Admin!\n");
+    printf("employees.txt file and default Admin user created!\n");
 }
 
 Employee login() {
@@ -327,6 +349,7 @@ Employee login() {
                 return tempEmployee;
             }
             else {
+
                 if (user_attempts == ALLOWED_ATTEMPS - 1) {
                     printf("You have entered incorrect credentials 3 times. Please try again later.\n");
                     exit(EXIT_FAILURE);
@@ -351,16 +374,16 @@ void addNewEmployee() {
     clearBuffer();
     printf("Add Item Menu:\n");
     printf("Please enter Username: ");
-    scanf("%s", username);
+    getInputString(username, USERNAME_LENGTH);
     printf("Please enter Private Name: ");
-    scanf("%s", privateName);
+    getInputString(privateName, PRIVATE_NAME_LENGTH);
     printf("Please enter Password: ");
-    scanf("%s", password);
+    getInputString(password, PASSWORD_LENGTH);
     printf("Please enter level: ");
-    scanf("%s", level);
+    getInputString(level , LEVEL_LENGTH);
     Employee* employee = createEmployee(username, privateName, password, level);
     writeEmployee(employee, EMPLOYEES_FILE);
-    printItems(employee, 1);
+    printEmployees(employee, 1);
     printf("Employee has been added successfully!\n");
 }
 

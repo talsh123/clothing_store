@@ -146,3 +146,26 @@ char* trimStringToLength(char* str, int maxLength) {
 
     return str;
 }
+
+// Function to safely get a string with a maximum length
+void getInputString(char* str, int maxLength) {
+    // Check for NULL pointer or invalid length
+    if (str == NULL || maxLength <= 1) {
+        return;
+    }
+
+    // Get the input with fgets()
+    fgets(str, maxLength, stdin);
+
+    // Remove the newline character if present
+    str[strcspn(str, "\n")] = 0;
+
+    // If the input was too long and there are leftover characters
+    if (strlen(str) == maxLength - 1 && str[maxLength - 2] != '\n') {
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF);  // Clear the input buffer
+    }
+
+    // Ensure null-termination
+    str[maxLength - 1] = '\0';
+}
