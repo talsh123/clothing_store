@@ -39,7 +39,7 @@ void printCustomers(Customer* customers, int customerCount);
 Customer* getAllCustomers(int* customerCount);
 Customer* findCustomersByProperty(char* property, void* value);
 Customer* removeCustomer(char* id);
-Customer* updateCustomer(char* id, int property, void* value);
+Customer* updateCustomer(char* id, char* property, void* value);
 void removeCustomerMenu();
 void addNewCustomer();
 void checkCustomerPurchases();

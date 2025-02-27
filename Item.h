@@ -35,7 +35,7 @@ Item* findByStock(int stock, char identifier);
 Item* findByProperty(char* property, void* value);
 Item* findByDate(char* userDate, char identifier);
 Item* findDatesInRange(char* userDate1, char* userDate2);
-Item* updateItem(char* userSerialNumber, int property, void* value);
+Item* updateItem(char* userSerialNumber, char* property, void* value);
 Item* removeItem(char* serialNumber);
 Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount);
 void sellItemMenu();

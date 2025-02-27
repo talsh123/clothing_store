@@ -681,7 +681,7 @@ Item* findDatesInRange(char* userDate1, char* userDate2) {
     return matchingItems;
 }
 
-Item* updateItem(char* userSerialNumber, int property, void* value) {
+Item* updateItem(char* userSerialNumber, char* property, void* value) {
     int itemCount = 0;
     Item* items = getAllItems(&itemCount);
 
@@ -704,32 +704,26 @@ Item* updateItem(char* userSerialNumber, int property, void* value) {
         return NULL;
     }
 
-    // Update the specified property
-    switch (property) {
-    case 1: // Brand
+    if (strcmp(property, "brand") == 0) {
         strncpy(items[foundIndex].brand, (char*)value, BRAND_LENGTH - 1);
         items[foundIndex].brand[BRAND_LENGTH - 1] = '\0'; // Ensure null-termination
-        break;
-    case 2: // Type
+    }
+    if (strcmp(property, "type") == 0) {
         strncpy(items[foundIndex].type, (char*)value, TYPE_LENGTH - 1);
         items[foundIndex].type[TYPE_LENGTH - 1] = '\0'; // Ensure null-termination
-        break;
-    case 3: // Price
+    }
+    if (strcmp(property, "price") == 0) {
         items[foundIndex].price = *(double*)value;
-        break;
-    case 4: // Is Popular
+    }
+    if (strcmp(property, "is_popular") == 0) {
         items[foundIndex].isPopular = *(int*)value;
-        break;
-    case 5: // Release Date
+    }
+    if (strcmp(property, "release_date") == 0) {
         strncpy(items[foundIndex].releaseDate, (char*)value, RELEASE_DATE_LENGTH - 1);
         items[foundIndex].releaseDate[RELEASE_DATE_LENGTH - 1] = '\0'; // Ensure null-termination
-        break;
-    case 6: // Stock
+    }
+    if (strcmp(property, "stock") == 0) {
         items[foundIndex].stock = *(int*)value;
-        break;
-    default:
-        printf("Invalid property.\n");
-        return NULL;
     }
 
     // Save the updated items back to the file
@@ -816,42 +810,86 @@ Item* removeItem(char* serialNumber) {
 
 Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount) {
     Item* item = findByProperty("serial_number", itemSerialNumber);
+
     if (amount > 3) {
         printf("Cannot sell more than 3 items in a single purchase.\n");
         return NULL;
     }
-    
     if (item == NULL) {
         printf("Item not found.\n");
         return NULL;
     }
-
     if (item->stock <= 0) {
         printf("Item is out of stock.\n");
         return NULL;
     }
+    if (item->stock < amount) {
+        printf("There are not enough items in stock to complete this purchase.\n");
+        return NULL;
+    }
 
-    Customer* customer = malloc(sizeof(Customer));
-    // Deep copy of customer data
-    customer->id = (char*)malloc(sizeof(char) * ID_LENGTH);
-    customer->name = (char*)malloc(sizeof(char) * NAME_LENGTH);
-    customer->joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
-
-    customer = findCustomersByProperty("id", userCustomerID);
+    Customer* customer = findCustomersByProperty("id", userCustomerID);
     if (customer == NULL) {
         printf("Customer not found.\n");
         return NULL;
     }
 
+    // Check if the item was already purchased by the customer
+    int itemFound = 0;
+    for (int i = 0; i < customer->purchaseCount; i++) {
+        if (strcmp(customer->purchases[i].serialNumber, itemSerialNumber) == 0) {
+            // Item found, update the amount
+            customer->purchases[i].amount += amount;
+            itemFound = 1;
+            break;
+        }
+    }
+
+    // If item was not found, add a new purchase entry
+    if (!itemFound) {
+        // Reallocate memory for a new purchase entry
+        customer->purchases = (Purchase*)realloc(customer->purchases, sizeof(Purchase) * (customer->purchaseCount + 1));
+        if (customer->purchases == NULL) {
+            printf("Error: Memory allocation failed for new purchase.\n");
+            return NULL;
+        }
+
+        // Allocate memory for the new serial number and purchase date
+        customer->purchases[customer->purchaseCount].serialNumber = (char*)malloc(SERIAL_NUMBER_LENGTH);
+        customer->purchases[customer->purchaseCount].purchaseDate = (char*)malloc(PURCHASE_DATE_LENGTH);
+
+        if (customer->purchases[customer->purchaseCount].serialNumber == NULL ||
+            customer->purchases[customer->purchaseCount].purchaseDate == NULL) {
+            printf("Error: Memory allocation failed for purchase details.\n");
+            return NULL;
+        }
+
+        // Copy serial number
+        strncpy(customer->purchases[customer->purchaseCount].serialNumber, itemSerialNumber, SERIAL_NUMBER_LENGTH - 1);
+        customer->purchases[customer->purchaseCount].serialNumber = trimwhitespace(customer->purchases[customer->purchaseCount].serialNumber);
+
+        // Set the amount
+        customer->purchases[customer->purchaseCount].amount = amount;
+
+        // Set the purchase date to today
+        strncpy(customer->purchases[customer->purchaseCount].purchaseDate, getCurrentDate(), PURCHASE_DATE_LENGTH);
+
+        // Increment the purchase count
+        customer->purchaseCount++;
+    }
+
     // Update stock and customer details
-    item->stock = item->stock - amount;
+    item->stock -= amount;
     customer->totalAmountSpent += (item->price) * amount;
-    customer->itemsPurchased = customer->itemsPurchased + amount;
+    customer->itemsPurchased += amount;
 
     // Save updates to file
-    updateItem(itemSerialNumber, 6, &(item->stock));
-    updateCustomer(userCustomerID, 4, &(customer->totalAmountSpent));
-    updateCustomer(userCustomerID, 5, &(customer->itemsPurchased));
+    updateItem(itemSerialNumber, "stock", &(item->stock));
+    updateCustomer(userCustomerID, "total_amount_spent", &(customer->totalAmountSpent));
+    updateCustomer(userCustomerID, "items_purchased", &(customer->itemsPurchased));
+    //updateCustomer(userCustomerID, "purchase_count", &(customer->purchaseCount));
+    // NO NEED TO UPDATE purchase_count, it is being updated when updating purchases
+    updateCustomer(userCustomerID, "purchases", customer->purchases);
 
     // TODO: Log the transaction
 
@@ -859,14 +897,17 @@ Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount) {
     return item;
 }
 
+
 void sellItemMenu() {
     clrscr();
     printf("Sell Item Menu:\n");
 
+    clearBuffer();
+
     // Get Customer ID
     printf("Please enter Customer ID: ");
     char* userCustomerID = (char*)malloc(sizeof(char) * ID_LENGTH);
-    scanf("%s", userCustomerID);
+    getInputString(userCustomerID, ID_LENGTH);
 
     int totalItemsSold = 0;
     char continueSelling = 'y';
@@ -944,48 +985,48 @@ void updateItemMenu() {
     printf("6. Update Stock.\n");
     printf("0. Exit\n");
     printf("Please select a property: ");
-    int property;
-    scanf("%d", &property);
+    int user_choice;
+    scanf("%d", &user_choice);
 
     printf("Please enter a new value: ");
-    switch (property) {
+    switch (user_choice) {
     case 1: {
         char* brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
         scanf("%s", brand);
-        updateItem(userSerialNumber, property, brand);
+        updateItem(userSerialNumber, "brand", brand);
         free(brand);
         break;
     }
     case 2: {
         char* type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
         scanf("%s", type);
-        updateItem(userSerialNumber, property, type);
+        updateItem(userSerialNumber, "type", type);
         free(type);
         break;
     }
     case 3: {
         double price;
         scanf("%lf", &price);
-        updateItem(userSerialNumber, property, &price);
+        updateItem(userSerialNumber, "price", &price);
         break;
     }
     case 4: {
         int isPopular;
         scanf("%d", &isPopular);
-        updateItem(userSerialNumber, property, &isPopular);
+        updateItem(userSerialNumber, "is_popular", &isPopular);
         break;
     }
     case 5: {
         char* releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
         scanf("%s", releaseDate);
-        updateItem(userSerialNumber, property, releaseDate);
+        updateItem(userSerialNumber, "release_date", releaseDate);
         free(releaseDate);
         break;
     }
     case 6: {
         int stock;
         scanf("%d", &stock);
-        updateItem(userSerialNumber, property, &stock);
+        updateItem(userSerialNumber, "stock", &stock);
         break;
     }
     default:
@@ -1299,20 +1340,20 @@ void addNewItem() {
     printf("Add Item Menu:\n");
     printf("Please enter Serial Number: ");
     scanf("%s", serial_number);
-    serial_number = trimStringToLength(serial_number, SERIAL_NUMBER_LENGTH - 1);
+    getInputString(serial_number, SERIAL_NUMBER_LENGTH);
     printf("Please enter Brand: ");
     scanf("%s", brand);
-    brand = trimStringToLength(brand, BRAND_LENGTH - 1);
+    getInputString(serial_number, BRAND_LENGTH);
     printf("Please enter Type: ");
     scanf("%s", type);
-    type = trimStringToLength(type, TYPE_LENGTH - 1);
+    getInputString(serial_number, TYPE_LENGTH);
     printf("Please enter price: ");
     scanf("%lf", price);
     printf("Is the Item Popular? [1 - Yes/0 - No]: ");
     scanf("%d", isPopular);
     printf("Please enter Release Date: ");
     scanf("%s", releaseDate);
-    releaseDate = trimStringToLength(releaseDate, RELEASE_DATE_LENGTH - 1);
+    getInputString(releaseDate, RELEASE_DATE_LENGTH);
     printf("Please enter Stock: ");
     scanf("%d", stock);
     Item* item = createItem(serial_number, brand, type, *price, *isPopular, releaseDate, *stock);

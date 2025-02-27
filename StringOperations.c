@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 char* trimwhitespace(char* str) {
     // Skip leading whitespace
@@ -25,22 +26,6 @@ char* trimwhitespace(char* str) {
 
     // Return the trimmed string
     return strdup(str);
-}
-
-
-int compareStrings(const char* str1, const char* str2) {
-    // Check if both strings are non-NULL
-    if (str1 == NULL || str2 == NULL) {
-        return 0; // NULL strings cannot be identical
-    }
-
-    // Use strcmp to compare the strings
-    if (!strcmp(str1, str2)) {
-        return 1; // Strings are identical
-    }
-    else {
-        return 0; // Strings are different
-    }
 }
 
 void clearBuffer() {
@@ -126,27 +111,6 @@ int isDateBetween(const char* startDate, const char* endDate, const char* dateTo
     }
 }
 
-// Function to trim a string to a maximum length and return it
-char* trimStringToLength(char* str, int maxLength) {
-    // Check for NULL pointer or non-positive length
-    if (str == NULL || maxLength <= 0) {
-        return "";
-    }
-
-    // Trim whitespace from start and end
-    str = trimwhitespace(str);
-
-    // Get the current length of the string
-    int currentLength = strlen(str);
-
-    // If the string is longer than maxLength, truncate it
-    if (currentLength > maxLength) {
-        str[maxLength] = '\0';  // Null-terminate at maxLength
-    }
-
-    return str;
-}
-
 // Function to safely get a string with a maximum length
 void getInputString(char* str, int maxLength) {
     // Check for NULL pointer or invalid length
@@ -168,4 +132,35 @@ void getInputString(char* str, int maxLength) {
 
     // Ensure null-termination
     str[maxLength - 1] = '\0';
+}
+
+// Function to get the current date as a string in the format DD-MM-YYYY
+char* getCurrentDate() {
+    // Allocate memory for the date string
+    char* dateStr = (char*)malloc(11); // DD-MM-YYYY + null terminator
+    if (dateStr == NULL) {
+        printf("Error: Memory allocation failed for date string.\n");
+        return NULL;
+    }
+
+    // Get the current time
+    time_t t = time(NULL);
+    if (t == -1) {
+        printf("Error: Failed to get current time.\n");
+        free(dateStr);
+        return NULL;
+    }
+
+    // Convert to local time
+    struct tm* tm = localtime(&t);
+    if (tm == NULL) {
+        printf("Error: Failed to convert to local time.\n");
+        free(dateStr);
+        return NULL;
+    }
+
+    // Format the date as DD-MM-YYYY
+    snprintf(dateStr, 11, "%02d-%02d-%04d", tm->tm_mday, tm->tm_mon + 1, tm->tm_year + 1900);
+
+    return dateStr;
 }

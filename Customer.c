@@ -23,9 +23,7 @@ Customer* createCustomer(char* id, char* name) {
 
     // Join Date
     customer->joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
-    time_t t = time(NULL);
-    struct tm tm = *localtime(&t);
-    sprintf(customer->joinDate, "%02d-%02d-%d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+    strncpy(customer->joinDate, getCurrentDate(), JOIN_DATE_LENGTH);
 
     // Total Amount Spent
     customer->totalAmountSpent = 0.0;
@@ -60,11 +58,12 @@ void writeCustomer(Customer* customer, const char* fileName) {
     fprintf(file, "%d ", customer->purchaseCount);
 
     // Write Purchase Details
-    for (int i = 0; i < customer->purchaseCount; i++) {
-        fprintf(file, "%-*s ", SERIAL_NUMBER_LENGTH - 1, customer->purchases[i].serialNumber);
-        fprintf(file, "%d ", customer->purchases[i].amount);
-        fprintf(file, "%-*s ", PURCHASE_DATE_LENGTH - 1, customer->purchases[i].purchaseDate);
-    }
+    if(customer->purchases != NULL)
+        for (int i = 0; i < customer->purchaseCount; i++) {
+            fprintf(file, "%-*s ", SERIAL_NUMBER_LENGTH - 1, customer->purchases[i].serialNumber);
+            fprintf(file, "%d ", customer->purchases[i].amount);
+            fprintf(file, "%-*s ", PURCHASE_DATE_LENGTH - 1, customer->purchases[i].purchaseDate);
+        }
 
     // End line for this customer
     fprintf(file, "\n");
@@ -602,7 +601,7 @@ Customer* removeCustomer(char* id) {
     return removedCustomer;
 }
 
-Customer* updateCustomer(char* id, int property, void* value) {
+Customer* updateCustomer(char* id, char* property, void* value) {
     int customerCount = 0;
     Customer* customers = getAllCustomers(&customerCount);
 
@@ -626,29 +625,66 @@ Customer* updateCustomer(char* id, int property, void* value) {
     }
 
     // Update the specified property
-    switch (property) {
-    case 1: // id
-        free(customers[foundIndex].id);
-        customers[foundIndex].id = (char*)malloc(strlen((char*)value) + 1);
+    if (strcmp(property, "id") == 0) {
+        char* trimmedID = trimwhitespace((char*)value);
+        customers[foundIndex].id = (char*)realloc(customers[foundIndex].id, strlen(trimmedID) + 1);
         if (customers[foundIndex].id == NULL) {
             printf("Error: Memory allocation failed for id.\n");
             return NULL;
         }
-        strcpy(customers[foundIndex].id, (char*)value);
-        customers[foundIndex].id = trimwhitespace(customers[foundIndex].id);
-        break;
-    case 2: // name
-        free(customers[foundIndex].name);
-        customers[foundIndex].name = (char*)malloc(strlen((char*)value) + 1);
+        strcpy(customers[foundIndex].id, trimmedID);
+    }
+    else if (strcmp(property, "name") == 0) {
+        char* trimmedName = trimwhitespace((char*)value);
+        customers[foundIndex].name = (char*)realloc(customers[foundIndex].name, strlen(trimmedName) + 1);
         if (customers[foundIndex].name == NULL) {
             printf("Error: Memory allocation failed for name.\n");
             return NULL;
         }
-        strcpy(customers[foundIndex].name, (char*)value);
-        customers[foundIndex].name = trimwhitespace(customers[foundIndex].name);
-        break;
-    default:
-        printf("Invalid property.\n");
+        strcpy(customers[foundIndex].name, trimmedName);
+    }
+    else if (strcmp(property, "total_amount_spent") == 0) {
+        customers[foundIndex].totalAmountSpent = *(double*)value;
+    }
+    else if (strcmp(property, "items_purchased") == 0) {
+        customers[foundIndex].itemsPurchased = *(int*)value;
+    }
+    else if (strcmp(property, "purchases") == 0) {
+        int itemFound = 0;
+
+        // Check if the item was previously purchased
+        for (int i = 0; i < customers[foundIndex].purchaseCount; i++) {
+            if (strcmp(customers[foundIndex].purchases[i].serialNumber, (*(Purchase*)value).serialNumber) == 0) {
+                // Item found, update the amount
+                customers[foundIndex].purchases[i].amount += (*(Purchase*)value).amount;
+                strncpy(customers[foundIndex].purchases[i].purchaseDate, (*(Purchase*)value).purchaseDate, PURCHASE_DATE_LENGTH);
+                itemFound = 1;
+                break;
+            }
+        }
+
+        // If item was not found, add a new purchase entry
+        if (!itemFound) {
+            customers[foundIndex].purchases = (Purchase*)realloc(customers[foundIndex].purchases,
+                sizeof(Purchase) * (customers[foundIndex].purchaseCount + 1));
+            if (customers[foundIndex].purchases == NULL) {
+                printf("Error: Memory allocation failed for new purchase.\n");
+                return NULL;
+            }
+
+            // Allocate memory for the new serial number and purchase date
+            customers[foundIndex].purchases[customers[foundIndex].purchaseCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+            customers[foundIndex].purchases[customers[foundIndex].purchaseCount].purchaseDate = (char*)malloc(sizeof(char) * PURCHASE_DATE_LENGTH);
+            strcpy(customers[foundIndex].purchases[customers[foundIndex].purchaseCount].serialNumber, (*(Purchase*)value).serialNumber);
+            strcpy(customers[foundIndex].purchases[customers[foundIndex].purchaseCount].purchaseDate, (*(Purchase*)value).purchaseDate);
+            customers[foundIndex].purchases[customers[foundIndex].purchaseCount].amount = (*(Purchase*)value).amount;
+
+            // Increment the purchase count
+            (customers[foundIndex].purchaseCount)++;
+        }
+    }
+    else {
+        printf("Invalid property: %s\n", property);
         return NULL;
     }
 
@@ -656,22 +692,6 @@ Customer* updateCustomer(char* id, int property, void* value) {
     writeCustomers(customers, customerCount, CUSTOMERS_FILE);
 
     printf("Customer with ID %s has been updated.\n", id);
-
-    // Free the dynamically allocated memory for customers array
-    for (int i = 0; i < customerCount; i++) {
-        free(customers[i].id);
-        free(customers[i].name);
-        free(customers[i].joinDate);
-
-        if (customers[i].purchases != NULL) {
-            for (int j = 0; j < customers[i].purchaseCount; j++) {
-                free(customers[i].purchases[j].serialNumber);
-                free(customers[i].purchases[j].purchaseDate);
-            }
-            free(customers[i].purchases);
-        }
-    }
-    free(customers);
 
     return &(customers[foundIndex]);
 }
