@@ -120,7 +120,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Customer.c" />
-    <ClCompile Include="FileOperations.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="Item.c" />
     <ClCompile Include="StringOperations.c" />
@@ -128,7 +127,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Customer.h" />
-    <ClInclude Include="FileOperations.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="StringOperations.h" />
     <ClInclude Include="Employee.h" />

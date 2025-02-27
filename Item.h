@@ -23,8 +23,7 @@ typedef struct item {
 #define STOCK_LENGTH 4
 
 Item* createItem(char* serialNumber, char* brand, char* type, double price, int isPopular, char* releaseDate, int stock);
-int compareitems(const Item* item1, const Item* item2);
-void writeItem(Item* item, const char* fileName);
+void writeItem(Item* item, FILE* file);
 void writeItems(Item* items, int itemCount, const char* fileName);
 Item* readItem(FILE* file);
 Item* getAllItems(int* itemCount);

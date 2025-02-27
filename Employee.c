@@ -5,7 +5,6 @@
 #include "Employee.h"
 #include "Customer.h"
 #include "Item.h"
-#include "FileOperations.h"
 #include "StringOperations.h"
 #include <assert.h>
 
@@ -374,7 +373,6 @@ void showMenu() {
         int totalOptions = menuItems(atoi(currentEmployee.level), mapping);
 
         int user_choice;
-        clearBuffer();
         printf("Please enter a choice: ");
         scanf("%d", &user_choice);
 
@@ -459,7 +457,8 @@ void showMenu() {
         case 10: {
             char user;
             int itemCount = 0;
-            getAllItems(&itemCount);
+            Item* items = getAllItems(&itemCount);
+            printItems(items, itemCount);
             printf("Press any key to continue! ");
             scanf(" %c", &user);
             clearBuffer();
@@ -476,7 +475,8 @@ void showMenu() {
         case 12: {
             char user;
             int customersCount;
-            getAllCustomers(&customersCount);
+            Customer* customers = getAllCustomers(&customersCount);
+            printCustomers(customers, customersCount);
             printf("Press any key to continue! ");
             scanf(" %c", &user);
             clearBuffer();

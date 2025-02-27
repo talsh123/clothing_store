@@ -125,3 +125,24 @@ int isDateBetween(const char* startDate, const char* endDate, const char* dateTo
         return 0;
     }
 }
+
+// Function to trim a string to a maximum length and return it
+char* trimStringToLength(char* str, int maxLength) {
+    // Check for NULL pointer or non-positive length
+    if (str == NULL || maxLength <= 0) {
+        return "";
+    }
+
+    // Trim whitespace from start and end
+    str = trimwhitespace(str);
+
+    // Get the current length of the string
+    int currentLength = strlen(str);
+
+    // If the string is longer than maxLength, truncate it
+    if (currentLength > maxLength) {
+        str[maxLength] = '\0';  // Null-terminate at maxLength
+    }
+
+    return str;
+}

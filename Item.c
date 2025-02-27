@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include "Item.h"
 #include "Customer.h"
-#include "FileOperations.h"
 #include "StringOperations.h"
 #include <assert.h>
 
@@ -33,24 +32,9 @@ Item* createItem(char* serialNumber, char* brand, char* type, double price, int 
     return item;
 }
 
-int compareitems(const Item* item1, const Item* item2) {
-    // Check if usernames are the same
-    if (strcmp(item1->serialNumber, item2->serialNumber) != 0 ||
-        strcmp(item1->brand, item2->brand) != 0 ||
-        strcmp(item1->type, item2->type) != 0 ||
-        item1->price != item2->price || 
-        strcmp(item1->isPopular, item2->isPopular) != 0 ||
-        strcmp(item1->releaseDate, item2->releaseDate) != 0 ||
-        item1->stock != item2->stock) {
-        return 0;
-    }
-    return 1;
-}
-
-void writeItem(Item* item, const char* fileName) {
-    FILE* file = fopen(fileName, "ab");
+void writeItem(Item* item, FILE* file) {
     if (file == NULL) {
-        printf("Error opening file for appending.\n");
+        printf("Error: Invalid file pointer.\n");
         return;
     }
 
@@ -62,26 +46,26 @@ void writeItem(Item* item, const char* fileName) {
     fwrite(&(item->isPopular), sizeof(int), 1, file);
     fwrite(item->releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file);
     fwrite(&(item->stock), sizeof(int), 1, file);
-
-    fclose(file);
 }
 
 void writeItems(Item* items, int itemCount, const char* fileName) {
+    // Step 1: Clear the file first
     FILE* file = fopen(fileName, "wb");
     if (file == NULL) {
-        printf("Error opening file for writing.\n");
+        printf("Error opening file for clearing.\n");
+        return;
+    }
+    fclose(file);
+
+    // Step 2: Re-open in append mode and write each item
+    file = fopen(fileName, "ab");
+    if (file == NULL) {
+        printf("Error opening file for appending.\n");
         return;
     }
 
     for (int i = 0; i < itemCount; i++) {
-        // Write each field with the exact length
-        fwrite(items[i].serialNumber, sizeof(char), SERIAL_NUMBER_LENGTH, file);
-        fwrite(items[i].brand, sizeof(char), BRAND_LENGTH, file);
-        fwrite(items[i].type, sizeof(char), TYPE_LENGTH, file);
-        fwrite(&(items[i].price), sizeof(double), 1, file);
-        fwrite(&(items[i].isPopular), sizeof(int), 1, file);
-        fwrite(items[i].releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file);
-        fwrite(&(items[i].stock), sizeof(int), 1, file);
+        writeItem(&items[i], file);
     }
 
     fclose(file);
@@ -125,6 +109,11 @@ Item* readItem(FILE* file) {
     item->brand[BRAND_LENGTH - 1] = '\0';
     item->type[TYPE_LENGTH - 1] = '\0';
     item->releaseDate[RELEASE_DATE_LENGTH - 1] = '\0';
+
+    item->serialNumber = trimwhitespace(item->serialNumber);
+    item->brand = trimwhitespace(item->brand);
+    item->type = trimwhitespace(item->type);
+    item->releaseDate = trimwhitespace(item->releaseDate);
 
     return item;
 }
@@ -180,7 +169,6 @@ Item* getAllItems(int* itemCount) {
     }
 
     fclose(fp);
-    printItems(items, *itemCount);
     return items;
 }
 
@@ -783,9 +771,13 @@ Item* removeItem(char* serialNumber) {
 
         // Copy item data to the removed item
         strcpy(removedItem->serialNumber, items[foundIndex].serialNumber);
+        removedItem->serialNumber = trimwhitespace(removedItem->serialNumber);
         strcpy(removedItem->brand, items[foundIndex].brand);
+        removedItem->brand = trimwhitespace(removedItem->brand);
         strcpy(removedItem->type, items[foundIndex].type);
+        removedItem->type = trimwhitespace(removedItem->type);
         strcpy(removedItem->releaseDate, items[foundIndex].releaseDate);
+        removedItem->releaseDate = trimwhitespace(removedItem->releaseDate);
         removedItem->price = items[foundIndex].price;
         removedItem->isPopular = items[foundIndex].isPopular;
         removedItem->stock = items[foundIndex].stock;
@@ -807,6 +799,8 @@ Item* removeItem(char* serialNumber) {
     else {
         printf("Item with serial number %s not found.\n", serialNumber);
     }
+
+    printItems(items, itemCount);
 
     // Free the dynamically allocated memory for items array
     for (int i = 0; i < itemCount; i++) {
@@ -843,7 +837,7 @@ Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount) {
     customer->name = (char*)malloc(sizeof(char) * NAME_LENGTH);
     customer->joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
 
-    customer = findCustomersByID(userCustomerID);
+    customer = findCustomersByProperty("id", userCustomerID);
     if (customer == NULL) {
         printf("Customer not found.\n");
         return NULL;
@@ -1293,7 +1287,6 @@ void viewItems() {
 }
 
 void addNewItem() {
-    int exit = 0;
     clrscr();
     char* serial_number = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
     char* brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
@@ -1306,20 +1299,24 @@ void addNewItem() {
     printf("Add Item Menu:\n");
     printf("Please enter Serial Number: ");
     scanf("%s", serial_number);
+    serial_number = trimStringToLength(serial_number, SERIAL_NUMBER_LENGTH - 1);
     printf("Please enter Brand: ");
     scanf("%s", brand);
+    brand = trimStringToLength(brand, BRAND_LENGTH - 1);
     printf("Please enter Type: ");
     scanf("%s", type);
+    type = trimStringToLength(type, TYPE_LENGTH - 1);
     printf("Please enter price: ");
     scanf("%lf", price);
     printf("Is the Item Popular? [1 - Yes/0 - No]: ");
     scanf("%d", isPopular);
     printf("Please enter Release Date: ");
     scanf("%s", releaseDate);
+    releaseDate = trimStringToLength(releaseDate, RELEASE_DATE_LENGTH - 1);
     printf("Please enter Stock: ");
     scanf("%d", stock);
     Item* item = createItem(serial_number, brand, type, *price, *isPopular, releaseDate, *stock);
-    printItems(item, 1);
     writeItem(item, ITEMS_FILE);
+    printItems(item, 1);
     printf("Item has been written to file successfully!\n");
 }
