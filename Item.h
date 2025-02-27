@@ -1,5 +1,6 @@
 #ifndef ITEM_H
 #define ITEM_H
+#include "Customer.h"
 
 typedef struct item {
     char* serialNumber; // 13 Characters
@@ -37,7 +38,9 @@ Item* findByDate(char* userDate, char identifier);
 Item* findDatesInRange(char* userDate1, char* userDate2);
 Item* updateItem(char* userSerialNumber, char* property, void* value);
 Item* removeItem(char* serialNumber);
+void rewriteCustomer(char* customerID, Customer* updatedCustomer);
 Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount);
+void returnItemMenu();
 void sellItemMenu();
 void removeItemMenu();
 void updateItemMenu();

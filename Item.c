@@ -808,6 +808,111 @@ Item* removeItem(char* serialNumber) {
     return removedItem;
 }
 
+void rewriteCustomer(char* customerID, Customer* updatedCustomer) {
+    int customerCount = 0;
+    Customer* customers = getAllCustomers(&customerCount);
+
+    if (customers == NULL || customerCount == 0) {
+        printf("No customers found.\n");
+        return;
+    }
+
+    int foundIndex = -1;
+    // Find the customer with the given customer id
+    for (int i = 0; i < customerCount; i++) {
+        if (strcmp(customers[i].id, customerID) == 0) {
+            foundIndex = i;
+            break;
+        }
+    }
+
+    if (foundIndex == -1) {
+        printf("Customer with ID %s not found.\n", customerID);
+        free(customers);
+        return;
+    }
+
+    // Overwrite the customer at the found index
+    free(customers[foundIndex].id);
+    free(customers[foundIndex].name);
+    free(customers[foundIndex].joinDate);
+
+    customers[foundIndex].id = (char*)malloc(sizeof(char) * ID_LENGTH);
+    customers[foundIndex].name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+    customers[foundIndex].joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
+
+    strcpy(customers[foundIndex].id, updatedCustomer->id);
+    strcpy(customers[foundIndex].name, updatedCustomer->name);
+    strcpy(customers[foundIndex].joinDate, updatedCustomer->joinDate);
+    customers[foundIndex].totalAmountSpent = updatedCustomer->totalAmountSpent;
+    customers[foundIndex].itemsPurchased = updatedCustomer->itemsPurchased;
+    customers[foundIndex].purchaseCount = updatedCustomer->purchaseCount;
+
+    // Free and reallocate purchases array
+    if (customers[foundIndex].purchases != NULL) {
+        for (int j = 0; j < customers[foundIndex].purchaseCount; j++) {
+            free(customers[foundIndex].purchases[j].serialNumber);
+            free(customers[foundIndex].purchases[j].purchaseDate);
+        }
+        free(customers[foundIndex].purchases);
+    }
+
+    // Reallocate and copy the purchases array
+    customers[foundIndex].purchases = (Purchase*)malloc(sizeof(Purchase) * updatedCustomer->purchaseCount);
+    if (customers[foundIndex].purchases == NULL) {
+        printf("Error: Memory allocation failed for purchases.\n");
+        free(customers);
+        return;
+    }
+
+    for (int i = 0; i < updatedCustomer->purchaseCount; i++) {
+        customers[foundIndex].purchases[i].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+        customers[foundIndex].purchases[i].purchaseDate = (char*)malloc(sizeof(char) * PURCHASE_DATE_LENGTH);
+
+        strcpy(customers[foundIndex].purchases[i].serialNumber, updatedCustomer->purchases[i].serialNumber);
+        customers[foundIndex].purchases[i].amount = updatedCustomer->purchases[i].amount;
+        strcpy(customers[foundIndex].purchases[i].purchaseDate, updatedCustomer->purchases[i].purchaseDate);
+
+        if (customers[foundIndex].purchases[i].serialNumber == NULL ||
+            customers[foundIndex].purchases[i].purchaseDate == NULL) {
+            printf("Error: Memory allocation failed for purchase details.\n");
+            free(customers);
+            return;
+        }
+    }
+
+    // Step 1: Clear the file first
+    FILE* file = fopen(CUSTOMERS_FILE, "w");
+    if (file == NULL) {
+        printf("Error: Unable to open file for clearing.\n");
+        free(customers);
+        return;
+    }
+    fclose(file);
+
+    // Step 2: Rewrite all customers back to the file
+    writeCustomers(customers, customerCount, CUSTOMERS_FILE);
+
+    printf("Customer with ID %s has been updated and rewritten to the file.\n", customerID);
+
+    // Free the dynamically allocated memory for customers array
+    for (int i = 0; i < customerCount; i++) {
+        free(customers[i].id);
+        free(customers[i].name);
+        free(customers[i].joinDate);
+
+        if (customers[i].purchases != NULL) {
+            for (int j = 0; j < customers[i].purchaseCount; j++) {
+                free(customers[i].purchases[j].serialNumber);
+                free(customers[i].purchases[j].purchaseDate);
+            }
+            free(customers[i].purchases);
+        }
+    }
+    free(customers);
+}
+
+
 Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount) {
     Item* item = findByProperty("serial_number", itemSerialNumber);
 
@@ -885,11 +990,7 @@ Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount) {
 
     // Save updates to file
     updateItem(itemSerialNumber, "stock", &(item->stock));
-    updateCustomer(userCustomerID, "total_amount_spent", &(customer->totalAmountSpent));
-    updateCustomer(userCustomerID, "items_purchased", &(customer->itemsPurchased));
-    //updateCustomer(userCustomerID, "purchase_count", &(customer->purchaseCount));
-    // NO NEED TO UPDATE purchase_count, it is being updated when updating purchases
-    updateCustomer(userCustomerID, "purchases", customer->purchases);
+    rewriteCustomer(userCustomerID, customer);
 
     // TODO: Log the transaction
 
@@ -897,6 +998,100 @@ Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount) {
     return item;
 }
 
+void returnItemMenu() {
+    clrscr();
+    printf("Return Item Menu:\n");
+
+    clearBuffer();
+
+    // Get Customer ID
+    printf("Please enter Customer ID: ");
+    char* userCustomerID = (char*)malloc(sizeof(char) * ID_LENGTH);
+    getInputString(userCustomerID, ID_LENGTH);
+
+    // Get Customer Information
+    Customer* customer = findCustomersByProperty("id", userCustomerID);
+    if (customer == NULL) {
+        printf("Customer not found.\n");
+        free(userCustomerID);
+        return;
+    }
+
+    // Check if customer has any purchases
+    if (customer->purchaseCount == 0) {
+        printf("This customer has no purchases to return.\n");
+        free(userCustomerID);
+        return;
+    }
+
+    // Display all purchases as numbered options
+    printf("Select a purchase to return:\n");
+    for (int i = 0; i < customer->purchaseCount; i++) {
+        printf("%d. Item: %s, Amount: %d, Date: %s\n",
+            i + 1,
+            customer->purchases[i].serialNumber,
+            customer->purchases[i].amount,
+            customer->purchases[i].purchaseDate
+        );
+    }
+
+    // Get user's choice
+    int choice;
+    printf("Please enter the number of the purchase to return: ");
+    scanf("%d", &choice);
+
+    if (choice < 1 || choice > customer->purchaseCount) {
+        printf("Invalid choice.\n");
+        free(userCustomerID);
+        return;
+    }
+
+    // Get the selected purchase
+    int selectedIndex = choice - 1;
+    Purchase selectedPurchase = customer->purchases[selectedIndex];
+
+    // Check if the purchase is eligible for return (within 14 days)
+    char* currentDate = getCurrentDate();
+    if (!checkIf14DaysHavePassed(currentDate, selectedPurchase.purchaseDate)) {
+        printf("This purchase is not eligible for return (more than 14 days).\n");
+        free(userCustomerID);
+        free(currentDate);
+        return;
+    }
+    free(currentDate);
+
+    // Update Item Stock
+    Item* item = findByProperty("serial_number", selectedPurchase.serialNumber);
+    if (item == NULL) {
+        printf("Item not found in stock.\n");
+        free(userCustomerID);
+        return;
+    }
+    item->stock += selectedPurchase.amount;
+    updateItem(selectedPurchase.serialNumber, "stock", &(item->stock));
+
+    // Update Customer Details
+    customer->totalAmountSpent -= (item->price * selectedPurchase.amount);
+    customer->itemsPurchased -= selectedPurchase.amount;
+
+    // Remove the purchase from the array
+    for (int i = selectedIndex; i < customer->purchaseCount - 1; i++) {
+        customer->purchases[i] = customer->purchases[i + 1];
+    }
+
+    // Decrease purchase count
+    customer->purchaseCount--;
+
+    // Reallocate memory
+    customer->purchases = (Purchase*)realloc(customer->purchases, sizeof(Purchase) * customer->purchaseCount);
+
+    // Save updates to file
+    rewriteCustomer(userCustomerID, customer);
+
+    printf("Item returned successfully.\n");
+
+    free(userCustomerID);
+}
 
 void sellItemMenu() {
     clrscr();

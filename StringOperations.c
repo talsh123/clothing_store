@@ -164,3 +164,37 @@ char* getCurrentDate() {
 
     return dateStr;
 }
+
+// Function to compare two dates in DD-MM-YYYY format
+int checkIf14DaysHavePassed(const char* date1, const char* date2) {
+    struct tm tm1 = { 0 };
+    struct tm tm2 = { 0 };
+
+    // Parse the date strings
+    sscanf(date1, "%2d-%2d-%4d", &tm1.tm_mday, &tm1.tm_mon, &tm1.tm_year);
+    sscanf(date2, "%2d-%2d-%4d", &tm2.tm_mday, &tm2.tm_mon, &tm2.tm_year);
+
+    // Adjust month and year for mktime
+    tm1.tm_mon -= 1;
+    tm1.tm_year -= 1900;
+    tm2.tm_mon -= 1;
+    tm2.tm_year -= 1900;
+
+    // Convert to time_t
+    time_t time1 = mktime(&tm1);
+    time_t time2 = mktime(&tm2);
+
+    if (time1 == -1 || time2 == -1) {
+        printf("Error: Invalid date format.\n");
+        return 0;
+    }
+
+    // Calculate the difference in seconds
+    double difference = difftime(time1, time2);
+
+    // Convert to days
+    double daysDifference = difference / (60 * 60 * 24);
+
+    // Check if the difference is less than 14 days
+    return (abs(daysDifference) < 14) ? 1 : 0;
+}

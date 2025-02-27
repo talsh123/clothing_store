@@ -10,5 +10,6 @@ int compareDates(const char* dateStr1, const char* dateStr2);
 int isDateBetween(const char* startDate, const char* endDate, const char* dateToCheck);
 void getInputString(char* str, int maxLength);
 char* getCurrentDate();
+int checkIf14DaysHavePassed(const char* date1, const char* date2);
 
 #endif // STRINGOPERATIONS_H
