@@ -210,28 +210,62 @@ Employee* getAllEmployees() {
     return employees;
 }
 
-void menuItems(int level) {
+int menuItems(int level, int* mapping) {
+    int optionNumber = 1;  // Start numbering from 1
+
     printf("Welcome to the RTS System!\n");
     printf("Menu:\n");
+
+    // Trainee Level (3 and below)
     if (level <= 3) {
-        printf("1. View Items.\n");
-        printf("2. Add New Item.\n");
-        printf("3. Add New Customer.\n");
-        printf("4. View Customer Purchases.\n");
+        printf("%d. View Items.\n", optionNumber);
+        mapping[optionNumber++] = 1;
+
+        printf("%d. Add New Item.\n", optionNumber);
+        mapping[optionNumber++] = 2;
+
+        printf("%d. Add New Customer.\n", optionNumber);
+        mapping[optionNumber++] = 3;
+
+        printf("%d. View Customer Purchases.\n", optionNumber);
+        mapping[optionNumber++] = 4;
     }
+
+    // Worker Level (2 and below)
     if (level <= 2) {
-        printf("5. Remove an Item.\n");
-        printf("6. Remove a Customer.\n");
-        printf("7. Update Item.\n");
-        printf("8. Sell an Item.\n");
+        printf("%d. Remove an Item.\n", optionNumber);
+        mapping[optionNumber++] = 5;
+
+        printf("%d. Remove a Customer.\n", optionNumber);
+        mapping[optionNumber++] = 6;
+
+        printf("%d. Update Item.\n", optionNumber);
+        mapping[optionNumber++] = 7;
+
+        printf("%d. Sell an Item.\n", optionNumber);
+        mapping[optionNumber++] = 8;
     }
+
+    // Admin Level (1 only)
     if (level == 1) {
-        printf("9. Add New Employee.\n");
+        printf("%d. Add New Employee.\n", optionNumber);
+        mapping[optionNumber++] = 9;
+
+        printf("%d. Show all Employees.\n", optionNumber);
+        mapping[optionNumber++] = 11;
     }
-    printf("10. Show all Items.\n");
-    printf("11. Show all Employees.\n");
-    printf("12. Show all Customers.\n");
-    printf("13. Exit the RTS System.\n");
+
+    // Common Options for All Levels
+    printf("%d. Show all Items.\n", optionNumber);
+    mapping[optionNumber++] = 10;
+
+    printf("%d. Show all Customers.\n", optionNumber);
+    mapping[optionNumber++] = 12;
+
+    printf("%d. Exit the RTS System.\n", optionNumber);
+    mapping[optionNumber++] = 13;
+
+    return optionNumber - 1; // Return total number of options
 }
 
 int checkIfEmployeeFileExists() {
@@ -294,10 +328,12 @@ Employee login() {
                 return tempEmployee;
             }
             else {
-                printf("You have entered incorrect credentials. Please try again!\n");
                 if (user_attempts == ALLOWED_ATTEMPS - 1) {
-                    printf("You have entered incorrect credentials three times. Please try again later.\n");
+                    printf("You have entered incorrect credentials 3 times. Please try again later.\n");
                     exit(EXIT_FAILURE);
+                }
+                else {
+                    printf("Incorrect credentials. Please try again!\n");
                 }
                 user_attempts++;
             }
@@ -332,13 +368,23 @@ void addNewEmployee() {
 void showMenu() {
     while (1) {
         int exit = 0;
+        int mapping[20] = { 0 };  // Array to map options to switch cases
+
         clrscr();
-        menuItems(atoi(currentEmployee.level));
+        int totalOptions = menuItems(atoi(currentEmployee.level), mapping);
+
         int user_choice;
         clearBuffer();
-        printf("please enter a choice: ");
+        printf("Please enter a choice: ");
         scanf("%d", &user_choice);
-        switch (user_choice) {
+
+        // Validate the user choice
+        if (user_choice < 1 || user_choice > totalOptions || mapping[user_choice] == 0) {
+            printf("Invalid choice. Please try again.\n");
+            continue;
+        }
+
+        switch (mapping[user_choice]) {
         case 1:
             clrscr();
             viewItems();
@@ -352,7 +398,7 @@ void showMenu() {
             clrscr();
             addNewCustomer();
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
@@ -361,7 +407,7 @@ void showMenu() {
             clrscr();
             checkCustomerPurchases();
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
@@ -370,7 +416,7 @@ void showMenu() {
             clrscr();
             removeItemMenu();
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
@@ -379,7 +425,7 @@ void showMenu() {
             clrscr();
             removeCustomerMenu();
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
@@ -388,23 +434,25 @@ void showMenu() {
             clrscr();
             updateItemMenu();
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
         case 8: {
             char user;
+            clrscr();
             sellItemMenu();
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
         case 9: {
             char user;
+            clrscr();
             addNewEmployee();
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
@@ -413,7 +461,7 @@ void showMenu() {
             int itemCount = 0;
             getAllItems(&itemCount);
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
@@ -421,7 +469,7 @@ void showMenu() {
             char user;
             getAllEmployees();
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
@@ -430,7 +478,7 @@ void showMenu() {
             int customersCount;
             getAllCustomers(&customersCount);
             printf("Press any key to continue! ");
-            scanf("%c", &user);
+            scanf(" %c", &user);
             clearBuffer();
             break;
         }
@@ -441,5 +489,4 @@ void showMenu() {
         if (exit == 1)
             break;
     }
-
 }

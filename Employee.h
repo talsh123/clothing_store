@@ -28,7 +28,7 @@ Employee* readEmployee(FILE* file);
 Employee* checkCredentials(char* username, char* password);
 void printEmployees(Employee* employees, int employeeCount);
 Employee* getAllEmployees();
-void menuItems(int level);
+int menuItems(int level, int* mapping);
 int checkIfEmployeeFileExists();
 void createDefaultAdmin();
 Employee login();
