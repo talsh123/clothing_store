@@ -11,5 +11,7 @@ int isDateBetween(const char* startDate, const char* endDate, const char* dateTo
 void getInputString(char* str, int maxLength);
 char* getCurrentDate();
 int checkIf14DaysHavePassed(const char* date1, const char* date2);
+int compareLevels(char* level1, char* level2);
+void* safeMalloc(size_t size);
 
 #endif // STRINGOPERATIONS_H

@@ -5,61 +5,69 @@
 #include "Employee.h"
 #include "Customer.h"
 #include "Item.h"
+#include "main.h"
 #include "StringOperations.h"
 #include <assert.h>
 
 Employee* createEmployee(char* username, char* privateName, char* password, char* level) {
     Employee* employee = (Employee*)malloc(sizeof(Employee));
-    if (employee == NULL) {
-        printf("Error: Memory allocation failed for Employee.\n");
-        return NULL;
-    }
+    assert(employee);
 
     // Allocate and copy username
     employee->username = (char*)malloc(USERNAME_LENGTH);
-    if (employee->username == NULL) {
-        printf("Error: Memory allocation failed for username.\n");
-        free(employee);
-        return NULL;
-    }
+    assert(employee->username);
     strncpy(employee->username, username, USERNAME_LENGTH - 1);
     employee->username[USERNAME_LENGTH - 1] = '\0';
+    employee->username = trimwhitespace(employee->username);
 
     // Allocate and copy privateName
     employee->privateName = (char*)malloc(PRIVATE_NAME_LENGTH);
-    if (employee->privateName == NULL) {
-        printf("Error: Memory allocation failed for privateName.\n");
-        free(employee->username);
-        free(employee);
-        return NULL;
-    }
+    assert(employee->privateName);
     strncpy(employee->privateName, privateName, PRIVATE_NAME_LENGTH - 1);
     employee->privateName[PRIVATE_NAME_LENGTH - 1] = '\0';
+    employee->privateName = trimwhitespace(employee->privateName);
 
     // Allocate and copy password
     employee->password = (char*)malloc(PASSWORD_LENGTH);
-    if (employee->password == NULL) {
-        printf("Error: Memory allocation failed for password.\n");
-        free(employee->privateName);
-        free(employee->username);
-        free(employee);
-        return NULL;
-    }
+    assert(employee->password);
     strncpy(employee->password, password, PASSWORD_LENGTH - 1);
     employee->password[PASSWORD_LENGTH - 1] = '\0';
+    employee->password = trimwhitespace(employee->password);
 
     // Allocate and copy level
     employee->level = (char*)malloc(LEVEL_LENGTH);
-    if (employee->level == NULL) {
-        printf("Error: Memory allocation failed for level.\n");
-        free(employee->password);
-        free(employee->privateName);
-        free(employee->username);
-        free(employee);
-        return NULL;
-    }
+    assert(employee->level);
     strncpy(employee->level, level, LEVEL_LENGTH - 1);
     employee->level[LEVEL_LENGTH - 1] = '\0';
+    employee->level = trimwhitespace(employee->level);
+
+    // Initialize the next pointer to NULL
+    employee->next = NULL;
+
+    printf("Employee '%s' added successfully.\n", username);
+
+    return employee;
+}
+
+Employee* addEmployee(Employee* employee) {
+    // Initialize the next pointer of the new employee to NULL
+    employee->next = NULL;
+
+    // If the list is empty, the new employee becomes the head
+    if (globalEmployees == NULL) {
+        globalEmployees = employee;
+    }
+    else {
+        // Otherwise, traverse to the end of the list
+        Employee* current = globalEmployees;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        // Add the new employee at the end of the list
+        current->next = employee;
+    }
+
+    printf("Employee '%s' added successfully.\n", employee->username);
 
     return employee;
 }
@@ -78,6 +86,27 @@ void writeEmployee(Employee* employee, const char* fileName) {
     fprintf(file, "%-*s\n", LEVEL_LENGTH - 1, employee->level);
 
     fclose(file);
+}
+
+void writeEmployees(const char* fileName) {
+    // Open the file in write mode to clear its contents
+    FILE* file = fopen(fileName, "w");
+    if (file == NULL) {
+        printf("Error: Could not open file %s for writing.\n", fileName);
+        return;
+    }
+    fclose(file); // Close immediately to clear contents
+
+    // Start at the head of the linked list
+    Employee* current = globalEmployees;
+
+    // Iterate over the linked list and write each employee to the file
+    while (current != NULL) {
+        writeEmployee(current, fileName);
+        current = current->next;
+    }
+
+    printf("All employees have been written to %s successfully.\n", fileName);
 }
 
 Employee* readEmployee(FILE* file) {
@@ -126,6 +155,8 @@ Employee* readEmployee(FILE* file) {
         return NULL;
     }
 
+    employee->next = NULL;
+
     // Free remaining "\n" character in file
     int ch;
     while ((ch = fgetc(file)) != '\n' && ch != EOF);
@@ -140,95 +171,156 @@ Employee* readEmployee(FILE* file) {
 }
 
 Employee* checkCredentials(char* username, char* password) {
-    FILE* file = fopen(EMPLOYEES_FILE, "r");
-    if (file == NULL) {
-        printf("Error: Could not open file.\n");
-        return NULL;
-    }
+    // Start at the head of the linked list
+    Employee* current = globalEmployees;
 
-    while (!feof(file)) {  // Check if end of file is reached
-        Employee* employee = readEmployee(file);
-
-        // Validate the employee object
-        if (employee == NULL) {
-            break;  // Exit the loop if no more Employees can be read
-        }
-
+    // Traverse the linked list
+    while (current != NULL) {
         // Compare the credentials
-        if (!strcmp(employee->username, username) && !strcmp(employee->password, password)) {
-            fclose(file);  // Close the file before returning
-            return employee; // Credentials match
+        if (strcmp(current->username, username) == 0 && strcmp(current->password, password) == 0) {
+            return current; // Credentials match, return the pointer to this node
         }
-
-        // Free the employee if credentials do not match
-        free(employee->username);
-        free(employee->privateName);
-        free(employee->password);
-        free(employee->level);
-        free(employee);
+        // Move to the next node
+        current = current->next;
     }
 
-    fclose(file); // Close the file before returning
+    printf("Error: Invalid username or password.\n");
     return NULL; // Credentials do not match
 }
 
 // Function to print all employees in one line each
-void printEmployees(Employee* employees, int employeeCount) {
-    if (employees == NULL || employeeCount <= 0) {
+void printEmployees() {
+    if (globalEmployees == NULL) {
         printf("No employees to display.\n");
         return;
     }
 
     printf("\n--- Employees List ---\n");
-    for (int i = 0; i < employeeCount; i++) {
+
+    // Start at the head of the linked list
+    Employee* current = globalEmployees;
+    while (current != NULL) {
         printf("%s, %s, %s, %s\n",
-            employees[i].username,
-            employees[i].privateName,
-            employees[i].password,
-            employees[i].level
+            current->username,
+            current->privateName,
+            current->password,
+            current->level
         );
+        // Move to the next employee in the list
+        current = current->next;
     }
+
     printf("--------------------\n");
+}
+
+// Function to print a specific employee by username
+void printEmployee(char* username) {
+    if (globalEmployees == NULL) {
+        printf("No employees to display.\n");
+        return;
+    }
+
+    // Start at the head of the linked list
+    Employee* current = globalEmployees;
+
+    // Iterate over the linked list
+    while (current != NULL) {
+        // Compare the username
+        if (strcmp(current->username, username) == 0) {
+            // Username found, print the employee's details
+            printf("\n--- Employee Details ---\n");
+            printf("Username: %s\n", current->username);
+            printf("Private Name: %s\n", current->privateName);
+            printf("Password: %s\n", current->password);
+            printf("Level: %s\n", current->level);
+            printf("-------------------------\n");
+            return;
+        }
+        // Move to the next employee in the list
+        current = current->next;
+    }
+
+    // If we exit the loop, the username was not found
+    printf("Employee with username '%s' not found.\n", username);
 }
 
 Employee* getAllEmployees() {
     FILE* fp = fopen(EMPLOYEES_FILE, "r");
     if (fp == NULL) {
-        printf("Error opening file.\n");
+        printf("Error opening file: %s\n", EMPLOYEES_FILE);
         return NULL;
     }
 
-    Employee* employees = NULL;
-    int employeeCount = 0;
-    Employee* tempEmployee;
+    Employee* current = NULL;
+    Employee* tail = NULL; // Tail keeps track of the last node
 
-    // Read all Employees
-    while ((tempEmployee = readEmployee(fp)) != NULL) {
-        // Dynamically allocate memory
-        employees = realloc(employees, sizeof(Item) * (employeeCount + 1));
+    // Read all Employees and insert them into the linked list
+    while ((current = readEmployee(fp)) != NULL) {
+        // Initialize the next pointer to NULL
+        current->next = NULL;
 
-        // Hard copy the Item
-        employees[employeeCount].username = (char*)malloc(sizeof(char) * USERNAME_LENGTH);
-        employees[employeeCount].privateName = (char*)malloc(sizeof(char) * PRIVATE_NAME_LENGTH);
-        employees[employeeCount].password = (char*)malloc(sizeof(char) * PASSWORD_LENGTH);
-        employees[employeeCount].level = (char*)malloc(sizeof(char) * LEVEL_LENGTH);
-        strcpy(employees[employeeCount].username, (*tempEmployee).username);
-        strcpy(employees[employeeCount].privateName, (*tempEmployee).privateName);
-        strcpy(employees[employeeCount].password, (*tempEmployee).password);
-        strcpy(employees[employeeCount].level, (*tempEmployee).level);
-
-        // Increment the itemCount
-        employeeCount++;
-
-        // Check for end of file after attempting to read
-        if (feof(fp)) {
-            break;
+        if (globalEmployees == NULL) {
+            // If the list is empty, the first employee becomes the head
+            globalEmployees = current;
+            tail = globalEmployees;
+        }
+        else {
+            // Otherwise, link the new employee at the end of the list
+            tail->next = current;
+            tail = current;
         }
     }
 
     fclose(fp);
-    printEmployees(employees, employeeCount);
-    return employees;
+
+    // Return the head of the list, which may be NULL if no employees were read
+    return globalEmployees;
+}
+
+// Function to sort the linked list by level in ascending order
+void sortEmployees() {
+    if (globalEmployees == NULL || globalEmployees->next == NULL) {
+        // List is empty or has only one element
+        return;
+    }
+
+    int swapped;
+    Employee* current;
+    Employee* lastSorted = NULL;
+
+    // Bubble sort implementation
+    do {
+        swapped = 0;
+        current = globalEmployees;
+
+        while (current->next != lastSorted) {
+            // Compare levels of the current node and the next node
+            if (compareLevels(current->level, current->next->level) > 0) {
+                // Swap the nodes' data if they are in the wrong order
+                // Swap the contents instead of nodes to keep the linked list intact
+                char* tempUsername = current->username;
+                char* tempPrivateName = current->privateName;
+                char* tempPassword = current->password;
+                char* tempLevel = current->level;
+
+                current->username = current->next->username;
+                current->privateName = current->next->privateName;
+                current->password = current->next->password;
+                current->level = current->next->level;
+
+                current->next->username = tempUsername;
+                current->next->privateName = tempPrivateName;
+                current->next->password = tempPassword;
+                current->next->level = tempLevel;
+
+                swapped = 1;
+            }
+            current = current->next;
+        }
+        lastSorted = current;
+    } while (swapped);
+
+    printf("Employees sorted by level (ascending order).\n");
 }
 
 int menuItems(int level, int* mapping) {
@@ -292,7 +384,6 @@ int menuItems(int level, int* mapping) {
     return optionNumber - 1; // Return total number of options
 }
 
-
 int checkIfEmployeeFileExists() {
     FILE* file;
     if ((file = fopen(EMPLOYEES_FILE, "r"))) {
@@ -306,67 +397,66 @@ void createDefaultAdmin() {
     Employee* employee = createEmployee("admin", "manager", "12345678", "1");
     writeEmployee(employee, EMPLOYEES_FILE);
     printf("No employees.txt file found!\n");
-    printf("employees.txt file and default Admin user created!\n");
+    printf("Created default Admin user!\n");
 }
 
-Employee login() {
+void login() {
     Employee tempEmployee;
     tempEmployee.username = (char*)malloc(USERNAME_LENGTH * sizeof(char));
     tempEmployee.privateName = (char*)malloc(PRIVATE_NAME_LENGTH * sizeof(char));
     tempEmployee.password = (char*)malloc(PASSWORD_LENGTH * sizeof(char));
     tempEmployee.level = (char*)malloc(LEVEL_LENGTH * sizeof(char));
 
-    if (!checkIfEmployeeFileExists()) {
-        // Create default admin
-        strcpy(tempEmployee.username, "admin");
-        strcpy(tempEmployee.privateName, "manager");
-        strcpy(tempEmployee.password, "12345678");
-        strcpy(tempEmployee.level, "1");
-        return tempEmployee;
-    }
-    else {
-        int user_attempts = 0;
-        char* username = (char*)malloc(USERNAME_LENGTH * sizeof(char));
-        char* password = (char*)malloc(PASSWORD_LENGTH * sizeof(char));
+    int user_attempts = 0;
+    char* username = (char*)malloc(USERNAME_LENGTH * sizeof(char));
+    char* password = (char*)malloc(PASSWORD_LENGTH * sizeof(char));
 
-        assert(username != NULL);
-        assert(password != NULL);
+    assert(username != NULL);
+    assert(password != NULL);
 
-        while (user_attempts < ALLOWED_ATTEMPS) {
-            printf("Please enter username: ");
-            scanf("%s", username);
-            printf("Please enter password: ");
-            scanf("%s", password);
+    while (user_attempts < ALLOWED_ATTEMPTS) {
+        printf("Please enter username: ");
+        scanf("%s", username);
+        printf("Please enter password: ");
+        scanf("%s", password);
 
-            Employee* employeePtr = checkCredentials(username, password);
+        // Load employees, customers, and items 
+        globalEmployees = getAllEmployees();
 
-            if (employeePtr != NULL) {
-                // Deep copy each string
-                strncpy(tempEmployee.username, employeePtr->username, USERNAME_LENGTH);
-                strncpy(tempEmployee.privateName, employeePtr->privateName, PRIVATE_NAME_LENGTH);
-                strncpy(tempEmployee.password, employeePtr->password, PASSWORD_LENGTH);
-                strncpy(tempEmployee.level, employeePtr->level, LEVEL_LENGTH);
+        Employee* tempEmployee = checkCredentials(username, password);
 
-                free(username);
-                free(password);
+        if (tempEmployee != NULL) {
+            // Deep copy each string
+            currentEmployee = (Employee*)malloc(sizeof(Employee));
+            currentEmployee->username = (char*)malloc(sizeof(char) * USERNAME_LENGTH);
+            currentEmployee->privateName = (char*)malloc(sizeof(char) * PRIVATE_NAME_LENGTH);
+            currentEmployee->password = (char*)malloc(sizeof(char) * PASSWORD_LENGTH);
+            currentEmployee->level = (char*)malloc(sizeof(char) * LEVEL_LENGTH);
+            strncpy(currentEmployee->username, tempEmployee->username, USERNAME_LENGTH);
+            strncpy(currentEmployee->privateName, tempEmployee->privateName, PRIVATE_NAME_LENGTH);
+            strncpy(currentEmployee->password, tempEmployee->password, PASSWORD_LENGTH);
+            strncpy(currentEmployee->level, tempEmployee->level, LEVEL_LENGTH);
+            currentEmployee->next = NULL;
 
-                return tempEmployee;
+            free(username);
+            free(password);
+
+            globalCustomers = getAllCustomers();
+            globalItems = getAllItems();
+            return;
+        }
+        else {
+
+            if (user_attempts == ALLOWED_ATTEMPTS - 1) {
+                printf("You have entered incorrect credentials 3 times. Please try again later.\n");
+                exit(EXIT_FAILURE);
             }
             else {
-
-                if (user_attempts == ALLOWED_ATTEMPS - 1) {
-                    printf("You have entered incorrect credentials 3 times. Please try again later.\n");
-                    exit(EXIT_FAILURE);
-                }
-                else {
-                    printf("Incorrect credentials. Please try again!\n");
-                }
-                user_attempts++;
+                printf("Incorrect credentials. Please try again!\n");
             }
+            user_attempts++;
         }
     }
-    // Default return for compiler, shouldn't reach here
-    return tempEmployee;
 }
 
 void addNewEmployee() {
@@ -376,7 +466,7 @@ void addNewEmployee() {
     char* password = (char*)malloc(sizeof(char) * PASSWORD_LENGTH);
     char* level = (char*)malloc(sizeof(char) * LEVEL_LENGTH);
     clearBuffer();
-    printf("Add Item Menu:\n");
+    printf("Add New Employee Menu:\n");
     printf("Please enter Username: ");
     getInputString(username, USERNAME_LENGTH);
     printf("Please enter Private Name: ");
@@ -386,8 +476,8 @@ void addNewEmployee() {
     printf("Please enter level: ");
     getInputString(level , LEVEL_LENGTH);
     Employee* employee = createEmployee(username, privateName, password, level);
-    writeEmployee(employee, EMPLOYEES_FILE);
-    printEmployees(employee, 1);
+    addEmployee(employee);
+    printEmployee(employee->username);
     printf("Employee has been added successfully!\n");
 }
 
@@ -397,7 +487,7 @@ void showMenu() {
         int mapping[30] = { 0 };  // Increased array size for mapping
 
         clrscr();
-        int totalOptions = menuItems(atoi(currentEmployee.level), mapping);
+        int totalOptions = menuItems(atoi(currentEmployee->level), mapping);
 
         int user_choice;
         printf("Please enter a choice: ");
@@ -438,7 +528,7 @@ void showMenu() {
         case 5: {
             char user;
             clrscr();
-            returnItemMenu();
+            //returnItemMenu();
             printf("Press any key to continue! ");
             scanf(" %c", &user);
             clearBuffer();
@@ -492,7 +582,7 @@ void showMenu() {
         case 11: {
             char user;
             clrscr();
-            getAllEmployees();
+            printEmployees();
             printf("Press any key to continue! ");
             scanf(" %c", &user);
             clearBuffer();
@@ -502,7 +592,7 @@ void showMenu() {
             char user;
             int itemCount = 0;
             Item* items = getAllItems(&itemCount);
-            printItems(items, itemCount);
+            printItems();
             printf("Press any key to continue! ");
             scanf(" %c", &user);
             clearBuffer();
@@ -511,8 +601,7 @@ void showMenu() {
         case 13: {
             char user;
             int customersCount;
-            Customer* customers = getAllCustomers(&customersCount);
-            printCustomers(customers, customersCount);
+            printCustomers();
             printf("Press any key to continue! ");
             scanf(" %c", &user);
             clearBuffer();
@@ -520,15 +609,19 @@ void showMenu() {
         }
         case 14:
             exit = 1;
+            sortEmployees();
+            sortCustomers();
+            //sortItems();
+            writeEmployees(EMPLOYEES_FILE);
+            writeCustomers(CUSTOMERS_FILE);
+            //writeItems()
             break;
         default:
             printf("Invalid choice. Please try again.\n");
             break;
         }
-
         if (exit == 1) {
             break;
         }
     }
 }
-

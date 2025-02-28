@@ -1,10 +1,4 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef MAIN_HEADER_H
+#define MAIN_HEADER_H
 
-#include "Employee.h"
-
-Employee currentEmployee;
-
-int main();
-
-#endif // MAIN_H
+#endif // MAIN_HEADER_H

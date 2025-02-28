@@ -1,6 +1,5 @@
 #ifndef ITEM_H
 #define ITEM_H
-#include "Customer.h"
 
 typedef struct item {
     char* serialNumber; // 13 Characters
@@ -11,6 +10,13 @@ typedef struct item {
     char* releaseDate; // DD-MM-YYYY Format, 11 characters
     int stock;
 } Item;
+
+typedef struct ItemNode {
+    Item* item;
+    struct ItemNode* next;
+} ItemNode;
+
+extern ItemNode* globalItems;
 
 #define ITEMS_FILE "items.bin"
 
@@ -23,32 +29,35 @@ typedef struct item {
 #define RELEASE_DATE_LENGTH 11
 #define STOCK_LENGTH 4
 
-Item* createItem(char* serialNumber, char* brand, char* type, double price, int isPopular, char* releaseDate, int stock);
-void writeItem(Item* item, FILE* file);
-void writeItems(Item* items, int itemCount, const char* fileName);
-Item* readItem(FILE* file);
-Item* getAllItems(int* itemCount);
-void viewItemsMenu();
-void printItems(Item* items, int itemCount);
-Item* findByBrandType(char* userBrand, char* userType, int filterType);
-Item* findByPrice(double price, char identifier);
-Item* findByStock(int stock, char identifier);
-Item* findByProperty(char* property, void* value);
-Item* findByDate(char* userDate, char identifier);
-Item* findDatesInRange(char* userDate1, char* userDate2);
-Item* updateItem(char* userSerialNumber, char* property, void* value);
+ItemNode* createItem(char* serialNumber, char* brand, char* type, double price, int isPopular, char* releaseDate, int stock); // done
+void writeItem(Item* item, FILE* file); // done
+Item* readItem(FILE* file); // done
+ItemNode* createItemNode(Item* item);
+Item* getAllItems(); // done, didnt changed
+void viewItemsMenu(); // upgraded menu to table
+void printItems();
+void freeItem(Item* item);
+ItemNode* findByBrandType(char* userBrand, char* userType, int filterType); // done
+ItemNode* findByPrice(double price, char identifier); // done
+ItemNode* findByStock(int stock, char identifier); // done
+ItemNode* findByProperty(char* property, void* value); // done
+ItemNode* findByDate(char* userDate, char identifier); // done
+ItemNode* findDatesInRange(char* userDate1, char* userDate2); // done
+ItemNode* findItemBySerialNumber(char* serialNumber); // new, for sell simplfy 
+Item* updateItem(char* userSerialNumber, int property, void* value);
 Item* removeItem(char* serialNumber);
-void rewriteCustomer(char* customerID, Customer* updatedCustomer);
 Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount);
-void returnItemMenu();
-void sellItemMenu();
-void removeItemMenu();
-void updateItemMenu();
+void sellItemMenu(); // done
+void removeItemMenu(); // done
+void updateItemMenu(); // done
 void searchByBrandOrType();
 void searchByPriceorStock();
 void searchByEquals();
 void searchByDate();
 void viewItems();
 void addNewItem();
+ItemNode* loadItemsLinkedList(const char* filename); // new
+void saveItemsFromLinkedList(const char* fileName); // new
+void addItemToList(ItemNode* newNode); // new
 
 #endif // ITEM_H

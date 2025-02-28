@@ -1,11 +1,13 @@
 #ifndef EMPLOYEE_H
 #define EMPLOYEE_H
+#include "main.h"
 
-typedef struct {
+typedef struct Employee {
     char* username;
     char* privateName;
     char* password;
     char* level;
+    struct Employee* next;  // Pointer to the next employee in the list
 } Employee;
 
 #define EMPLOYEES_FILE "employees.txt"
@@ -16,22 +18,28 @@ typedef struct {
 #define PASSWORD_LENGTH 128
 #define LEVEL_LENGTH 2
 
-// User Validation Attemps
-#define ALLOWED_ATTEMPS 3
+// User Validation Attempts
+#define ALLOWED_ATTEMPTS 3
 
 // Extern declaration for global variable
-extern Employee currentEmployee;
+extern Employee* currentEmployee;  // Points the the employee that is connected
+
+extern Employee* globalEmployees;
 
 Employee* createEmployee(char* username, char* privateName, char* password, char* level);
-void writeEmployee(Employee* Employee, const char* fileName);
+Employee* addEmployee(Employee* employee);
+void writeEmployee(Employee* employee, const char* fileName);
+void writeEmployees(const char* fileName);
 Employee* readEmployee(FILE* file);
 Employee* checkCredentials(char* username, char* password);
-void printEmployees(Employee* employees, int employeeCount);
+void printEmployees();
+void printEmployee(char* username);
 Employee* getAllEmployees();
+void sortEmployees();
 int menuItems(int level, int* mapping);
 int checkIfEmployeeFileExists();
 void createDefaultAdmin();
-Employee login();
+void login();
 void addNewEmployee();
 void showMenu();
 

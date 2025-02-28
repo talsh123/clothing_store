@@ -6,16 +6,22 @@
 #include <string.h>
 #include "StringOperations.h"
 #include <assert.h>
+#include "Customer.h"
+#include "Item.h"
 
-Employee currentEmployee;
+// Define the global variables
+Employee* currentEmployee = NULL;
+Employee* globalEmployees = NULL;
+Customer* globalCustomers = NULL;
+ItemNode* globalItems = NULL;
 
 int main() {
     if (!checkIfEmployeeFileExists()) {
         createDefaultAdmin();
     }
 
-    currentEmployee = login();
-    if (currentEmployee.level == 0) {
+    login();
+    if (currentEmployee->level == 0) {
         printf("Login failed. Try again later..\n");
         return 0;
     }

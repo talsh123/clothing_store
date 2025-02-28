@@ -198,3 +198,22 @@ int checkIf14DaysHavePassed(const char* date1, const char* date2) {
     // Check if the difference is less than 14 days
     return (abs(daysDifference) < 14) ? 1 : 0;
 }
+
+// Function to compare two levels
+int compareLevels(char* level1, char* level2) {
+    int num1 = atoi(level1);
+    int num2 = atoi(level2);
+
+    if (num1 > num2) return 1;
+    if (num1 < num2) return -1;
+    return 0; // Levels are the same
+}
+
+void* safeMalloc(size_t size) {
+    void* ptr = malloc(size);
+    if (ptr == NULL) {
+        fprintf(stderr, "Error: Memory allocation of %zu bytes failed.\n", size);
+        exit(EXIT_FAILURE);
+    }
+    return ptr;
+}

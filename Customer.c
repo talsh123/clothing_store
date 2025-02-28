@@ -7,6 +7,7 @@
 #include "StringOperations.h"
 #include <assert.h>
 #include <time.h>
+#include "main.h"
 
 Customer* createCustomer(char* id, char* name) {
     Customer* customer = (Customer*)malloc(sizeof(Customer));
@@ -33,9 +34,35 @@ Customer* createCustomer(char* id, char* name) {
 
     // Purchase Count
     customer->purchaseCount = 0;
-    
+
     // Purchases
-    customer->purchases = NULL;
+    customer->purchases = NULL;;
+
+    // Next Pointer
+    customer->next = NULL;
+
+    return customer;
+}
+
+Customer* addCustomer(Customer* customer) {
+    // Initialize the next pointer of the new customer to NULL
+    customer->next = NULL;
+
+    // If the list is empty, the new customer becomes the head
+    if (globalCustomers == NULL) {
+        globalCustomers = customer;
+    }
+    else {
+        // Otherwise, traverse to the end of the list
+        Customer* current = globalCustomers;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        // Add the new customer at the end of the list
+        current->next = customer;
+    }
+
+    printf("Customer '%s' added successfully.\n", customer->name);
 
     return customer;
 }
@@ -58,7 +85,7 @@ void writeCustomer(Customer* customer, const char* fileName) {
     fprintf(file, "%d ", customer->purchaseCount);
 
     // Write Purchase Details
-    if(customer->purchases != NULL)
+    if (customer->purchases != NULL)
         for (int i = 0; i < customer->purchaseCount; i++) {
             fprintf(file, "%-*s ", SERIAL_NUMBER_LENGTH - 1, customer->purchases[i].serialNumber);
             fprintf(file, "%d ", customer->purchases[i].amount);
@@ -71,7 +98,7 @@ void writeCustomer(Customer* customer, const char* fileName) {
     fclose(file);
 }
 
-void writeCustomers(Customer* customers, int customerCount, const char* fileName) {
+void writeCustomers(const char* fileName) {
     // Open the file in write mode to clear its contents
     FILE* file = fopen(fileName, "w");
     if (file == NULL) {
@@ -80,9 +107,10 @@ void writeCustomers(Customer* customers, int customerCount, const char* fileName
     }
     fclose(file);
 
-    // Iterate through the customer list and write each one
-    for (int i = 0; i < customerCount; i++) {
-        writeCustomer(&customers[i], fileName);
+    Customer* current = globalCustomers;
+    while (current != NULL) {
+        writeCustomer(current, fileName);
+        current = current->next;
     }
 }
 
@@ -158,36 +186,35 @@ Customer* readCustomer(FILE* file) {
 
 
 // Function to print all customers in one line each, including purchase history
-void printCustomers(Customer* customers, int customerCount) {
-    if (customers == NULL || customerCount <= 0) {
+void printCustomers() {
+    if (globalCustomers == NULL) {
         printf("No customers to display.\n");
         return;
     }
 
     printf("\n--- Customers List ---\n");
-    for (int i = 0; i < customerCount; i++) {
-        // Print basic customer details
+    Customer* current = globalCustomers;
+    while (current != NULL) {
+        // ????? ???? ?????
         printf("%s, %s, %s, %.2lf, %d, %d",
-            customers[i].id,
-            customers[i].name,
-            customers[i].joinDate,
-            customers[i].totalAmountSpent,
-            customers[i].itemsPurchased,
-            customers[i].purchaseCount
+            current->id,
+            current->name,
+            current->joinDate,
+            current->totalAmountSpent,
+            current->itemsPurchased,
+            current->purchaseCount
         );
 
-        // Print purchase history if available
-        if (customers[i].purchaseCount > 0 && customers[i].purchases != NULL) {
+        // ????? ???????? ?????? ?? ?????
+        if (current->purchaseCount > 0 && current->purchases != NULL) {
             printf(" | Purchases: ");
-            for (int j = 0; j < customers[i].purchaseCount; j++) {
+            for (int j = 0; j < current->purchaseCount; j++) {
                 printf("{Serial: %s, Amount: %d, Date: %s}",
-                    customers[i].purchases[j].serialNumber,
-                    customers[i].purchases[j].amount,
-                    customers[i].purchases[j].purchaseDate
+                    current->purchases[j].serialNumber,
+                    current->purchases[j].amount,
+                    current->purchases[j].purchaseDate
                 );
-
-                // Separate multiple purchases with a comma
-                if (j < customers[i].purchaseCount - 1) {
+                if (j < current->purchaseCount - 1) {
                     printf(", ");
                 }
             }
@@ -195,124 +222,146 @@ void printCustomers(Customer* customers, int customerCount) {
         else {
             printf(" | No Purchases");
         }
-
         printf("\n");
+        current = current->next;
     }
     printf("--------------------\n");
 }
 
-Customer* getAllCustomers(int* customerCount) {
+void printCustomer(char* id) {
+    if (globalCustomers == NULL) {
+        printf("No customers to display.\n");
+        return;
+    }
+
+    // Start at the head of the linked list
+    Customer* current = globalCustomers;
+
+    // Iterate over the linked list
+    while (current != NULL) {
+        // Compare the ID
+        if (strcmp(current->id, id) == 0) {
+            // ID found, print the customer's details
+            printf("\n--- Customer Details ---\n");
+            printf("%s, %s, %s, %.2lf, %d, %d",
+                current->id,
+                current->name,
+                current->joinDate,
+                current->totalAmountSpent,
+                current->itemsPurchased,
+                current->purchaseCount
+            );
+
+            // Print purchase history if available
+            if (current->purchaseCount > 0 && current->purchases != NULL) {
+                printf(" | Purchases: ");
+                for (int j = 0; j < current->purchaseCount; j++) {
+                    printf("{Serial: %s, Amount: %d, Date: %s}",
+                        current->purchases[j].serialNumber,
+                        current->purchases[j].amount,
+                        current->purchases[j].purchaseDate
+                    );
+                    if (j < current->purchaseCount - 1) {
+                        printf(", ");
+                    }
+                }
+            }
+            else {
+                printf(" | No Purchases");
+            }
+            printf("\n------------------------\n");
+            return;
+        }
+        // Move to the next customer in the list
+        current = current->next;
+    }
+
+    // If we exit the loop, the ID was not found
+    printf("Customer with ID '%s' not found.\n", id);
+}
+
+Customer* getAllCustomers() {
     FILE* fp = fopen(CUSTOMERS_FILE, "r");
     if (fp == NULL) {
         printf("Error opening file.\n");
+        printf("There are no customer yet, returning empty linked list!\n");
         return NULL;
     }
 
-    Customer* customers = NULL;
-    *customerCount = 0;
+    Customer* head = NULL;
+    Customer* tail = NULL;
     Customer* tempCustomer;
 
-    // Read all Customers
     while ((tempCustomer = readCustomer(fp)) != NULL) {
-        // Dynamically allocate memory for the new customer
-        customers = realloc(customers, sizeof(Customer) * (*customerCount + 1));
-        if (customers == NULL) {
-            printf("Error: Memory allocation failed.\n");
-            fclose(fp);
-            return NULL;
-        }
-
-        // Initialize current customer pointer
-        Customer* currentCustomer = &customers[*customerCount];
-
-        // Deep Copy Customer Basic Details
-        currentCustomer->id = (char*)malloc(sizeof(char) * ID_LENGTH);
-        currentCustomer->name = (char*)malloc(sizeof(char) * NAME_LENGTH);
-        currentCustomer->joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
-
-        if (currentCustomer->id == NULL || currentCustomer->name == NULL || currentCustomer->joinDate == NULL) {
-            printf("Error: Memory allocation failed for strings.\n");
-            fclose(fp);
-            return NULL;
-        }
-
-        strcpy(currentCustomer->id, tempCustomer->id);
-        currentCustomer->id = trimwhitespace(currentCustomer->id);
-        strcpy(currentCustomer->name, tempCustomer->name);
-        currentCustomer->name = trimwhitespace(currentCustomer->name);
-        strcpy(currentCustomer->joinDate, tempCustomer->joinDate);
-        currentCustomer->joinDate = trimwhitespace(currentCustomer->joinDate);
-
-        currentCustomer->totalAmountSpent = tempCustomer->totalAmountSpent;
-        currentCustomer->itemsPurchased = tempCustomer->itemsPurchased;
-        currentCustomer->purchaseCount = tempCustomer->purchaseCount;
-
-        // Deep Copy Purchase History
-        if (tempCustomer->purchaseCount > 0 && tempCustomer->purchases != NULL) {
-            currentCustomer->purchases = (Purchase*)malloc(sizeof(Purchase) * tempCustomer->purchaseCount);
-            if (currentCustomer->purchases == NULL) {
-                printf("Error: Memory allocation failed for purchases.\n");
-                fclose(fp);
-                return NULL;
-            }
-
-            for (int i = 0; i < tempCustomer->purchaseCount; i++) {
-                // Allocate and copy serialNumber
-                currentCustomer->purchases[i].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-                if (currentCustomer->purchases[i].serialNumber == NULL) {
-                    printf("Error: Memory allocation failed for serialNumber.\n");
-                    fclose(fp);
-                    return NULL;
-                }
-                strcpy(currentCustomer->purchases[i].serialNumber, tempCustomer->purchases[i].serialNumber);
-                currentCustomer->purchases[i].serialNumber = trimwhitespace(currentCustomer->purchases[i].serialNumber);
-
-                // Copy amount
-                currentCustomer->purchases[i].amount = tempCustomer->purchases[i].amount;
-
-                // Allocate and copy purchaseDate
-                currentCustomer->purchases[i].purchaseDate = (char*)malloc(sizeof(char) * PURCHASE_DATE_LENGTH);
-                if (currentCustomer->purchases[i].purchaseDate == NULL) {
-                    printf("Error: Memory allocation failed for purchaseDate.\n");
-                    fclose(fp);
-                    return NULL;
-                }
-                strcpy(currentCustomer->purchases[i].purchaseDate, tempCustomer->purchases[i].purchaseDate);
-                currentCustomer->purchases[i].purchaseDate = trimwhitespace(currentCustomer->purchases[i].purchaseDate);
-            }
+        if (head == NULL) {
+            head = tail = tempCustomer;
         }
         else {
-            currentCustomer->purchaseCount = 0;
-            currentCustomer->purchases = NULL;
-        }
-
-        // Increment the customer count
-        (*customerCount)++;
-
-        // Free temporary customer
-        free(tempCustomer->id);
-        free(tempCustomer->name);
-        free(tempCustomer->joinDate);
-
-        if (tempCustomer->purchases != NULL) {
-            for (int i = 0; i < tempCustomer->purchaseCount; i++) {
-                free(tempCustomer->purchases[i].serialNumber);
-                free(tempCustomer->purchases[i].purchaseDate);
-            }
-            free(tempCustomer->purchases);
-        }
-        free(tempCustomer);
-
-        // Check for end of file after attempting to read
-        if (feof(fp)) {
-            break;
+            tail->next = tempCustomer;
+            tail = tempCustomer;
         }
     }
 
     fclose(fp);
-
-    return customers;
+    return head;
 }
+
+// Function to sort the linked list by joinDate in descending order
+void sortCustomers() {
+    if (globalCustomers == NULL || globalCustomers->next == NULL) {
+        // List is empty or has only one element
+        return;
+    }
+
+    int swapped;
+    Customer* current;
+    Customer* lastSorted = NULL;
+
+    // Bubble sort implementation
+    do {
+        swapped = 0;
+        current = globalCustomers;
+
+        while (current->next != lastSorted) {
+            // Compare join dates of the current node and the next node
+            // Descending order, so check if current date is earlier
+            if (compareDates(current->joinDate, current->next->joinDate) < 0) {
+                // Swap the nodes' data if they are in the wrong order
+                // Swap the contents instead of nodes to keep the linked list intact
+                char* tempId = current->id;
+                char* tempName = current->name;
+                char* tempJoinDate = current->joinDate;
+                double tempTotalAmountSpent = current->totalAmountSpent;
+                int tempItemsPurchased = current->itemsPurchased;
+                int tempPurchaseCount = current->purchaseCount;
+                Purchase* tempPurchases = current->purchases;
+
+                current->id = current->next->id;
+                current->name = current->next->name;
+                current->joinDate = current->next->joinDate;
+                current->totalAmountSpent = current->next->totalAmountSpent;
+                current->itemsPurchased = current->next->itemsPurchased;
+                current->purchaseCount = current->next->purchaseCount;
+                current->purchases = current->next->purchases;
+
+                current->next->id = tempId;
+                current->next->name = tempName;
+                current->next->joinDate = tempJoinDate;
+                current->next->totalAmountSpent = tempTotalAmountSpent;
+                current->next->itemsPurchased = tempItemsPurchased;
+                current->next->purchaseCount = tempPurchaseCount;
+                current->next->purchases = tempPurchases;
+
+                swapped = 1;
+            }
+            current = current->next;
+        }
+        lastSorted = current;
+    } while (swapped);
+
+    printf("Customers sorted by join date (latest first).\n");
+}
+
 
 // This function allows the user to get all customers with a certain property
 // These properties are:
@@ -324,390 +373,201 @@ Customer* getAllCustomers(int* customerCount) {
 // purchaseCount
 // NOTE: The user cannot find a user based on the user's purchased items!
 Customer* findCustomersByProperty(char* property, void* value) {
-    FILE* file = fopen(CUSTOMERS_FILE, "r");
-    if (file == NULL) {
-        printf("Error: Could not open file %s\n", CUSTOMERS_FILE);
-        return NULL;
-    }
-
-    // Dynamic array to store matching customers
-    Customer* matchingCustomers = NULL;
-    int count = 0;
-    Customer* customer;
-
-    // Read customers one by one
-    while ((customer = readCustomer(file)) != NULL) {
+    Customer* head = getAllCustomers();
+    Customer* current = head;
+    while (current != NULL) {
         int matches = 0;
-
-        // Check property and compare value
         if (strcmp(property, "id") == 0) {
-            if (strcmp(customer->id, (char*)value) == 0) {
+            if (strcmp(current->id, (char*)value) == 0) {
                 matches = 1;
             }
         }
         else if (strcmp(property, "name") == 0) {
-            if (strcmp(customer->name, (char*)value) == 0) {
+            if (strcmp(current->name, (char*)value) == 0) {
                 matches = 1;
             }
         }
         else if (strcmp(property, "join_date") == 0) {
-            if (strcmp(customer->joinDate, (char*)value) == 0) {
+            if (strcmp(current->joinDate, (char*)value) == 0) {
                 matches = 1;
             }
         }
         else if (strcmp(property, "total_amount_spent") == 0) {
-            if (customer->totalAmountSpent == *(double*)value) {
+            if (current->totalAmountSpent == *(double*)value) {
                 matches = 1;
             }
         }
         else if (strcmp(property, "items_purchased") == 0) {
-            if (customer->itemsPurchased == *(int*)value) {
+            if (current->itemsPurchased == *(int*)value) {
                 matches = 1;
             }
         }
         else if (strcmp(property, "purchase_count") == 0) {
-            if (customer->purchaseCount == *(int*)value) {
+            if (current->purchaseCount == *(int*)value) {
                 matches = 1;
             }
         }
         else {
             printf("Invalid property: %s\n", property);
-            fclose(file);
             return NULL;
         }
 
-        // If item matches, add it to the dynamic array
         if (matches) {
-            count++;
-            // Resize array to hold another item
-            Customer* tempArray = realloc(matchingCustomers, sizeof(Customer) * count);
-            if (tempArray == NULL) {
-                printf("Error: Memory allocation failed.\n");
-                fclose(file);
-                return NULL;
-            }
-            matchingCustomers = tempArray;
-
-            // Allocate and Copy Basic Details
-            matchingCustomers[count - 1].id = strdup(customer->id);
-            matchingCustomers[count - 1].id = trimwhitespace(matchingCustomers[count - 1].id);
-            matchingCustomers[count - 1].name = strdup(customer->name);
-            matchingCustomers[count - 1].name = trimwhitespace(matchingCustomers[count - 1].name);
-            matchingCustomers[count - 1].joinDate = strdup(customer->joinDate);
-            matchingCustomers[count - 1].joinDate = trimwhitespace(matchingCustomers[count - 1].joinDate);
-            matchingCustomers[count - 1].totalAmountSpent = customer->totalAmountSpent;
-            matchingCustomers[count - 1].itemsPurchased = customer->itemsPurchased;
-            matchingCustomers[count - 1].purchaseCount = customer->purchaseCount;
-
-            // Check for memory allocation failure in basic fields
-            if (matchingCustomers[count - 1].id == NULL ||
-                matchingCustomers[count - 1].name == NULL ||
-                matchingCustomers[count - 1].joinDate == NULL) {
-                printf("Error: Memory allocation failed for strings.\n");
-                fclose(file);
-                return NULL;
-            }
-
-            // Deep Copy Purchase History
-            if (customer->purchaseCount > 0 && customer->purchases != NULL) {
-                matchingCustomers[count - 1].purchases = (Purchase*)malloc(sizeof(Purchase) * customer->purchaseCount);
-                if (matchingCustomers[count - 1].purchases == NULL) {
-                    printf("Error: Memory allocation failed for purchases.\n");
-                    fclose(file);
-                    return NULL;
-                }
-
-                for (int i = 0; i < customer->purchaseCount; i++) {
-                    // Allocate and copy serialNumber
-                    matchingCustomers[count - 1].purchases[i].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-                    if (matchingCustomers[count - 1].purchases[i].serialNumber == NULL) {
-                        printf("Error: Memory allocation failed for serialNumber.\n");
-                        fclose(file);
-                        return NULL;
-                    }
-                    strcpy(matchingCustomers[count - 1].purchases[i].serialNumber, customer->purchases[i].serialNumber);
-                    matchingCustomers[count - 1].purchases[i].serialNumber = trimwhitespace(matchingCustomers[count - 1].purchases[i].serialNumber);
-
-                    // Copy amount
-                    matchingCustomers[count - 1].purchases[i].amount = customer->purchases[i].amount;
-
-                    // Allocate and copy purchaseDate
-                    matchingCustomers[count - 1].purchases[i].purchaseDate = (char*)malloc(sizeof(char) * PURCHASE_DATE_LENGTH);
-                    if (matchingCustomers[count - 1].purchases[i].purchaseDate == NULL) {
-                        printf("Error: Memory allocation failed for purchaseDate.\n");
-                        fclose(file);
-                        return NULL;
-                    }
-                    strcpy(matchingCustomers[count - 1].purchases[i].purchaseDate, customer->purchases[i].purchaseDate);
-                    matchingCustomers[count - 1].purchases[i].purchaseDate = trimwhitespace(matchingCustomers[count - 1].purchases[i].purchaseDate);
-                }
-            }
-            else {
-                matchingCustomers[count - 1].purchaseCount = 0;
-                matchingCustomers[count - 1].purchases = NULL;
-            }
+            return current;
         }
 
-        // Free temporary customer
-        free(customer->id);
-        free(customer->name);
-        free(customer->joinDate);
-
-        if (customer->purchases != NULL) {
-            for (int i = 0; i < customer->purchaseCount; i++) {
-                free(customer->purchases[i].serialNumber);
-                free(customer->purchases[i].purchaseDate);
-            }
-            free(customer->purchases);
-        }
-        free(customer);
+        current = current->next;
     }
 
-    fclose(file);
-
-    // If no items matched, free memory and return NULL
-    if (count == 0) {
-        printf("There are no items that matched your search!\n");
-        free(matchingCustomers);
-        return NULL;
-    }
-
-    return matchingCustomers;
+    printf("There are no customers that matched your search!\n");
+    return NULL;
 }
 
 Customer* removeCustomer(char* id) {
-    int customerCount = 0;
-    Customer* customers = getAllCustomers(&customerCount);
-    if (customers == NULL || customerCount == 0) {
-        printf("No customers to remove.\n");
+    Customer* head = getAllCustomers();
+    Customer* current = head;
+    Customer* prev = NULL;
+    Customer* removed = NULL;
+
+    while (current != NULL) {
+        if (strcmp(current->id, id) == 0) {
+            removed = current;
+            if (prev == NULL) {
+                head = current->next;
+            }
+            else {
+                prev->next = current->next;
+            }
+            removed->next = NULL;
+            break;
+        }
+        prev = current;
+        current = current->next;
+    }
+
+    if (removed == NULL) {
+        printf("Customer with ID %s not found.\n", id);
+        current = head;
+        while (current != NULL) {
+            Customer* temp = current;
+            current = current->next;
+            free(temp->id);
+            free(temp->name);
+            free(temp->joinDate);
+            if (temp->purchases != NULL) {
+                for (int i = 0; i < temp->purchaseCount; i++) {
+                    free(temp->purchases[i].serialNumber);
+                    free(temp->purchases[i].purchaseDate);
+                }
+                free(temp->purchases);
+            }
+            free(temp);
+        }
         return NULL;
     }
 
-    Customer* removedCustomer = NULL;
-    int foundIndex = -1;
+    printf("Customer with ID %s has been removed.\n", id);
 
-    // Search for the customer with the given id
-    for (int i = 0; i < customerCount; i++) {
-        if (strcmp(customers[i].id, id) == 0) {
-            foundIndex = i;
-            break;
-        }
-    }
-
-    // If customer is found
-    if (foundIndex != -1) {
-        // Allocate memory for the removed customer and copy its data
-        removedCustomer = (Customer*)malloc(sizeof(Customer));
-        if (removedCustomer == NULL) {
-            printf("Error: Memory allocation failed for removed customer.\n");
-            return NULL;
-        }
-
-        // Copy basic details
-        removedCustomer->id = strdup(customers[foundIndex].id);
-        removedCustomer->name = strdup(customers[foundIndex].name);
-        removedCustomer->joinDate = strdup(customers[foundIndex].joinDate);
-        removedCustomer->totalAmountSpent = customers[foundIndex].totalAmountSpent;
-        removedCustomer->itemsPurchased = customers[foundIndex].itemsPurchased;
-        removedCustomer->purchaseCount = customers[foundIndex].purchaseCount;
-
-        // Check for memory allocation failure in basic fields
-        if (removedCustomer->id == NULL ||
-            removedCustomer->name == NULL ||
-            removedCustomer->joinDate == NULL) {
-            printf("Error: Memory allocation failed for strings.\n");
-            free(removedCustomer);
-            return NULL;
-        }
-
-        // Deep Copy Purchase History
-        if (customers[foundIndex].purchaseCount > 0 && customers[foundIndex].purchases != NULL) {
-            removedCustomer->purchases = (Purchase*)malloc(sizeof(Purchase) * customers[foundIndex].purchaseCount);
-            if (removedCustomer->purchases == NULL) {
-                printf("Error: Memory allocation failed for purchases.\n");
-                free(removedCustomer->id);
-                free(removedCustomer->name);
-                free(removedCustomer->joinDate);
-                free(removedCustomer);
-                return NULL;
+    current = head;
+    while (current != NULL) {
+        Customer* temp = current;
+        current = current->next;
+        free(temp->id);
+        free(temp->name);
+        free(temp->joinDate);
+        if (temp->purchases != NULL) {
+            for (int i = 0; i < temp->purchaseCount; i++) {
+                free(temp->purchases[i].serialNumber);
+                free(temp->purchases[i].purchaseDate);
             }
-
-            for (int i = 0; i < customers[foundIndex].purchaseCount; i++) {
-                // Allocate and copy serialNumber
-                removedCustomer->purchases[i].serialNumber = strdup(customers[foundIndex].purchases[i].serialNumber);
-                removedCustomer->purchases[i].purchaseDate = strdup(customers[foundIndex].purchases[i].purchaseDate);
-                removedCustomer->purchases[i].amount = customers[foundIndex].purchases[i].amount;
-
-                // Check for memory allocation failure
-                if (removedCustomer->purchases[i].serialNumber == NULL ||
-                    removedCustomer->purchases[i].purchaseDate == NULL) {
-                    printf("Error: Memory allocation failed for purchase details.\n");
-                    for (int j = 0; j <= i; j++) {
-                        free(removedCustomer->purchases[j].serialNumber);
-                        free(removedCustomer->purchases[j].purchaseDate);
-                    }
-                    free(removedCustomer->purchases);
-                    free(removedCustomer->id);
-                    free(removedCustomer->name);
-                    free(removedCustomer->joinDate);
-                    free(removedCustomer);
-                    return NULL;
-                }
-            }
+            free(temp->purchases);
         }
-        else {
-            removedCustomer->purchaseCount = 0;
-            removedCustomer->purchases = NULL;
-        }
-
-        // Shift customers to remove the found item
-        for (int i = foundIndex; i < customerCount - 1; i++) {
-            customers[i] = customers[i + 1];
-        }
-
-        // Reallocate memory to shrink the customers array
-        customers = realloc(customers, sizeof(Customer) * (customerCount - 1));
-        if (customers == NULL && customerCount > 1) {
-            printf("Error: Memory reallocation failed.\n");
-            return NULL;
-        }
-        customerCount--;
-
-        // Update the text file after removal
-        writeCustomers(customers, customerCount, CUSTOMERS_FILE);
-
-        printf("Customer with ID %s has been removed.\n", id);
-    }
-    else {
-        printf("Customer with ID %s not found.\n", id);
+        free(temp);
     }
 
-    // Free the dynamically allocated memory for customers array
-    for (int i = 0; i < customerCount; i++) {
-        free(customers[i].id);
-        free(customers[i].name);
-        free(customers[i].joinDate);
-
-        if (customers[i].purchases != NULL) {
-            for (int j = 0; j < customers[i].purchaseCount; j++) {
-                free(customers[i].purchases[j].serialNumber);
-                free(customers[i].purchases[j].purchaseDate);
-            }
-            free(customers[i].purchases);
-        }
-    }
-    free(customers);
-
-    return removedCustomer;
+    return removed;
 }
 
 Customer* updateCustomer(char* id, char* property, void* value) {
-    int customerCount = 0;
-    Customer* customers = getAllCustomers(&customerCount);
+    Customer* head = getAllCustomers();
+    Customer* current = head;
 
-    if (customers == NULL || customerCount == 0) {
-        printf("No customers found.\n");
-        return NULL;
-    }
-
-    int foundIndex = -1;
-    // Find the customer with the given customer id
-    for (int i = 0; i < customerCount; i++) {
-        if (strcmp(customers[i].id, id) == 0) {
-            foundIndex = i;
-            break;
-        }
-    }
-
-    if (foundIndex == -1) {
-        printf("Customer with ID %s not found.\n", id);
-        return NULL;
-    }
-
-    // Update the specified property
-    if (strcmp(property, "id") == 0) {
-        char* trimmedID = trimwhitespace((char*)value);
-        customers[foundIndex].id = (char*)realloc(customers[foundIndex].id, strlen(trimmedID) + 1);
-        if (customers[foundIndex].id == NULL) {
-            printf("Error: Memory allocation failed for id.\n");
-            return NULL;
-        }
-        strcpy(customers[foundIndex].id, trimmedID);
-    }
-    else if (strcmp(property, "name") == 0) {
-        char* trimmedName = trimwhitespace((char*)value);
-        customers[foundIndex].name = (char*)realloc(customers[foundIndex].name, strlen(trimmedName) + 1);
-        if (customers[foundIndex].name == NULL) {
-            printf("Error: Memory allocation failed for name.\n");
-            return NULL;
-        }
-        strcpy(customers[foundIndex].name, trimmedName);
-    }
-    else if (strcmp(property, "total_amount_spent") == 0) {
-        customers[foundIndex].totalAmountSpent = *(double*)value;
-    }
-    else if (strcmp(property, "items_purchased") == 0) {
-        customers[foundIndex].itemsPurchased = *(int*)value;
-    }
-    else if (strcmp(property, "purchases") == 0) {
-        int itemFound = 0;
-
-        // Check if the item was previously purchased
-        for (int i = 0; i < customers[foundIndex].purchaseCount; i++) {
-            if (strcmp(customers[foundIndex].purchases[i].serialNumber, (*(Purchase*)value).serialNumber) == 0) {
-                // Item found, update the amount
-                customers[foundIndex].purchases[i].amount += (*(Purchase*)value).amount;
-                strncpy(customers[foundIndex].purchases[i].purchaseDate, (*(Purchase*)value).purchaseDate, PURCHASE_DATE_LENGTH);
-                itemFound = 1;
-                break;
+    while (current != NULL) {
+        if (strcmp(current->id, id) == 0) {
+            if (strcmp(property, "id") == 0) {
+                char* trimmedID = trimwhitespace((char*)value);
+                current->id = (char*)realloc(current->id, strlen(trimmedID) + 1);
+                if (current->id == NULL) {
+                    printf("Error: Memory allocation failed for id.\n");
+                    return NULL;
+                }
+                strcpy(current->id, trimmedID);
             }
-        }
-
-        // If item was not found, add a new purchase entry
-        if (!itemFound) {
-            customers[foundIndex].purchases = (Purchase*)realloc(customers[foundIndex].purchases,
-                sizeof(Purchase) * (customers[foundIndex].purchaseCount + 1));
-            if (customers[foundIndex].purchases == NULL) {
-                printf("Error: Memory allocation failed for new purchase.\n");
+            else if (strcmp(property, "name") == 0) {
+                char* trimmedName = trimwhitespace((char*)value);
+                current->name = (char*)realloc(current->name, strlen(trimmedName) + 1);
+                if (current->name == NULL) {
+                    printf("Error: Memory allocation failed for name.\n");
+                    return NULL;
+                }
+                strcpy(current->name, trimmedName);
+            }
+            else if (strcmp(property, "total_amount_spent") == 0) {
+                current->totalAmountSpent = *(double*)value;
+            }
+            else if (strcmp(property, "items_purchased") == 0) {
+                current->itemsPurchased = *(int*)value;
+            }
+            else if (strcmp(property, "purchases") == 0) {
+                int itemFound = 0;
+                for (int i = 0; i < current->purchaseCount; i++) {
+                    if (strcmp(current->purchases[i].serialNumber, (*(Purchase*)value).serialNumber) == 0) {
+                        current->purchases[i].amount += (*(Purchase*)value).amount;
+                        strncpy(current->purchases[i].purchaseDate, (*(Purchase*)value).purchaseDate, PURCHASE_DATE_LENGTH);
+                        itemFound = 1;
+                        break;
+                    }
+                }
+                if (!itemFound) {
+                    current->purchases = (Purchase*)realloc(current->purchases,
+                        sizeof(Purchase) * (current->purchaseCount + 1));
+                    if (current->purchases == NULL) {
+                        printf("Error: Memory allocation failed for new purchase.\n");
+                        return NULL;
+                    }
+                    current->purchases[current->purchaseCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+                    current->purchases[current->purchaseCount].purchaseDate = (char*)malloc(sizeof(char) * PURCHASE_DATE_LENGTH);
+                    strcpy(current->purchases[current->purchaseCount].serialNumber, (*(Purchase*)value).serialNumber);
+                    strcpy(current->purchases[current->purchaseCount].purchaseDate, (*(Purchase*)value).purchaseDate);
+                    current->purchases[current->purchaseCount].amount = (*(Purchase*)value).amount;
+                    current->purchaseCount++;
+                }
+            }
+            else {
+                printf("Invalid property: %s\n", property);
                 return NULL;
             }
-
-            // Allocate memory for the new serial number and purchase date
-            customers[foundIndex].purchases[customers[foundIndex].purchaseCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-            customers[foundIndex].purchases[customers[foundIndex].purchaseCount].purchaseDate = (char*)malloc(sizeof(char) * PURCHASE_DATE_LENGTH);
-            strcpy(customers[foundIndex].purchases[customers[foundIndex].purchaseCount].serialNumber, (*(Purchase*)value).serialNumber);
-            strcpy(customers[foundIndex].purchases[customers[foundIndex].purchaseCount].purchaseDate, (*(Purchase*)value).purchaseDate);
-            customers[foundIndex].purchases[customers[foundIndex].purchaseCount].amount = (*(Purchase*)value).amount;
-
-            // Increment the purchase count
-            (customers[foundIndex].purchaseCount)++;
+            printf("Customer with ID %s has been updated.\n", id);
+            return current;
         }
+        current = current->next;
     }
-    else {
-        printf("Invalid property: %s\n", property);
-        return NULL;
-    }
-
-    // Save the updated customers back to the file
-    writeCustomers(customers, customerCount, CUSTOMERS_FILE);
-
-    printf("Customer with ID %s has been updated.\n", id);
-
-    return &(customers[foundIndex]);
+    printf("Customer with ID %s not found.\n", id);
+    return NULL;
 }
+
 
 void removeCustomerMenu() {
     clrscr();
     printf("Remove Customer Menu:\n");
+    char customerID[ID_LENGTH];
     printf("Please enter Customer ID: ");
-    char* customerID = (char*)malloc(sizeof(char) * ID_LENGTH);
     scanf("%s", customerID);
     removeCustomer(customerID);
 }
 
 void addNewCustomer() {
-    char* id = (char*)malloc(sizeof(char) * ID_LENGTH);
-    char* name = (char*)malloc(sizeof(char) * NAME_LENGTH);
+    char id[ID_LENGTH], name[NAME_LENGTH];
     clearBuffer();
     printf("Add Customer Menu:\n");
     printf("Please enter Customer ID: ");
@@ -716,16 +576,17 @@ void addNewCustomer() {
     printf("Please enter Customer Name: ");
     getInputString(name, NAME_LENGTH);
     Customer* customer = createCustomer(id, name);
-    writeCustomer(customer, CUSTOMERS_FILE);
-    printCustomers(customer , 1);
+    addCustomer(customer);
+    printCustomers();
     printf("Customer has been added successfully!\n");
 }
 
 void checkCustomerPurchases() {
-    char* id = (char*)malloc(sizeof(char) * ID_LENGTH);
+    char id[ID_LENGTH];
     printf("Check Customer Purchases Menu:\n");
     printf("Please enter Customer ID: ");
     scanf("%s", id);
     Customer* customer = findCustomersByProperty("id", id);
-    printCustomers(customer, 1);
+    if (customer != NULL)
+        printCustomer(id);
 }

@@ -8,28 +8,51 @@
 #include "StringOperations.h"
 #include <assert.h>
 
-Item* createItem(char* serialNumber, char* brand, char* type, double price, int isPopular, char* releaseDate, int stock) {
-    Item* item = (Item*)malloc(sizeof(Item));
+void addItemToList(ItemNode* newNode) {
+    if (newNode == NULL) {
+        return;
+    }
+    if (globalItems == NULL) {
+        globalItems = newNode;
+    }
+    else {
+        ItemNode* current = globalItems;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = newNode;
+    }
+}
 
-    item->serialNumber = (char*)malloc(SERIAL_NUMBER_LENGTH);
-    strcpy(item->serialNumber, serialNumber);
+ItemNode* createItem(char* serialNumber, char* brand, char* type, double price, int isPopular, char* releaseDate, int stock) {
+    
+    Item* newItem = (Item*)safeMalloc(sizeof(Item));
 
-    item->brand = (char*)malloc(BRAND_LENGTH);
-    strcpy(item->brand, brand);
+    newItem->serialNumber = (char*)safeMalloc(SERIAL_NUMBER_LENGTH);
+    strcpy(newItem->serialNumber, serialNumber);
 
-    item->type = (char*)malloc(TYPE_LENGTH);
-    strcpy(item->type, type);
+    newItem->brand = (char*)safeMalloc(BRAND_LENGTH);
+    strcpy(newItem->brand, brand);
 
-    item->price = price;
+    newItem->type = (char*)safeMalloc(TYPE_LENGTH);
+    strcpy(newItem->type, type);
 
-    item->isPopular = isPopular;
+    newItem->releaseDate = (char*)safeMalloc(RELEASE_DATE_LENGTH);
+    strcpy(newItem->releaseDate, releaseDate);
 
-    item->releaseDate = (char*)malloc(RELEASE_DATE_LENGTH);
-    strcpy(item->releaseDate, releaseDate);
+    newItem->stock = stock;
+    newItem->price = price;
+    newItem->isPopular = isPopular;
 
-    item->stock = stock;
+    // Create the new linked list node.
+    ItemNode* newNode = (ItemNode*)safeMalloc(sizeof(ItemNode));
+    newNode->item = newItem;
+    newNode->next = NULL;
 
-    return item;
+    // Automatically add the new node to the global items list.
+    addItemToList(newNode);
+
+    return newNode;
 }
 
 void writeItem(Item* item, FILE* file) {
@@ -48,37 +71,37 @@ void writeItem(Item* item, FILE* file) {
     fwrite(&(item->stock), sizeof(int), 1, file);
 }
 
-void writeItems(Item* items, int itemCount, const char* fileName) {
-    // Step 1: Clear the file first
+void saveItemsFromLinkedList(const char* fileName) {
+
     FILE* file = fopen(fileName, "wb");
-    if (file == NULL) {
+    if (!file) {
         printf("Error opening file for clearing.\n");
         return;
     }
-    fclose(file);
-
-    // Step 2: Re-open in append mode and write each item
-    file = fopen(fileName, "ab");
-    if (file == NULL) {
-        printf("Error opening file for appending.\n");
-        return;
+    ItemNode* current = globalItems;
+    while (current != NULL) {
+        writeItem(current->item, file);
+        current = current->next;
     }
-
-    for (int i = 0; i < itemCount; i++) {
-        writeItem(&items[i], file);
-    }
-
     fclose(file);
 }
 
 Item* readItem(FILE* file) {
     if (file == NULL) {
-        return NULL; // File pointer is NULL
+        return NULL;
     }
+
+    // Check if we are at the end of the file before reading
+    int check;
+    check = fgetc(file);
+    if (check == EOF) {
+        return NULL; // EOF reached
+    }
+    ungetc(check, file); // Put back the character
 
     // Allocate memory for the item
     Item* item = (Item*)malloc(sizeof(Item));
-    if (item == NULL) {
+    if (!item) {
         printf("Memory allocation failed.\n");
         return NULL;
     }
@@ -90,19 +113,28 @@ Item* readItem(FILE* file) {
     item->releaseDate = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
 
     // Validate memory allocation
-    assert(item->serialNumber);
-    assert(item->brand);
-    assert(item->type);
-    assert(item->releaseDate);
+    if (!item->serialNumber || !item->brand || !item->type || !item->releaseDate) {
+        printf("Memory allocation failed.\n");
+        free(item);
+        return NULL;
+    }
 
     // Read data from the binary file in the same order as it was written
-    fread(item->serialNumber, sizeof(char), SERIAL_NUMBER_LENGTH, file);
-    fread(item->brand, sizeof(char), BRAND_LENGTH, file);
-    fread(item->type, sizeof(char), TYPE_LENGTH, file);
-    fread(&(item->price), sizeof(double), 1, file);
-    fread(&(item->isPopular), sizeof(int), 1, file);
-    fread(item->releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file);
-    fread(&(item->stock), sizeof(int), 1, file);
+    if (fread(item->serialNumber, sizeof(char), SERIAL_NUMBER_LENGTH, file) != SERIAL_NUMBER_LENGTH ||
+        fread(item->brand, sizeof(char), BRAND_LENGTH, file) != BRAND_LENGTH ||
+        fread(item->type, sizeof(char), TYPE_LENGTH, file) != TYPE_LENGTH ||
+        fread(&(item->price), sizeof(double), 1, file) != 1 ||
+        fread(&(item->isPopular), sizeof(int), 1, file) != 1 ||
+        fread(item->releaseDate, sizeof(char), RELEASE_DATE_LENGTH, file) != RELEASE_DATE_LENGTH ||
+        fread(&(item->stock), sizeof(int), 1, file) != 1) {
+
+        free(item->serialNumber);
+        free(item->brand);
+        free(item->type);
+        free(item->releaseDate);
+        free(item);
+        return NULL; // Reached EOF or encountered a read error
+    }
 
     // Ensure null-termination for strings
     item->serialNumber[SERIAL_NUMBER_LENGTH - 1] = '\0';
@@ -118,59 +150,52 @@ Item* readItem(FILE* file) {
     return item;
 }
 
-Item* getAllItems(int* itemCount) {
+// Updated getAllItems function
+Item* getAllItems() {
     FILE* fp = fopen(ITEMS_FILE, "rb");
+    if (fp == NULL) {
+        printf("Error opening file: %s\n", ITEMS_FILE);
+        return NULL;
+    }
 
-    Item* items = NULL;
-    *itemCount = 0;
     Item* tempItem;
+    ItemNode* lastNode = NULL;
 
-    // Read all Items
+    // Read all Items and insert them into the linked list
     while ((tempItem = readItem(fp)) != NULL) {
-        // Check for end of file after attempting to read
-        if (feof(fp)) {
-            break;
-        }
-
-        // Dynamically allocate memory
-        items = realloc(items, sizeof(Item) * (*itemCount + 1));
+        // Allocate memory for each field of the Item
+        tempItem->serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+        tempItem->brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
+        tempItem->type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
+        tempItem->releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
 
         // Hard copy the Item
-        items[*itemCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-        items[*itemCount].brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
-        items[*itemCount].type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
-        items[*itemCount].releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
-        
-        strcpy(items[*itemCount].serialNumber, (*tempItem).serialNumber);
-        items[*itemCount].serialNumber = trimwhitespace(items[*itemCount].serialNumber);
-        
-        strcpy(items[*itemCount].brand, (*tempItem).brand);
-        items[*itemCount].brand = trimwhitespace(items[*itemCount].brand);
-        
-        strcpy(items[*itemCount].type, (*tempItem).type);
-        items[*itemCount].type = trimwhitespace(items[*itemCount].type);
-        
-        items[*itemCount].price = (*tempItem).price;
-        
-        items[*itemCount].isPopular = (*tempItem).isPopular;
-        
-        strcpy(items[*itemCount].releaseDate, (*tempItem).releaseDate);
-        items[*itemCount].releaseDate = trimwhitespace(items[*itemCount].releaseDate);
-        
-        items[*itemCount].stock = (*tempItem).stock;
+        strcpy(tempItem->serialNumber, trimwhitespace(tempItem->serialNumber));
+        strcpy(tempItem->brand, trimwhitespace(tempItem->brand));
+        strcpy(tempItem->type, trimwhitespace(tempItem->type));
+        strcpy(tempItem->releaseDate, trimwhitespace(tempItem->releaseDate));
 
-        // Increment the itemCount
-        (*itemCount)++;
+        // Create a new ItemNode for the linked list
+        ItemNode* newNode = createItem(tempItem->serialNumber, tempItem->brand, tempItem->type, tempItem->price, tempItem->isPopular, tempItem->releaseDate, tempItem->stock);
 
-        if (fp == NULL) {
-            printf("Error opening file.\n");
-            return NULL;
+        // If the list is empty, the new node becomes the head
+        if (globalItems == NULL) {
+            globalItems = newNode;
         }
+        else {
+            // Otherwise, link the new node at the end of the list
+            lastNode->next = newNode;
+        }
+
+        // Update the last node pointer to the newly added node
+        lastNode = newNode;
     }
 
     fclose(fp);
-    return items;
+    printf("All items have been loaded into the linked list.\n");
+    return NULL;
 }
+
 
 void viewItemsMenu() {
     printf("View Items Menu:\n");
@@ -181,978 +206,558 @@ void viewItemsMenu() {
     printf("0. Exit\n");
 }
 
-// Function to print all items in one line each
-void printItems(Item* items, int itemCount) {
-    if (items == NULL || itemCount <= 0) {
+void printItems() {
+    if (globalItems == NULL) {
         printf("No items to display.\n");
         return;
     }
 
-    printf("\n--- Items List ---\n");
-    for (int i = 0; i < itemCount; i++) {
-        printf("%s, %s, %s, %.2f, %s, %s, %d\n",
-            items[i].serialNumber,
-            items[i].brand,
-            items[i].type,
-            items[i].price,
-            items[i].isPopular ? "Yes" : "No",
-            items[i].releaseDate,
-            items[i].stock
-        );
+    // Print table header
+    printf("+----------------+----------------+----------------+----------+------------+--------------+-------+\n");
+    printf("| Serial Number  | Brand          | Type           | Price    | Is Popular | Release Date | Stock |\n");
+    printf("+----------------+----------------+----------------+----------+------------+--------------+-------+\n");
+
+    // Iterate through the list and print each item in a formatted row.
+    ItemNode* current = globalItems;
+    while (current != NULL) {
+        printf("| %-14s | %-14s | %-14s | %8.2f | %-10s | %-12s | %5d |\n",
+            current->item->serialNumber,
+            current->item->brand,
+            current->item->type,
+            current->item->price,
+            current->item->isPopular ? "Yes" : "No",
+            current->item->releaseDate,
+            current->item->stock);
+        current = current->next;
     }
-    printf("--------------------\n");
+    printf("+----------------+----------------+----------------+----------+------------+--------------+-------+\n");
 }
 
-Item* findByBrandType(char* userBrand, char* userType, int filterType) {
-    // Open the binary file for reading
-    FILE* file = fopen(ITEMS_FILE, "rb");
-    if (file == NULL) {
-        printf("Error: Could not open file %s\n", ITEMS_FILE);
-        return NULL;
-    }
+ItemNode* findByBrandType(char* userBrand, char* userType, int filterType) {
+    ItemNode* matchingList = NULL;
+    ItemNode* tail = NULL;
+    ItemNode* current = globalItems;  // globalItems is our global linked list
 
-    // Dynamic array to store matching items
-    Item* matchingItems = NULL;
-    int count = 0;
-
-    // Read items one by one
-    Item* item;
-    while ((item = readItem(file)) != NULL) {
-        // Check for end of file after attempting to read
-        if (feof(file)) {
-            break;
-        }
-
+    while (current != NULL) {
         int matches = 0;
-
-        // Apply filter type logic
         if (filterType == 1) {
-            // Filter by brand
-            if (strcmp(item->brand, userBrand) == 0) {
+            // Filter by brand only
+            if (strcmp(current->item->brand, userBrand) == 0) {
                 matches = 1;
             }
         }
         else if (filterType == 2) {
-            // Filter by type
-            if (strcmp(item->type, userType) == 0) {
+            // Filter by type only
+            if (strcmp(current->item->type, userType) == 0) {
                 matches = 1;
             }
         }
         else if (filterType == 3) {
             // Filter by both brand and type
-            if (strcmp(item->brand, userBrand) == 0 && strcmp(item->type, userType) == 0) {
+            if (strcmp(current->item->brand, userBrand) == 0 &&
+                strcmp(current->item->type, userType) == 0) {
                 matches = 1;
             }
         }
 
-        // If item matches, add it to the dynamic array
         if (matches) {
-            // Resize array to hold another item
-            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
-            if (tempArray == NULL) {
-                printf("Error: Memory allocation failed.\n");
-                free(matchingItems); // Free previously allocated memory
-                fclose(file);
-                return NULL;
+            // Allocate a new node for the matching item (shallow copy)
+            ItemNode* newNode = (ItemNode*)safeMalloc(sizeof(ItemNode));
+            newNode->item = current->item;
+            newNode->next = NULL;
+
+            // Append to the matching list
+            if (matchingList == NULL) {
+                matchingList = newNode;
+                tail = newNode;
             }
-            matchingItems = tempArray;
-
-            // Copy the item into the array
-            matchingItems[count] = *item;
-            count++;
-        }
-
-        // Free the memory for the current item
-    }
-
-    fclose(file);
-
-    // If no items matched, free memory and return NULL
-    if (count == 0) {
-        printf("There are no items that matched your search!\n");
-        free(matchingItems);
-    }
-    // Print all the matching Items
-    else {
-        // Also print all the matching Items
-        printItems(matchingItems, count);
-        free(matchingItems);
-    }
-    return matchingItems;
-}
-
-Item* findByPrice(double price, char identifier) {
-    // Open the binary file for reading
-    FILE* file = fopen(ITEMS_FILE, "rb");
-    if (file == NULL) {
-        printf("Error: Could not open file %s\n", ITEMS_FILE);
-        return NULL;
-    }
-
-    // Dynamic array to store matching items
-    Item* matchingItems = NULL;
-    int count = 0;
-
-    int identifierType;
-
-    // Map identifier
-    if (identifier == '>')
-        identifierType = 1;
-    else if (identifier == '<')
-        identifierType = 2;
-    else
-        identifierType = 3;
-
-    // Read items one by one
-    Item* item;
-    while ((item = readItem(file)) != NULL) {
-        // Check for end of file after attempting to read
-        if (feof(file)) {
-            break;
-        }
-
-        int matches = 0;
-
-        // Apply filter type logic
-        if (identifierType == 1) {
-            if (item->price > price) {
-                matches = 1;
+            else {
+                tail->next = newNode;
+                tail = newNode;
             }
         }
-        else if (identifierType == 2) {
-            if (item->price < price) {
-                matches = 1;
-            }
-        }
-        else if (identifierType == 3) {
-            if (item->price == price) {
-                matches = 1;
-            }
-        }
-
-        // If item matches, add it to the dynamic array
-        if (matches) {
-            // Resize array to hold another item
-            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
-            if (tempArray == NULL) {
-                printf("Error: Memory allocation failed.\n");
-                free(matchingItems); // Free previously allocated memory
-                fclose(file);
-                return NULL;
-            }
-            matchingItems = tempArray;
-
-            // Copy the item into the array
-            matchingItems[count] = *item;
-            count++;
-        }
-
-        // Free the memory for the current item
+        current = current->next;
     }
 
-    fclose(file);
-
-    // If no items matched, free memory and return NULL
-    if (count == 0) {
+    if (matchingList == NULL) {
         printf("There are no items that matched your search!\n");
     }
-    // Print all the matching Items
-    else {
-        // Also print all the matching Items
-        printItems(matchingItems, count);
-    }
-    return matchingItems;
+    return matchingList;
 }
 
-Item* findByStock(int stock, char identifier) {
-    // Open the binary file for reading
-    FILE* file = fopen(ITEMS_FILE, "rb");
-    if (file == NULL) {
-        printf("Error: Could not open file %s\n", ITEMS_FILE);
-        return NULL;
-    }
-
-    // Dynamic array to store matching items
-    Item* matchingItems = NULL;
-    int count = 0;
-
+ItemNode* findByPrice(double price, char identifier) {
+    // Determine the comparison type based on the identifier.
     int identifierType;
-
-    // Map identifier
     if (identifier == '>')
         identifierType = 1;
     else if (identifier == '<')
         identifierType = 2;
     else if (identifier == '=')
         identifierType = 3;
-    else
-        return matchingItems;
-
-    // Read items one by one
-    Item* item;
-    while ((item = readItem(file)) != NULL) {
-        // Check for end of file after attempting to read
-        if (feof(file)) {
-            break;
-        }
-
-        int matches = 0;
-
-        // Apply filter type logic
-        if (identifierType == 1) {
-            if (item->stock > stock) {
-                matches = 1;
-            }
-        }
-        else if (identifierType == 2) {
-            if (item->stock < stock) {
-                matches = 1;
-            }
-        }
-        else if (identifierType == 3) {
-            if (item->stock == stock) {
-                matches = 1;
-            }
-        }
-
-        // If item matches, add it to the dynamic array
-        if (matches) {
-            // Resize array to hold another item
-            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
-            if (tempArray == NULL) {
-                printf("Error: Memory allocation failed.\n");
-                free(matchingItems); // Free previously allocated memory
-                fclose(file);
-                return NULL;
-            }
-            matchingItems = tempArray;
-
-            // Copy the item into the array
-            matchingItems[count] = *item;
-            count++;
-        }
-
-        // Free the memory for the current item
-    }
-
-    fclose(file);
-
-    // If no items matched, free memory and return NULL
-    if (count == 0) {
-        printf("There are no items that matched your search!\n");
-    }
-    // Print all the matching Items
     else {
-        // Also print all the matching Items
-        printItems(matchingItems, count);
-    }
-    return matchingItems;
-}
-
-Item* findByProperty(char* property, void* value) {
-    FILE* file = fopen(ITEMS_FILE, "rb");
-    if (file == NULL) {
-        printf("Error: Could not open file %s\n", ITEMS_FILE);
+        printf("Invalid identifier '%c'. Please use '>', '<', or '='.\n", identifier);
         return NULL;
     }
 
-    // Dynamic array to store matching items
-    Item* matchingItems = NULL;
+    ItemNode* matchingList = NULL;
+    ItemNode* tail = NULL;
+    ItemNode* current = globalItems;  // Global linked list
 
-    // Read items one by one
-    Item* item;
-    int count = 0;
-    while ((item = readItem(file)) != NULL) {
-        // Check for end of file after attempting to read
-        if (feof(file)) {
-            break;
+    // Iterate through linked list.
+    while (current != NULL) {
+        int matches = 0;
+        if (identifierType == 1) {
+            if (current->item->price > price)
+                matches = 1;
+        }
+        else if (identifierType == 2) {
+            if (current->item->price < price)
+                matches = 1;
+        }
+        else if (identifierType == 3) {
+            if (current->item->price == price)
+                matches = 1;
         }
 
-        int matches = 0;
+        if (matches) {
+            // Allocate a new node (shallow copy: pointer to same Item).
+            ItemNode* newNode = (ItemNode*)safeMalloc(sizeof(ItemNode));
+            newNode->item = current->item;
+            newNode->next = NULL;
 
-        // Check property and compare value
-        if (strcmp(property, "serial_number") == 0) {
-            if (strcmp(item->serialNumber, (char*)value) == 0) {
-                matches = 1;
+            // Append to the matching list.
+            if (matchingList == NULL) {
+                matchingList = newNode;
+                tail = newNode;
             }
+            else {
+                tail->next = newNode;
+                tail = newNode;
+            }
+        }
+
+        current = current->next;
+    }
+
+    if (matchingList == NULL) {
+        printf("There are no items that matched your search!\n");
+    }
+
+    return matchingList;
+}
+
+ItemNode* findByStock(int stock, char identifier) {
+    int identifierType;
+    if (identifier == '>')
+        identifierType = 1;
+    else if (identifier == '<')
+        identifierType = 2;
+    else if (identifier == '=')
+        identifierType = 3;
+    else {
+        printf("Invalid identifier '%c'. Please use '>', '<', or '='.\n", identifier);
+        return NULL;
+    }
+
+    ItemNode* matchingList = NULL;
+    ItemNode* tail = NULL;
+    ItemNode* current = globalItems;  // Global linked list
+
+    while (current != NULL) {
+        int matches = 0;
+        if (identifierType == 1) {
+            if (current->item->stock > stock)
+                matches = 1;
+        }
+        else if (identifierType == 2) {
+            if (current->item->stock < stock)
+                matches = 1;
+        }
+        else if (identifierType == 3) {
+            if (current->item->stock == stock)
+                matches = 1;
+        }
+
+        if (matches) {
+            // Allocate a new node (shallow copy: pointer to same Item).
+            ItemNode* newNode = (ItemNode*)safeMalloc(sizeof(ItemNode));
+            newNode->item = current->item;
+            newNode->next = NULL;
+
+            // Append to the matching list.
+            if (matchingList == NULL) {
+                matchingList = newNode;
+                tail = newNode;
+            }
+            else {
+                tail->next = newNode;
+                tail = newNode;
+            }
+        }
+
+        current = current->next;
+    }
+
+    if (matchingList == NULL) {
+        printf("There are no items that matched your search!\n");
+    }
+
+    return matchingList;
+}
+
+ItemNode* findByProperty(char* property, void* value) {
+    ItemNode* matchingList = NULL;
+    ItemNode* tail = NULL;
+    ItemNode* current = globalItems;  // Global linked list
+
+    while (current != NULL) {
+        int matches = 0;
+        if (strcmp(property, "serial_number") == 0) {
+            if (strcmp(current->item->serialNumber, (char*)value) == 0)
+                matches = 1;
         }
         else if (strcmp(property, "brand") == 0) {
-            if (strcmp(item->brand, (char*)value) == 0) {
+            if (strcmp(current->item->brand, (char*)value) == 0)
                 matches = 1;
-            }
         }
         else if (strcmp(property, "type") == 0) {
-            if (strcmp(item->type, (char*)value) == 0) {
+            if (strcmp(current->item->type, (char*)value) == 0)
                 matches = 1;
-            }
         }
         else if (strcmp(property, "price") == 0) {
-            if (item->price == *(double*)value) {
+            if (current->item->price == *(double*)value)
                 matches = 1;
-            }
-        }
-        else if (strcmp(property, "stock") == 0) {
-            if (item->stock == *(int*)value) {
-                matches = 1;
-            }
         }
         else if (strcmp(property, "is_popular") == 0) {
-            if (item->isPopular == *(int*)value) {
+            if (current->item->isPopular == *(int*)value)
                 matches = 1;
-            }
         }
         else if (strcmp(property, "release_date") == 0) {
-            if (strcmp(item->releaseDate, (char*)value) == 0) {
+            if (strcmp(current->item->releaseDate, (char*)value) == 0)
                 matches = 1;
-            }
+        }
+        else if (strcmp(property, "stock") == 0) {
+            if (current->item->stock == *(int*)value)
+                matches = 1;
         }
         else {
             printf("Invalid property: %s\n", property);
-            fclose(file);
             return NULL;
         }
 
-        // If item matches, add it to the dynamic array
         if (matches) {
-            count++;
-            // Resize array to hold another item
-            Item* tempArray = realloc(matchingItems, sizeof(Item) * count);
-            if (tempArray == NULL) {
-                printf("Error: Memory allocation failed.\n");
-                fclose(file);
-                return NULL;
-            }
-            matchingItems = tempArray;
-            matchingItems[count - 1] = *item;
-        }
+            // Allocate a new node (shallow copy: points to the same Item)
+            ItemNode* newNode = (ItemNode*)safeMalloc(sizeof(ItemNode));
+            newNode->item = current->item;
+            newNode->next = NULL;
 
-        // Free the memory for the current item
-        free(item);
+            // Append the node to the matching list
+            if (matchingList == NULL) {
+                matchingList = newNode;
+                tail = newNode;
+            }
+            else {
+                tail->next = newNode;
+                tail = newNode;
+            }
+        }
+        current = current->next;
     }
 
-    fclose(file);
-
-    // If no items matched, free memory and return NULL
-    if (count == 0) {
+    if (matchingList == NULL) {
         printf("There are no items that matched your search!\n");
     }
-    // Print all the matching Items
-    else {
-        // Also print all the matching Items
-        printItems(matchingItems, count);
-    }
-    return matchingItems;
+    return matchingList;
 }
 
-Item* findByDate(char* userDate, char identifier) {
-    // Open the binary file for reading
-    FILE* file = fopen(ITEMS_FILE, "rb");
-    if (file == NULL) {
-        printf("Error: Could not open file %s\n", ITEMS_FILE);
-        return NULL;
-    }
-
-    // Dynamic array to store matching items
-    Item* matchingItems = NULL;
-    int count = 0;
-
+ItemNode* findByDate(char* userDate, char identifier) {
+    // Map the identifier to a comparison type:
+    // '>' means item date is after userDate, '<' means before, '=' means equal.
     int identifierType;
-
-    // Map identifier
     if (identifier == '>')
         identifierType = 1;
     else if (identifier == '<')
-        identifierType = -1;
+        identifierType = 2;
     else if (identifier == '=')
-        identifierType = 0;
-    else
-        return matchingItems;
-
-    // Read items one by one
-    Item* item;
-    while ((item = readItem(file)) != NULL) {
-        // Check for end of file after attempting to read
-        if (feof(file)) {
-            break;
-        }
-
-        int matches = 0;
-
-        // Compare the dates
-        // -1 if the first date is before the second.
-        // 1 if the first date is after the second.
-        // 0 if both dates are equal.
-        int result = compareDates(item->releaseDate, userDate);
-
-        if(identifierType == result)
-            matches = 1;
-
-        // If item matches, add it to the dynamic array
-        if (matches) {
-            // Resize array to hold another item
-            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
-            if (tempArray == NULL) {
-                printf("Error: Memory allocation failed.\n");
-                free(matchingItems); // Free previously allocated memory
-                fclose(file);
-                return NULL;
-            }
-            matchingItems = tempArray;
-
-            // Copy the item into the array
-            matchingItems[count] = *item;
-            count++;
-        }
-    }
-
-    fclose(file);
-
-    // If no items matched, free memory and return NULL
-    if (count == 0) {
-        printf("There are no items that matched your search!\n");
-    }
-    // Print all the matching Items
+        identifierType = 3;
     else {
-        // Also print all the matching Items
-        printItems(matchingItems, count);
-    }
-    return matchingItems;
-}
-
-Item* findDatesInRange(char* userDate1, char* userDate2) {
-    // Open the binary file for reading
-    FILE* file = fopen(ITEMS_FILE, "rb");
-    if (file == NULL) {
-        printf("Error: Could not open file %s\n", ITEMS_FILE);
+        printf("Invalid identifier '%c'. Please use '>', '<', or '='.\n", identifier);
         return NULL;
     }
 
-    // Dynamic array to store matching items
-    Item* matchingItems = NULL;
-    int count = 0;
+    ItemNode* matchingList = NULL;
+    ItemNode* tail = NULL;
+    ItemNode* current = globalItems;  // Global linked list of items
 
-    // Read items one by one
-    Item* item;
-    while ((item = readItem(file)) != NULL) {
-        // Check for end of file after attempting to read
-        if (feof(file)) {
-            break;
-        }
-
+    while (current != NULL) {
+        // Use compareDates from string operations
+        // -1 before, 1 after, 0 equals
+        int cmp = compareDates(current->item->releaseDate, userDate);
         int matches = 0;
-
-        // Compare the dates
-        // 1 if the date between the first 2 dates
-        // 0 Otherwise
-        int result = isDateBetween(userDate1, userDate2, item->releaseDate);
-
-        if (result == 1)
+        if (identifierType == 1 && cmp == 1)
+            matches = 1;
+        else if (identifierType == 2 && cmp == -1)
+            matches = 1;
+        else if (identifierType == 3 && cmp == 0)
             matches = 1;
 
-        // If item matches, add it to the dynamic array
         if (matches) {
-            // Resize array to hold another item
-            Item* tempArray = realloc(matchingItems, sizeof(Item) * (count + 1));
-            if (tempArray == NULL) {
-                printf("Error: Memory allocation failed.\n");
-                free(matchingItems); // Free previously allocated memory
-                fclose(file);
-                return NULL;
-            }
-            matchingItems = tempArray;
+            // Allocate a new node (shallow copy: points to the same Item).
+            ItemNode* newNode = (ItemNode*)safeMalloc(sizeof(ItemNode));
+            newNode->item = current->item;
+            newNode->next = NULL;
 
-            // Copy the item into the array
-            matchingItems[count] = *item;
-            count++;
+            // Append newNode to the matching list.
+            if (matchingList == NULL) {
+                matchingList = newNode;
+                tail = newNode;
+            }
+            else {
+                tail->next = newNode;
+                tail = newNode;
+            }
         }
+        current = current->next;
     }
 
-    fclose(file);
-
-    // If no items matched, free memory and return NULL
-    if (count == 0) {
+    if (matchingList == NULL) {
         printf("There are no items that matched your search!\n");
     }
-    // Print all the matching Items
-    else {
-        // Also print all the matching Items
-        printItems(matchingItems, count);
-    }
-    return matchingItems;
+    return matchingList;
 }
 
-Item* updateItem(char* userSerialNumber, char* property, void* value) {
-    int itemCount = 0;
-    Item* items = getAllItems(&itemCount);
+ItemNode* findDatesInRange(char* userDate1, char* userDate2) {
+    ItemNode* matchingList = NULL;
+    ItemNode* tail = NULL;
+    ItemNode* current = globalItems;  // Global linked list of items
 
-    if (items == NULL || itemCount == 0) {
-        printf("No items found.\n");
-        return NULL;
+    while (current != NULL) {
+        // isDateBetween returns 1 if current item's releaseDate is between userDate1 and userDate2
+        int result = isDateBetween(userDate1, userDate2, current->item->releaseDate);
+        if (result == 1) {
+            // Allocate a new node (shallow copy: pointer to the same Item)
+            ItemNode* newNode = (ItemNode*)safeMalloc(sizeof(ItemNode));
+            newNode->item = current->item;
+            newNode->next = NULL;
+
+            // Append the new node to the matching list.
+            if (matchingList == NULL) {
+                matchingList = newNode;
+                tail = newNode;
+            }
+            else {
+                tail->next = newNode;
+                tail = newNode;
+            }
+        }
+        current = current->next;
     }
 
-    int foundIndex = -1;
-    // Find the item with the given Serial Number
-    for (int i = 0; i < itemCount; i++) {
-        if (strcmp(items[i].serialNumber, userSerialNumber) == 0) {
-            foundIndex = i;
+    if (matchingList == NULL) {
+        printf("There are no items that matched your search!\n");
+    }
+
+    return matchingList;
+}
+
+ItemNode* findItemBySerialNumber(char* serialNumber) {
+    ItemNode* current = globalItems;
+    while (current != NULL) {
+        if (strcmp(current->item->serialNumber, serialNumber) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+Item* updateItem(char* userSerialNumber, int property, void* value) {
+    // Search for the item in the linked list by its serial number.
+    ItemNode* current = globalItems;
+    while (current != NULL) {
+        if (strcmp(current->item->serialNumber, userSerialNumber) == 0) {
             break;
         }
+        current = current->next;
     }
 
-    if (foundIndex == -1) {
+    if (current == NULL) {
         printf("Item with Serial Number %s not found.\n", userSerialNumber);
         return NULL;
     }
 
-    if (strcmp(property, "brand") == 0) {
-        strncpy(items[foundIndex].brand, (char*)value, BRAND_LENGTH - 1);
-        items[foundIndex].brand[BRAND_LENGTH - 1] = '\0'; // Ensure null-termination
-    }
-    if (strcmp(property, "type") == 0) {
-        strncpy(items[foundIndex].type, (char*)value, TYPE_LENGTH - 1);
-        items[foundIndex].type[TYPE_LENGTH - 1] = '\0'; // Ensure null-termination
-    }
-    if (strcmp(property, "price") == 0) {
-        items[foundIndex].price = *(double*)value;
-    }
-    if (strcmp(property, "is_popular") == 0) {
-        items[foundIndex].isPopular = *(int*)value;
-    }
-    if (strcmp(property, "release_date") == 0) {
-        strncpy(items[foundIndex].releaseDate, (char*)value, RELEASE_DATE_LENGTH - 1);
-        items[foundIndex].releaseDate[RELEASE_DATE_LENGTH - 1] = '\0'; // Ensure null-termination
-    }
-    if (strcmp(property, "stock") == 0) {
-        items[foundIndex].stock = *(int*)value;
-    }
-
-    // Save the updated items back to the file
-    writeItems(items, itemCount, ITEMS_FILE);
-
-    printf("Item with Serial Number %s has been updated.\n", userSerialNumber);
-
-    return &(items[foundIndex]);
-}
-
-
-Item* removeItem(char* serialNumber) {
-    int itemCount = 0;
-    Item* items = getAllItems(&itemCount);
-    if (items == NULL || itemCount == 0) {
-        printf("No items to remove.\n");
+    // Update the specified property.
+    switch (property) {
+    case 1: // Brand
+        strncpy(current->item->brand, (char*)value, BRAND_LENGTH - 1);
+        current->item->brand[BRAND_LENGTH - 1] = '\0'; // Ensure null-termination
+        break;
+    case 2: // Type
+        strncpy(current->item->type, (char*)value, TYPE_LENGTH - 1);
+        current->item->type[TYPE_LENGTH - 1] = '\0';
+        break;
+    case 3: // Price
+        current->item->price = *(double*)value;
+        break;
+    case 4: // Is Popular
+        current->item->isPopular = *(int*)value;
+        break;
+    case 5: // Release Date
+        strncpy(current->item->releaseDate, (char*)value, RELEASE_DATE_LENGTH - 1);
+        current->item->releaseDate[RELEASE_DATE_LENGTH - 1] = '\0';
+        break;
+    case 6: // Stock
+        current->item->stock = *(int*)value;
+        break;
+    default:
+        printf("Invalid property.\n");
         return NULL;
     }
 
-    Item* removedItem = NULL;
-    int foundIndex = -1;
+    printf("Item with Serial Number %s has been updated.\n", userSerialNumber);
 
-    // Search for the item with the given serialNumber
-    for (int i = 0; i < itemCount; i++) {
-        if (strcmp(items[i].serialNumber, serialNumber) == 0) {
-            foundIndex = i;
+    // Return pointer to the updated item.
+    return current->item;
+}
+
+void freeItem(Item* item) {
+    if (item != NULL) {
+        free(item->serialNumber);
+        free(item->brand);
+        free(item->type);
+        free(item->releaseDate);
+        free(item);
+    }
+}
+
+Item* removeItem(char* serialNumber) {
+    ItemNode* prev = NULL;
+    ItemNode* current = globalItems;
+
+    // Traverse the linked list to find the matching item.
+    while (current != NULL) {
+        if (strcmp(current->item->serialNumber, serialNumber) == 0) {
             break;
         }
+        prev = current;
+        current = current->next;
     }
 
-    // If item is found
-    if (foundIndex != -1) {
-        // Allocate memory for the removed item and copy its data
-        removedItem = (Item*)malloc(sizeof(Item));
-        removedItem->serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-        removedItem->brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
-        removedItem->type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
-        removedItem->releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
+    if (current == NULL) {
+        printf("Item with serial number %s not found.\n", serialNumber);
+        return NULL;
+    }
 
-        // Copy item data to the removed item
-        strcpy(removedItem->serialNumber, items[foundIndex].serialNumber);
-        removedItem->serialNumber = trimwhitespace(removedItem->serialNumber);
-        strcpy(removedItem->brand, items[foundIndex].brand);
-        removedItem->brand = trimwhitespace(removedItem->brand);
-        strcpy(removedItem->type, items[foundIndex].type);
-        removedItem->type = trimwhitespace(removedItem->type);
-        strcpy(removedItem->releaseDate, items[foundIndex].releaseDate);
-        removedItem->releaseDate = trimwhitespace(removedItem->releaseDate);
-        removedItem->price = items[foundIndex].price;
-        removedItem->isPopular = items[foundIndex].isPopular;
-        removedItem->stock = items[foundIndex].stock;
-
-        // Shift items to remove the found item
-        for (int i = foundIndex; i < itemCount - 1; i++) {
-            items[i] = items[i + 1];
-        }
-
-        // Reallocate memory to shrink the items array
-        items = realloc(items, sizeof(Item) * (itemCount - 1));
-        itemCount--;
-
-        // Update the binary file after removal
-        writeItems(items, itemCount, ITEMS_FILE);
-
-        printf("Item with serial number %s has been removed.\n", serialNumber);
+    if (prev == NULL) {
+        globalItems = current->next;
     }
     else {
-        printf("Item with serial number %s not found.\n", serialNumber);
+        prev->next = current->next;
     }
 
-    printItems(items, itemCount);
+    Item* removedItem = current->item;
+    free(current);
 
-    // Free the dynamically allocated memory for items array
-    for (int i = 0; i < itemCount; i++) {
-        free(items[i].serialNumber);
-        free(items[i].type);
-        free(items[i].brand);
-        free(items[i].releaseDate);
-    }
-    free(items);
-
+    printf("Item with serial number %s has been removed.\n", serialNumber);
     return removedItem;
 }
 
-void rewriteCustomer(char* customerID, Customer* updatedCustomer) {
-    int customerCount = 0;
-    Customer* customers = getAllCustomers(&customerCount);
-
-    if (customers == NULL || customerCount == 0) {
-        printf("No customers found.\n");
-        return;
-    }
-
-    int foundIndex = -1;
-    // Find the customer with the given customer id
-    for (int i = 0; i < customerCount; i++) {
-        if (strcmp(customers[i].id, customerID) == 0) {
-            foundIndex = i;
-            break;
-        }
-    }
-
-    if (foundIndex == -1) {
-        printf("Customer with ID %s not found.\n", customerID);
-        free(customers);
-        return;
-    }
-
-    // Overwrite the customer at the found index
-    free(customers[foundIndex].id);
-    free(customers[foundIndex].name);
-    free(customers[foundIndex].joinDate);
-
-    customers[foundIndex].id = (char*)malloc(sizeof(char) * ID_LENGTH);
-    customers[foundIndex].name = (char*)malloc(sizeof(char) * NAME_LENGTH);
-    customers[foundIndex].joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
-
-    strcpy(customers[foundIndex].id, updatedCustomer->id);
-    strcpy(customers[foundIndex].name, updatedCustomer->name);
-    strcpy(customers[foundIndex].joinDate, updatedCustomer->joinDate);
-    customers[foundIndex].totalAmountSpent = updatedCustomer->totalAmountSpent;
-    customers[foundIndex].itemsPurchased = updatedCustomer->itemsPurchased;
-    customers[foundIndex].purchaseCount = updatedCustomer->purchaseCount;
-
-    // Free and reallocate purchases array
-    if (customers[foundIndex].purchases != NULL) {
-        for (int j = 0; j < customers[foundIndex].purchaseCount; j++) {
-            free(customers[foundIndex].purchases[j].serialNumber);
-            free(customers[foundIndex].purchases[j].purchaseDate);
-        }
-        free(customers[foundIndex].purchases);
-    }
-
-    // Reallocate and copy the purchases array
-    customers[foundIndex].purchases = (Purchase*)malloc(sizeof(Purchase) * updatedCustomer->purchaseCount);
-    if (customers[foundIndex].purchases == NULL) {
-        printf("Error: Memory allocation failed for purchases.\n");
-        free(customers);
-        return;
-    }
-
-    for (int i = 0; i < updatedCustomer->purchaseCount; i++) {
-        customers[foundIndex].purchases[i].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-        customers[foundIndex].purchases[i].purchaseDate = (char*)malloc(sizeof(char) * PURCHASE_DATE_LENGTH);
-
-        strcpy(customers[foundIndex].purchases[i].serialNumber, updatedCustomer->purchases[i].serialNumber);
-        customers[foundIndex].purchases[i].amount = updatedCustomer->purchases[i].amount;
-        strcpy(customers[foundIndex].purchases[i].purchaseDate, updatedCustomer->purchases[i].purchaseDate);
-
-        if (customers[foundIndex].purchases[i].serialNumber == NULL ||
-            customers[foundIndex].purchases[i].purchaseDate == NULL) {
-            printf("Error: Memory allocation failed for purchase details.\n");
-            free(customers);
-            return;
-        }
-    }
-
-    // Step 1: Clear the file first
-    FILE* file = fopen(CUSTOMERS_FILE, "w");
-    if (file == NULL) {
-        printf("Error: Unable to open file for clearing.\n");
-        free(customers);
-        return;
-    }
-    fclose(file);
-
-    // Step 2: Rewrite all customers back to the file
-    writeCustomers(customers, customerCount, CUSTOMERS_FILE);
-
-    printf("Customer with ID %s has been updated and rewritten to the file.\n", customerID);
-
-    // Free the dynamically allocated memory for customers array
-    for (int i = 0; i < customerCount; i++) {
-        free(customers[i].id);
-        free(customers[i].name);
-        free(customers[i].joinDate);
-
-        if (customers[i].purchases != NULL) {
-            for (int j = 0; j < customers[i].purchaseCount; j++) {
-                free(customers[i].purchases[j].serialNumber);
-                free(customers[i].purchases[j].purchaseDate);
-            }
-            free(customers[i].purchases);
-        }
-    }
-    free(customers);
-}
-
-
 Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount) {
-    Item* item = findByProperty("serial_number", itemSerialNumber);
-
+    // Check that the sale amount does not exceed 3 items per purchase.
     if (amount > 3) {
         printf("Cannot sell more than 3 items in a single purchase.\n");
         return NULL;
     }
-    if (item == NULL) {
+
+    ItemNode* foundNode = findItemBySerialNumber(itemSerialNumber);
+    if (foundNode == NULL) {
         printf("Item not found.\n");
         return NULL;
     }
-    if (item->stock <= 0) {
-        printf("Item is out of stock.\n");
-        return NULL;
-    }
+
+    Item* item = foundNode->item;
+
     if (item->stock < amount) {
-        printf("There are not enough items in stock to complete this purchase.\n");
+        printf("Not enough stock available.\n");
         return NULL;
     }
 
+    // Retrieve the customer data.
     Customer* customer = findCustomersByProperty("id", userCustomerID);
     if (customer == NULL) {
         printf("Customer not found.\n");
         return NULL;
     }
 
-    // Check if the item was already purchased by the customer
-    int itemFound = 0;
-    for (int i = 0; i < customer->purchaseCount; i++) {
-        if (strcmp(customer->purchases[i].serialNumber, itemSerialNumber) == 0) {
-            // Item found, update the amount
-            customer->purchases[i].amount += amount;
-            itemFound = 1;
-            break;
-        }
-    }
-
-    // If item was not found, add a new purchase entry
-    if (!itemFound) {
-        // Reallocate memory for a new purchase entry
-        customer->purchases = (Purchase*)realloc(customer->purchases, sizeof(Purchase) * (customer->purchaseCount + 1));
-        if (customer->purchases == NULL) {
-            printf("Error: Memory allocation failed for new purchase.\n");
-            return NULL;
-        }
-
-        // Allocate memory for the new serial number and purchase date
-        customer->purchases[customer->purchaseCount].serialNumber = (char*)malloc(SERIAL_NUMBER_LENGTH);
-        customer->purchases[customer->purchaseCount].purchaseDate = (char*)malloc(PURCHASE_DATE_LENGTH);
-
-        if (customer->purchases[customer->purchaseCount].serialNumber == NULL ||
-            customer->purchases[customer->purchaseCount].purchaseDate == NULL) {
-            printf("Error: Memory allocation failed for purchase details.\n");
-            return NULL;
-        }
-
-        // Copy serial number
-        strncpy(customer->purchases[customer->purchaseCount].serialNumber, itemSerialNumber, SERIAL_NUMBER_LENGTH - 1);
-        customer->purchases[customer->purchaseCount].serialNumber = trimwhitespace(customer->purchases[customer->purchaseCount].serialNumber);
-
-        // Set the amount
-        customer->purchases[customer->purchaseCount].amount = amount;
-
-        // Set the purchase date to today
-        strncpy(customer->purchases[customer->purchaseCount].purchaseDate, getCurrentDate(), PURCHASE_DATE_LENGTH);
-
-        // Increment the purchase count
-        customer->purchaseCount++;
-    }
-
-    // Update stock and customer details
+    // Update the item's stock.
     item->stock -= amount;
-    customer->totalAmountSpent += (item->price) * amount;
+
+    // Update customer details.
+    customer->totalAmountSpent += (item->price * amount);
     customer->itemsPurchased += amount;
-
-    // Save updates to file
-    updateItem(itemSerialNumber, "stock", &(item->stock));
-    rewriteCustomer(userCustomerID, customer);
-
-    // TODO: Log the transaction
 
     printf("Item sold successfully.\n");
     return item;
-}
-
-void returnItemMenu() {
-    clrscr();
-    printf("Return Item Menu:\n");
-
-    clearBuffer();
-
-    // Get Customer ID
-    printf("Please enter Customer ID: ");
-    char* userCustomerID = (char*)malloc(sizeof(char) * ID_LENGTH);
-    getInputString(userCustomerID, ID_LENGTH);
-
-    // Get Customer Information
-    Customer* customer = findCustomersByProperty("id", userCustomerID);
-    if (customer == NULL) {
-        printf("Customer not found.\n");
-        free(userCustomerID);
-        return;
-    }
-
-    // Check if customer has any purchases
-    if (customer->purchaseCount == 0) {
-        printf("This customer has no purchases to return.\n");
-        free(userCustomerID);
-        return;
-    }
-
-    // Display all purchases as numbered options
-    printf("Select a purchase to return:\n");
-    for (int i = 0; i < customer->purchaseCount; i++) {
-        printf("%d. Item: %s, Amount: %d, Date: %s\n",
-            i + 1,
-            customer->purchases[i].serialNumber,
-            customer->purchases[i].amount,
-            customer->purchases[i].purchaseDate
-        );
-    }
-
-    // Get user's choice
-    int choice;
-    printf("Please enter the number of the purchase to return: ");
-    scanf("%d", &choice);
-
-    if (choice < 1 || choice > customer->purchaseCount) {
-        printf("Invalid choice.\n");
-        free(userCustomerID);
-        return;
-    }
-
-    // Get the selected purchase
-    int selectedIndex = choice - 1;
-    Purchase selectedPurchase = customer->purchases[selectedIndex];
-
-    // Check if the purchase is eligible for return (within 14 days)
-    char* currentDate = getCurrentDate();
-    if (!checkIf14DaysHavePassed(currentDate, selectedPurchase.purchaseDate)) {
-        printf("This purchase is not eligible for return (more than 14 days).\n");
-        free(userCustomerID);
-        free(currentDate);
-        return;
-    }
-    free(currentDate);
-
-    // Update Item Stock
-    Item* item = findByProperty("serial_number", selectedPurchase.serialNumber);
-    if (item == NULL) {
-        printf("Item not found in stock.\n");
-        free(userCustomerID);
-        return;
-    }
-    item->stock += selectedPurchase.amount;
-    updateItem(selectedPurchase.serialNumber, "stock", &(item->stock));
-
-    // Update Customer Details
-    customer->totalAmountSpent -= (item->price * selectedPurchase.amount);
-    customer->itemsPurchased -= selectedPurchase.amount;
-
-    // Remove the purchase from the array
-    for (int i = selectedIndex; i < customer->purchaseCount - 1; i++) {
-        customer->purchases[i] = customer->purchases[i + 1];
-    }
-
-    // Decrease purchase count
-    customer->purchaseCount--;
-
-    // Reallocate memory
-    customer->purchases = (Purchase*)realloc(customer->purchases, sizeof(Purchase) * customer->purchaseCount);
-
-    // Save updates to file
-    rewriteCustomer(userCustomerID, customer);
-
-    printf("Item returned successfully.\n");
-
-    free(userCustomerID);
 }
 
 void sellItemMenu() {
     clrscr();
     printf("Sell Item Menu:\n");
 
-    clearBuffer();
-
-    // Get Customer ID
+    char* userCustomerID = (char*)safeMalloc(sizeof(char) * ID_LENGTH);
     printf("Please enter Customer ID: ");
-    char* userCustomerID = (char*)malloc(sizeof(char) * ID_LENGTH);
-    getInputString(userCustomerID, ID_LENGTH);
+    scanf("%s", userCustomerID);
 
     int totalItemsSold = 0;
     char continueSelling = 'y';
 
+    // Loop while the total items sold is less than 3 and user wishes to continue.
     while (totalItemsSold < 3 && (continueSelling == 'y' || continueSelling == 'Y')) {
-        // Get Item Serial Number
+        // Get Item Serial Number.
+        char* userSerialNumber = (char*)safeMalloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
         printf("Please enter Item Serial Number: ");
-        char* userSerialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
         scanf("%s", userSerialNumber);
 
-        // Get Item Amount
+        // Get the amount of items to sell.
         int itemAmount;
         printf("Please enter the amount you want to sell: ");
         scanf("%d", &itemAmount);
 
-        // Validate amount
+        // Validate the amount.
         if (itemAmount <= 0) {
             printf("Invalid amount. It must be a positive integer.\n");
             free(userSerialNumber);
             continue;
         }
 
-        // Check if total will exceed 3 items
+        // Ensure total items sold will not exceed 3.
         if (totalItemsSold + itemAmount > 3) {
             printf("Cannot sell this amount. Total items sold would exceed the limit of 3.\n");
             free(userSerialNumber);
             continue;
         }
 
-        // Call sellItem() with the required parameters
         Item* soldItem = sellItem(userSerialNumber, userCustomerID, itemAmount);
         if (soldItem != NULL) {
             printf("Item sold successfully.\n");
             totalItemsSold += itemAmount;
         }
+        else {
+            printf("Sale failed.\n");
+        }
 
-        // Ask if the user wants to sell more items
+        // Ask if the user wants to sell more items, if under the limit.
         if (totalItemsSold < 3) {
             printf("Would you like to sell more items to this customer? [y/n]: ");
-            scanf(" %c", &continueSelling);  // Space before %c to ignore newline
+            scanf(" %c", &continueSelling);
         }
         else {
             printf("You have reached the maximum of 3 items for this customer.\n");
         }
 
-        // Free allocated memory
         free(userSerialNumber);
     }
 
-    // Free allocated memory for Customer ID
     free(userCustomerID);
 }
 
@@ -1160,17 +765,29 @@ void removeItemMenu() {
     clrscr();
     printf("Remove Item Menu:\n");
     printf("Please enter Item Serial Number: ");
-    char* userSerialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+
+    char* userSerialNumber = (char*)safeMalloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
     scanf("%s", userSerialNumber);
-    removeItem(userSerialNumber);
+
+    Item* removedItem = removeItem(userSerialNumber);
+
+    if (removedItem != NULL) {
+        freeItem(removedItem);
+    }
+
+    free(userSerialNumber);
 }
 
 void updateItemMenu() {
     clrscr();
-    char* userSerialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
     printf("Update Item Menu:\n");
+
+    // Allocate memory for the serial number.
+    char* userSerialNumber = (char*)safeMalloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
     printf("Please enter the item's Serial Number: ");
     scanf("%s", userSerialNumber);
+
+    // Present property options.
     printf("Which property would you like to update:\n");
     printf("1. Update Brand.\n");
     printf("2. Update Type.\n");
@@ -1180,379 +797,529 @@ void updateItemMenu() {
     printf("6. Update Stock.\n");
     printf("0. Exit\n");
     printf("Please select a property: ");
-    int user_choice;
-    scanf("%d", &user_choice);
 
-    printf("Please enter a new value: ");
-    switch (user_choice) {
-    case 1: {
-        char* brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
-        scanf("%s", brand);
-        updateItem(userSerialNumber, "brand", brand);
-        free(brand);
-        break;
+    int property;
+    scanf("%d", &property);
+
+    switch (property) 
+    {
+        case 1: {
+            char* brand = (char*)safeMalloc(sizeof(char) * BRAND_LENGTH);
+            printf("Enter new Brand: ");
+            scanf("%s", brand);
+            updateItem(userSerialNumber, property, brand);
+            free(brand);
+            break;
+        }
+        case 2: {
+            char* type = (char*)safeMalloc(sizeof(char) * TYPE_LENGTH);
+            printf("Enter new Type: ");
+            scanf("%s", type);
+            updateItem(userSerialNumber, property, type);
+            free(type);
+            break;
+        }
+        case 3: {
+            double price;
+            printf("Enter new Price: ");
+            scanf("%lf", &price);
+            updateItem(userSerialNumber, property, &price);
+            break;
+        }
+        case 4: {
+            int isPopular;
+            printf("Enter new Is Popular (1 for Yes, 0 for No): ");
+            scanf("%d", &isPopular);
+            updateItem(userSerialNumber, property, &isPopular);
+            break;
+        }
+        case 5: {
+            char* releaseDate = (char*)safeMalloc(sizeof(char) * RELEASE_DATE_LENGTH);
+            printf("Enter new Release Date (DD-MM-YYYY): ");
+            scanf("%s", releaseDate);
+            updateItem(userSerialNumber, property, releaseDate);
+            free(releaseDate);
+            break;
+        }
+        case 6: {
+            int stock;
+            printf("Enter new Stock: ");
+            scanf("%d", &stock);
+            updateItem(userSerialNumber, property, &stock);
+            break;
+        }
+        case 0: {
+            printf("Exiting update menu.\n");
+            break;
+        }
+        default: 
+        {
+            printf("Invalid choice.\n");
+            break;
+        }
     }
-    case 2: {
-        char* type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
-        scanf("%s", type);
-        updateItem(userSerialNumber, "type", type);
-        free(type);
-        break;
-    }
-    case 3: {
-        double price;
-        scanf("%lf", &price);
-        updateItem(userSerialNumber, "price", &price);
-        break;
-    }
-    case 4: {
-        int isPopular;
-        scanf("%d", &isPopular);
-        updateItem(userSerialNumber, "is_popular", &isPopular);
-        break;
-    }
-    case 5: {
-        char* releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
-        scanf("%s", releaseDate);
-        updateItem(userSerialNumber, "release_date", releaseDate);
-        free(releaseDate);
-        break;
-    }
-    case 6: {
-        int stock;
-        scanf("%d", &stock);
-        updateItem(userSerialNumber, "stock", &stock);
-        break;
-    }
-    default:
-        printf("Invalid choice.\n");
-    }
+
     free(userSerialNumber);
 }
 
-
 void searchByBrandOrType() {
     int exit = 0;
-    clrscr();
-    printf("Search By Brand and/or Type Menu:\n");
-    printf("1. Search By Brand.\n");
-    printf("2. Search By Type\n");
-    printf("3. Search By Both\n");
-    printf("0. Exit\n");
-    while (1) {
+    while (!exit) {
+        clrscr();
+        printf("Search By Brand and/or Type Menu:\n");
+        printf("1. Search By Brand\n");
+        printf("2. Search By Type\n");
+        printf("3. Search By Both\n");
+        printf("0. Exit\n");
+        printf("Please select an option: ");
+
         int user_choice;
-        printf("Please select: ");
-        // Get User Brand and Type
-        char* userBrand = NULL;
-        char* userType = NULL;
-        clearBuffer();
         scanf("%d", &user_choice);
-        Item* matchingItems = NULL;
+        clearBuffer();  // Clear leftover characters
+
+        ItemNode* matchingItems = NULL;
+        char* brand = NULL, * type = NULL;
+
         switch (user_choice) {
         case 1:
-            userBrand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
-            printf("Please enter Brand: ");
-            clearBuffer();
-            scanf("%30s", userBrand);
-            matchingItems = findByBrandType(userBrand, userType, 1);
+            brand = (char*)safeMalloc(BRAND_LENGTH);
+            printf("Enter Brand: ");
+            getInputString(brand, BRAND_LENGTH);
+            // Filter by brand only (filterType = 1)
+            matchingItems = findByBrandType(brand, NULL, 1);
+            free(brand);
             break;
         case 2:
-            userType = (char*)malloc(sizeof(char) * TYPE_LENGTH);
-            printf("Please enter Type: ");
-            clearBuffer();
-            scanf("%11s", userType);
-            matchingItems = findByBrandType(userBrand, userType, 2);
+            type = (char*)safeMalloc(TYPE_LENGTH);
+            printf("Enter Type: ");
+            getInputString(type, TYPE_LENGTH);
+            // Filter by type only (filterType = 2)
+            matchingItems = findByBrandType(NULL, type, 2);
+            free(type);
             break;
         case 3:
-            userBrand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
-            userType = (char*)malloc(sizeof(char) * TYPE_LENGTH);
-            printf("Please enter Brand: ");
-            scanf("%30s", userBrand);
-            printf("Please enter Type: ");
-            scanf("%11s", userType);
-            matchingItems = findByBrandType(userBrand, userType, 3);
+            brand = (char*)safeMalloc(BRAND_LENGTH);
+            type = (char*)safeMalloc(TYPE_LENGTH);
+            printf("Enter Brand: ");
+            getInputString(brand, BRAND_LENGTH);
+            printf("Enter Type: ");
+            getInputString(type, TYPE_LENGTH);
+            // Filter by both brand and type (filterType = 3)
+            matchingItems = findByBrandType(brand, type, 3);
+            free(brand);
+            free(type);
             break;
         case 0:
             exit = 1;
             break;
         default:
-            clrscr();
-            printf("No choice was detected, please try again!\n");
-            printf("How would you like to filter?\n");
-            printf("1. Search By Brand.\n");
-            printf("2. Search By Type\n");
-            printf("3. Search By Both\n");
-            printf("0. Exit\n");
-        }
-        if (exit == 1)
+            printf("Invalid option, please try again.\n");
             break;
+        }
+
+        if (matchingItems != NULL) {
+            // Print the results in a table.
+            printItems(matchingItems);
+
+            // Free the temporary matching list nodes.
+            ItemNode* temp;
+            while (matchingItems != NULL) {
+                temp = matchingItems;
+                matchingItems = matchingItems->next;
+                free(temp);
+            }
+        }
+
+        if (!exit) {
+            printf("Press Enter to continue...");
+            getchar();
+        }
     }
 }
 
 void searchByPriceorStock() {
     int exit = 0;
-    clrscr();
-    printf("Search By Price and/or Stock Menu:\n");
-    printf("1. Search By Price.\n");
-    printf("2. Search By Stock\n");
-    printf("0. Exit\n");
-    while (1) {
+    while (!exit) {
+        clrscr();
+        printf("Search By Price and/or Stock Menu:\n");
+        printf("1. Search By Price\n");
+        printf("2. Search By Stock\n");
+        printf("0. Exit\n");
+        printf("Please select an option: ");
+
         int user_choice;
-        printf("Please select: ");
-        // Get User Price and Stock
-        double userPrice = 0;
-        int userStock = 0;
-        char identifier;
-        clearBuffer();
         scanf("%d", &user_choice);
-        Item* matchingItems = NULL;
+        clearBuffer(); // Clear any leftover input
+
+        ItemNode* matchingItems = NULL;
+        char identifier;
+
         switch (user_choice) {
-        case 1:
-            printf("Please enter a price: ");
-            clearBuffer();
+        case 1: {
+            double userPrice;
+            printf("Enter a price: ");
             scanf("%lf", &userPrice);
-            printf("Please enter an identifier[>, <, =]: ");
             clearBuffer();
+            printf("Enter an identifier [>, <, =]: ");
             scanf("%c", &identifier);
+            clearBuffer();
             matchingItems = findByPrice(userPrice, identifier);
             break;
-        case 2:
-            printf("Please enter a stock: ");
-            clearBuffer();
+        }
+        case 2: {
+            int userStock;
+            printf("Enter a stock value: ");
             scanf("%d", &userStock);
-            printf("Please enter an identifier[>, <, =]: ");
             clearBuffer();
+            printf("Enter an identifier [>, <, =]: ");
             scanf("%c", &identifier);
+            clearBuffer();
             matchingItems = findByStock(userStock, identifier);
             break;
+        }
         case 0:
             exit = 1;
             break;
         default:
-            clrscr();
-            printf("No choice was detected, please try again!\n");
-            printf("Search By Price and/or Stock Menu:\n");
-            printf("1. Search By Price.\n");
-            printf("2. Search By Stock\n");
-            printf("0. Exit\n");
-        }
-        if (exit == 1)
+            printf("Invalid option, please try again.\n");
             break;
+        }
+
+        if (matchingItems != NULL) {
+            // Print matching items in a table.
+            printItems(matchingItems);
+
+            // Free the matching list nodes (shallow copy; items remain in global list).
+            ItemNode* temp;
+            while (matchingItems != NULL) {
+                temp = matchingItems;
+                matchingItems = matchingItems->next;
+                free(temp);
+            }
+        }
+
+        if (!exit) {
+            printf("Press Enter to continue...");
+            getchar();
+        }
     }
 }
 
 void searchByEquals() {
     int exit = 0;
-    clrscr();
-    printf("Search a property:\n");
-    printf("1. Search By Serial Number.\n");
-    printf("2. Search By Brand.\n");
-    printf("3. Search By Type.\n");
-    printf("4. Search By Price.\n");
-    printf("5. Search By Is Popular.\n");
-    printf("6. Search By Release Date.\n");
-    printf("7. Search By Stock.\n");
-    printf("0. Exit\n");
-    while (1) {
-        int user_choice;
-        printf("Please select: ");
+    while (!exit) {
+        clrscr();
+        printf("Search a Property Menu:\n");
+        printf("1. Search By Serial Number\n");
+        printf("2. Search By Brand\n");
+        printf("3. Search By Type\n");
+        printf("4. Search By Price\n");
+        printf("5. Search By Is Popular\n");
+        printf("6. Search By Release Date\n");
+        printf("7. Search By Stock\n");
+        printf("0. Exit\n");
+        printf("Please select an option: ");
+
+        int choice;
+        scanf("%d", &choice);
         clearBuffer();
-        scanf("%d", &user_choice);
-        clearBuffer(); // Clear buffer after number input
 
-        Item* matchingItems = NULL;
-        void* property = NULL;
+        ItemNode* matchingItems = NULL;
 
-        switch (user_choice) {
-        case 1: // Serial Number
-        {
-            char* serialNumber = (char*)malloc(SERIAL_NUMBER_LENGTH * sizeof(char));
+        switch (choice) {
+        case 1: {
+            char* serialNumber = (char*)safeMalloc(SERIAL_NUMBER_LENGTH * sizeof(char));
             printf("Enter Serial Number: ");
-            scanf("%s", serialNumber);
-            property = serialNumber;
-            matchingItems = findByProperty("serial_number", property);
-            free(serialNumber); // Free memory after use
+            getInputString(serialNumber, SERIAL_NUMBER_LENGTH);
+            matchingItems = findByProperty("serial_number", serialNumber);
+            free(serialNumber);
             break;
         }
-        case 2: // Brand
-        {
-            char* brand = (char*)malloc(BRAND_LENGTH * sizeof(char));
+        case 2: {
+            char* brand = (char*)safeMalloc(BRAND_LENGTH * sizeof(char));
             printf("Enter Brand: ");
-            scanf("%s", brand);
-            property = brand;
-            matchingItems = findByProperty("brand", property);
+            getInputString(brand, BRAND_LENGTH);
+            matchingItems = findByProperty("brand", brand);
             free(brand);
             break;
         }
-        case 3: // Type
-        {
-            char* type = (char*)malloc(TYPE_LENGTH * sizeof(char));
+        case 3: {
+            char* type = (char*)safeMalloc(TYPE_LENGTH * sizeof(char));
             printf("Enter Type: ");
-            scanf("%s", type);
-            property = type;
-            matchingItems = findByProperty("type", property);
+            getInputString(type, TYPE_LENGTH);
+            matchingItems = findByProperty("type", type);
             free(type);
             break;
         }
-        case 4: // Price
-        {
+        case 4: {
             double price;
             printf("Enter Price: ");
             scanf("%lf", &price);
-            property = &price;
-            matchingItems = findByProperty("price", property);
+            clearBuffer();
+            matchingItems = findByProperty("price", &price);
             break;
         }
-        case 5: // Is Popular
-        {
+        case 5: {
             int isPopular;
-            printf("Enter Is Popular (0 or 1): ");
+            printf("Enter Is Popular (1 for Yes, 0 for No): ");
             scanf("%d", &isPopular);
-            property = &isPopular;
-            matchingItems = findByProperty("is_popular", property);
+            clearBuffer();
+            matchingItems = findByProperty("is_popular", &isPopular);
             break;
         }
-        case 6: // Release Date
-        {
-            char* releaseDate = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
+        case 6: {
+            char* releaseDate = (char*)safeMalloc(RELEASE_DATE_LENGTH * sizeof(char));
             printf("Enter Release Date (DD-MM-YYYY): ");
-            scanf("%s", releaseDate);
-            property = releaseDate;
-            matchingItems = findByProperty("release_date", property);
+            getInputString(releaseDate, RELEASE_DATE_LENGTH);
+            matchingItems = findByProperty("release_date", releaseDate);
             free(releaseDate);
             break;
         }
-        case 7: // Stock
-        {
+        case 7: {
             int stock;
             printf("Enter Stock: ");
             scanf("%d", &stock);
-            property = &stock;
-            matchingItems = findByProperty("stock", property);
+            clearBuffer();
+            matchingItems = findByProperty("stock", &stock);
             break;
         }
         case 0:
             exit = 1;
             break;
         default:
-            clrscr();
-            printf("Invalid choice, please try again!\n");
-        }
-
-        if (matchingItems) {
-            // TODO: Print matching items or process them
-        }
-
-        if (exit == 1)
+            printf("Invalid option. Please try again.\n");
             break;
+        }
+
+        if (matchingItems != NULL) {
+            printItems(matchingItems);
+
+            // Free the temporary matching list nodes.
+            ItemNode* temp;
+            while (matchingItems != NULL) {
+                temp = matchingItems;
+                matchingItems = matchingItems->next;
+                free(temp);
+            }
+        }
+
+        if (!exit) {
+            printf("Press Enter to continue...");
+            getchar();
+        }
     }
 }
 
 void searchByDate() {
-    clrscr();
     int exit = 0;
-    int user_choice;
-    printf("Search By Date Menu\n");
-    printf("1. Filter Release Date with identifier.\n");
-    printf("2. Find Release Date between Dates.\n");
-    printf("0. Exit\n");
-    void* property;
-    while (1) {
-        printf("Please select: ");
+    while (!exit) {
+        clrscr();
+        printf("Search By Date Menu:\n");
+        printf("1. Search by a single date with an identifier\n");
+        printf("2. Search by a date range\n");
+        printf("0. Exit\n");
+        printf("Please select an option: ");
+
+        int choice;
+        scanf("%d", &choice);
         clearBuffer();
-        scanf("%d", &user_choice);
-        switch (user_choice) {
+
+        ItemNode* matchingItems = NULL;
+
+        switch (choice) {
         case 1: {
-            char identifier;
-            char* releaseDate = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
+            char* userDate = (char*)safeMalloc(sizeof(char) * RELEASE_DATE_LENGTH);
             printf("Enter Release Date (DD-MM-YYYY): ");
-            scanf("%s", releaseDate);
-            printf("Please enter an identifier[>, <, =]: ");
+            getInputString(userDate, RELEASE_DATE_LENGTH);
+
+            char identifier;
+            printf("Enter an identifier [>, <, =]: ");
             scanf("%c", &identifier);
-            findByDate(releaseDate, identifier);
+            clearBuffer();
+
+            matchingItems = findByDate(userDate, identifier);
+            free(userDate);
             break;
         }
         case 2: {
-            char* releaseDate1 = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
-            char* releaseDate2 = (char*)malloc(RELEASE_DATE_LENGTH * sizeof(char));
-            printf("Enter 1st Release Date (DD-MM-YYYY): ");
-            scanf("%s", releaseDate1);
-            printf("Enter 2nd Release Date (DD-MM-YYYY): ");
-            scanf("%s", releaseDate2);
-            findDatesInRange(releaseDate1, releaseDate2);
+            char* date1 = (char*)safeMalloc(sizeof(char) * RELEASE_DATE_LENGTH);
+            char* date2 = (char*)safeMalloc(sizeof(char) * RELEASE_DATE_LENGTH);
+            printf("Enter the start date (DD-MM-YYYY): ");
+            getInputString(date1, RELEASE_DATE_LENGTH);
+            printf("Enter the end date (DD-MM-YYYY): ");
+            getInputString(date2, RELEASE_DATE_LENGTH);
+
+            matchingItems = findDatesInRange(date1, date2);
+            free(date1);
+            free(date2);
             break;
         }
         case 0:
             exit = 1;
             break;
-        }
-        if (exit == 1)
+        default:
+            printf("Invalid option. Please try again.\n");
             break;
+        }
+
+        if (matchingItems != NULL) {
+            printItems(matchingItems);
+
+            // Free the temporary matching list nodes (shallow copies)
+            ItemNode* temp;
+            while (matchingItems != NULL) {
+                temp = matchingItems;
+                matchingItems = matchingItems->next;
+                free(temp);
+            }
+        }
+
+        if (!exit) {
+            printf("Press Enter to continue...");
+            getchar();
+        }
     }
 }
 
 void viewItems() {
-    while (1) {
-        int exit = 0;
+    int exit = 0;
+    while (!exit) {
         clrscr();
         viewItemsMenu();
         int user_choice;
-        clearBuffer();
-        printf("Please select: ");
+        printf("Please select an option: ");
         scanf("%d", &user_choice);
+        clearBuffer();
+
         switch (user_choice) {
         case 1:
+            // Search by Brand or Type
             searchByBrandOrType();
             break;
         case 2:
+            // Search by Price or Stock
             searchByPriceorStock();
             break;
         case 3:
+            // Search by Equals (generic search by property)
             searchByEquals();
             break;
         case 4:
+            // Search by Date (single date or range)
             searchByDate();
             break;
         case 0:
             exit = 1;
             break;
-        }
-        if (exit == 1)
+        default:
+            printf("Invalid option. Please try again.\n");
             break;
+        }
+        if (!exit) {
+            printf("Press Enter to continue...");
+            getchar();
+        }
     }
 }
 
 void addNewItem() {
     clrscr();
-    char* serial_number = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-    char* brand = (char*)malloc(sizeof(char) * BRAND_LENGTH);
-    char* type = (char*)malloc(sizeof(char) * TYPE_LENGTH);
-    double* price = malloc(sizeof(double));
-    int* isPopular = (int*)malloc(sizeof(int));
-    char* releaseDate = (char*)malloc(sizeof(char) * RELEASE_DATE_LENGTH);
-    int* stock = (int*)malloc(sizeof(int));
-    clearBuffer();
     printf("Add Item Menu:\n");
+
+    // Allocate buffers for string inputs.
+    char* serial_number = (char*)safeMalloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
+    char* brand = (char*)safeMalloc(sizeof(char) * BRAND_LENGTH);
+    char* type = (char*)safeMalloc(sizeof(char) * TYPE_LENGTH);
+    char* releaseDate = (char*)safeMalloc(sizeof(char) * RELEASE_DATE_LENGTH);
+
+    double price;
+    int isPopular;
+    int stock;
+
+    // Get Serial Number
     printf("Please enter Serial Number: ");
     scanf("%s", serial_number);
-    getInputString(serial_number, SERIAL_NUMBER_LENGTH);
+    clearBuffer();
+
+    // Get Brand
     printf("Please enter Brand: ");
-    scanf("%s", brand);
-    getInputString(serial_number, BRAND_LENGTH);
+    getInputString(brand, BRAND_LENGTH);
+
+    // Get Type
     printf("Please enter Type: ");
-    scanf("%s", type);
-    getInputString(serial_number, TYPE_LENGTH);
-    printf("Please enter price: ");
-    scanf("%lf", price);
-    printf("Is the Item Popular? [1 - Yes/0 - No]: ");
-    scanf("%d", isPopular);
-    printf("Please enter Release Date: ");
+    getInputString(type, TYPE_LENGTH);
+
+    // Get Price
+    printf("Please enter Price: ");
+    scanf("%lf", &price);
+    clearBuffer();
+
+    // Get Is Popular flag
+    printf("Is the Item Popular? [1 - Yes / 0 - No]: ");
+    scanf("%d", &isPopular);
+    clearBuffer();
+
+    // Get Release Date
+    printf("Please enter Release Date (DD-MM-YYYY): ");
     scanf("%s", releaseDate);
-    getInputString(releaseDate, RELEASE_DATE_LENGTH);
+    clearBuffer();
+
+    // Get Stock
     printf("Please enter Stock: ");
-    scanf("%d", stock);
-    Item* item = createItem(serial_number, brand, type, *price, *isPopular, releaseDate, *stock);
-    writeItem(item, ITEMS_FILE);
-    printItems(item, 1);
-    printf("Item has been written to file successfully!\n");
+    scanf("%d", &stock);
+    clearBuffer();
+
+    // Create the new item (this automatically adds it to the global linked list)
+    ItemNode* newNode = createItem(serial_number, brand, type, price, isPopular, releaseDate, stock);
+
+    printf("\nNew item added:\n");
+    printf("+----------------+----------------+----------------+----------+------------+--------------+-------+\n");
+    printf("| Serial Number  | Brand          | Type           | Price    | Is Popular | Release Date | Stock |\n");
+    printf("+----------------+----------------+----------------+----------+------------+--------------+-------+\n");
+    printf("| %-14s | %-14s | %-14s | %8.2f | %-10s | %-12s | %5d |\n",
+        newNode->item->serialNumber,
+        newNode->item->brand,
+        newNode->item->type,
+        newNode->item->price,
+        newNode->item->isPopular ? "Yes" : "No",
+        newNode->item->releaseDate,
+        newNode->item->stock);
+    printf("+----------------+----------------+----------------+----------+------------+--------------+-------+\n");
+    free(serial_number);
+    free(brand);
+    free(type);
+    free(releaseDate);
+}
+
+ItemNode* loadItemsLinkedList(const char* filename) {
+    FILE* fp = fopen(filename, "rb");
+    if (!fp) {
+        printf("Error opening file %s\n", filename);
+        return NULL;
+    }
+
+    ItemNode* head = NULL;
+    ItemNode* tail = NULL;
+    while (1) {
+        Item* tempItem = readItem(fp);
+        if (tempItem == NULL) {
+            break;
+        }
+        // Create a new node for the item using safeMalloc
+        ItemNode* newNode = (ItemNode*)safeMalloc(sizeof(ItemNode));
+        newNode->item = tempItem;
+        newNode->next = NULL;
+
+        // Append to the linked list
+        if (head == NULL) {
+            head = newNode;
+            tail = newNode;
+        }
+        else {
+            tail->next = newNode;
+            tail = newNode;
+        }
+    }
+    fclose(fp);
+    return head;
 }
