@@ -1,3 +1,7 @@
+// Tal-Shalom Ben Ovadia 322356346 
+// Stav Moalem 211500657
+// Rafi Erez 301420352
+
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdlib.h>
 #include <string.h>
@@ -8,61 +12,69 @@
 #include <assert.h>
 #include <time.h>
 #include "main.h"
+#include "utils.h"
 
 Customer* createCustomer(char* id, char* name) {
     Customer* customer = (Customer*)malloc(sizeof(Customer));
+    if (!customer) {
+        printf("Error: Memory allocation failed for new customer.\n");
+        write_log("l.log", "Failed to allocate memory for new customer.");
+        return NULL;
+    }
 
-    // ID
     customer->id = (char*)malloc(sizeof(char) * ID_LENGTH);
-    strncpy(customer->id, id, ID_LENGTH - 1);
-    customer->id[ID_LENGTH - 1] = '\0'; // Ensure null termination
-
-    // Name
     customer->name = (char*)malloc(sizeof(char) * NAME_LENGTH);
-    strncpy(customer->name, name, NAME_LENGTH - 1);
-    customer->name[NAME_LENGTH - 1] = '\0'; // Ensure null termination
-
-    // Join Date
     customer->joinDate = (char*)malloc(sizeof(char) * JOIN_DATE_LENGTH);
+
+    if (!customer->id || !customer->name || !customer->joinDate) {
+        printf("Error: Memory allocation failed for customer fields.\n");
+        write_log("l.log", "Failed to allocate memory for customer fields.");
+        free(customer->id);
+        free(customer->name);
+        free(customer->joinDate);
+        free(customer);
+        return NULL;
+    }
+
+    strncpy(customer->id, id, ID_LENGTH - 1);
+    customer->id[ID_LENGTH - 1] = '\0';
+    customer->id = trimwhitespace(customer->id);
+    strncpy(customer->name, name, NAME_LENGTH - 1);
+    customer->name[NAME_LENGTH - 1] = '\0';
+    customer->name = trimwhitespace(customer->name);
     strncpy(customer->joinDate, getCurrentDate(), JOIN_DATE_LENGTH);
 
-    // Total Amount Spent
     customer->totalAmountSpent = 0.0;
-
-    // Items Purchased
     customer->itemsPurchased = 0;
-
-    // Purchase Count
     customer->purchaseCount = 0;
-
-    // Purchases
-    customer->purchases = NULL;;
-
-    // Next Pointer
+    customer->purchases = NULL;
     customer->next = NULL;
+
+    char logMessage[256];
+    snprintf(logMessage, sizeof(logMessage), "Created new customer with ID: %s, Name: %s", id, name);
+    write_log("l.log", logMessage);
 
     return customer;
 }
 
 Customer* addCustomer(Customer* customer) {
-    // Initialize the next pointer of the new customer to NULL
     customer->next = NULL;
 
-    // If the list is empty, the new customer becomes the head
     if (globalCustomers == NULL) {
         globalCustomers = customer;
     }
     else {
-        // Otherwise, traverse to the end of the list
         Customer* current = globalCustomers;
         while (current->next != NULL) {
             current = current->next;
         }
-        // Add the new customer at the end of the list
         current->next = customer;
     }
 
     printf("Customer '%s' added successfully.\n", customer->name);
+    char logMessage[256];
+    snprintf(logMessage, sizeof(logMessage), "Added customer with ID: %s, Name: %s", customer->id, customer->name);
+    write_log("l.log", logMessage);
 
     return customer;
 }
@@ -99,19 +111,21 @@ void writeCustomer(Customer* customer, const char* fileName) {
 }
 
 void writeCustomers(const char* fileName) {
-    // Open the file in write mode to clear its contents
     FILE* file = fopen(fileName, "w");
     if (file == NULL) {
         printf("Error opening file for writing.\n");
+        write_log("l.log", "Failed to open customer file for writing.");
         return;
     }
-    fclose(file);
 
     Customer* current = globalCustomers;
     while (current != NULL) {
-        writeCustomer(current, fileName);
+        writeCustomer(current, CUSTOMERS_FILE);
         current = current->next;
     }
+
+    fclose(file);
+    write_log("l.log", "Successfully wrote customers to file.");
 }
 
 Customer* readCustomer(FILE* file) {
@@ -184,126 +198,122 @@ Customer* readCustomer(FILE* file) {
     return customer;
 }
 
-
 // Function to print all customers in one line each, including purchase history
 void printCustomers() {
     if (globalCustomers == NULL) {
         printf("No customers to display.\n");
+        write_log("l.log", "Attempted to print customers but list is empty.");
         return;
     }
 
     printf("\n--- Customers List ---\n");
     Customer* current = globalCustomers;
     while (current != NULL) {
-        // ????? ???? ?????
-        printf("%s, %s, %s, %.2lf, %d, %d",
-            current->id,
-            current->name,
-            current->joinDate,
-            current->totalAmountSpent,
-            current->itemsPurchased,
-            current->purchaseCount
-        );
+        // Print basic customer details
+        printf("Customer ID: %s, Name: %s, Join Date: %s, Total Amount Spent: %.2f, Items Purchased: %d\n",
+            current->id, current->name, current->joinDate, current->totalAmountSpent, current->itemsPurchased);
 
-        // ????? ???????? ?????? ?? ?????
+        // Print purchase history if available
         if (current->purchaseCount > 0 && current->purchases != NULL) {
-            printf(" | Purchases: ");
-            for (int j = 0; j < current->purchaseCount; j++) {
-                printf("{Serial: %s, Amount: %d, Date: %s}",
-                    current->purchases[j].serialNumber,
-                    current->purchases[j].amount,
-                    current->purchases[j].purchaseDate
+            printf("  Purchases:\n");
+            for (int i = 0; i < current->purchaseCount; i++) {
+                printf("    [%d] Serial Number: %s, Amount: %d, Purchase Date: %s\n",
+                    i + 1,
+                    current->purchases[i].serialNumber,
+                    current->purchases[i].amount,
+                    current->purchases[i].purchaseDate
                 );
-                if (j < current->purchaseCount - 1) {
-                    printf(", ");
-                }
             }
         }
         else {
-            printf(" | No Purchases");
+            printf("  No Purchases\n");
         }
-        printf("\n");
+
         current = current->next;
     }
     printf("--------------------\n");
+    write_log("l.log", "Printed all customers.");
 }
 
+// Function to print a specific customer by ID, including purchase history
 void printCustomer(char* id) {
-    if (globalCustomers == NULL) {
-        printf("No customers to display.\n");
-        return;
-    }
-
-    // Start at the head of the linked list
     Customer* current = globalCustomers;
-
-    // Iterate over the linked list
     while (current != NULL) {
-        // Compare the ID
         if (strcmp(current->id, id) == 0) {
-            // ID found, print the customer's details
+            // Print basic customer details
             printf("\n--- Customer Details ---\n");
-            printf("%s, %s, %s, %.2lf, %d, %d",
-                current->id,
-                current->name,
-                current->joinDate,
-                current->totalAmountSpent,
-                current->itemsPurchased,
-                current->purchaseCount
-            );
+            printf("Customer ID: %s\nName: %s\nJoin Date: %s\nTotal Amount Spent: %.2f\nItems Purchased: %d\n",
+                current->id, current->name, current->joinDate, current->totalAmountSpent, current->itemsPurchased);
 
             // Print purchase history if available
             if (current->purchaseCount > 0 && current->purchases != NULL) {
-                printf(" | Purchases: ");
-                for (int j = 0; j < current->purchaseCount; j++) {
-                    printf("{Serial: %s, Amount: %d, Date: %s}",
-                        current->purchases[j].serialNumber,
-                        current->purchases[j].amount,
-                        current->purchases[j].purchaseDate
+                printf("  Purchases:\n");
+                for (int i = 0; i < current->purchaseCount; i++) {
+                    printf("    [%d] Serial Number: %s, Amount: %d, Purchase Date: %s\n",
+                        i + 1,
+                        current->purchases[i].serialNumber,
+                        current->purchases[i].amount,
+                        current->purchases[i].purchaseDate
                     );
-                    if (j < current->purchaseCount - 1) {
-                        printf(", ");
-                    }
                 }
             }
             else {
-                printf(" | No Purchases");
+                printf("  No Purchases\n");
             }
-            printf("\n------------------------\n");
+
+            printf("-------------------------\n");
+
+            char logMessage[256];
+            snprintf(logMessage, sizeof(logMessage), "Printed details for customer ID: %s", id);
+            write_log("l.log", logMessage);
             return;
         }
-        // Move to the next customer in the list
         current = current->next;
     }
 
-    // If we exit the loop, the ID was not found
-    printf("Customer with ID '%s' not found.\n", id);
+    // If customer not found
+    printf("Customer with ID %s not found.\n", id);
+    char logMessage[256];
+    snprintf(logMessage, sizeof(logMessage), "Failed to print details for customer ID: %s - Not found", id);
+    write_log("l.log", logMessage);
 }
+
 
 Customer* getAllCustomers() {
     FILE* fp = fopen(CUSTOMERS_FILE, "r");
     if (fp == NULL) {
-        printf("Error opening file.\n");
-        printf("There are no customer yet, returning empty linked list!\n");
+        write_log("l.log", "Error opening customers file for reading.");
         return NULL;
     }
 
     Customer* head = NULL;
+    Customer* current = NULL;
     Customer* tail = NULL;
-    Customer* tempCustomer;
+    int count = 0;
 
-    while ((tempCustomer = readCustomer(fp)) != NULL) {
-        if (head == NULL) {
-            head = tail = tempCustomer;
+    while ((current = readCustomer(fp)) != NULL) {
+        current->next = NULL;
+
+        if (count == 0) {
+            head = current;
+            tail = current;
         }
         else {
-            tail->next = tempCustomer;
-            tail = tempCustomer;
+            tail->next = current;
+            tail = current;
         }
+        count++;
     }
 
+    globalCustomers = head;
+
     fclose(fp);
-    return head;
+
+    char logMessage[256];
+    snprintf(logMessage, sizeof(logMessage), "Loaded %d customers from file: %s", count, CUSTOMERS_FILE);
+    write_log("l.log", logMessage);
+
+    return globalCustomers;
 }
 
 // Function to sort the linked list by joinDate in descending order
@@ -362,7 +372,6 @@ void sortCustomers() {
     printf("Customers sorted by join date (latest first).\n");
 }
 
-
 // This function allows the user to get all customers with a certain property
 // These properties are:
 // id
@@ -373,127 +382,94 @@ void sortCustomers() {
 // purchaseCount
 // NOTE: The user cannot find a user based on the user's purchased items!
 Customer* findCustomersByProperty(char* property, void* value) {
-    Customer* head = getAllCustomers();
-    Customer* current = head;
+    Customer* current = globalCustomers;
     while (current != NULL) {
         int matches = 0;
-        if (strcmp(property, "id") == 0) {
-            if (strcmp(current->id, (char*)value) == 0) {
-                matches = 1;
-            }
+        if (strcmp(property, "id") == 0 && strcmp(current->id, (char*)value) == 0) {
+            matches = 1;
         }
-        else if (strcmp(property, "name") == 0) {
-            if (strcmp(current->name, (char*)value) == 0) {
-                matches = 1;
-            }
+        else if (strcmp(property, "name") == 0 && strcmp(current->name, (char*)value) == 0) {
+            matches = 1;
         }
-        else if (strcmp(property, "join_date") == 0) {
-            if (strcmp(current->joinDate, (char*)value) == 0) {
-                matches = 1;
-            }
+        else if (strcmp(property, "joinDate") == 0 && strcmp(current->joinDate, (char*)value) == 0) {
+            matches = 1;
         }
-        else if (strcmp(property, "total_amount_spent") == 0) {
-            if (current->totalAmountSpent == *(double*)value) {
-                matches = 1;
-            }
+        else if (strcmp(property, "total_amount_spent") == 0 && current->totalAmountSpent == *(double*)value) {
+            matches = 1;
         }
-        else if (strcmp(property, "items_purchased") == 0) {
-            if (current->itemsPurchased == *(int*)value) {
-                matches = 1;
-            }
-        }
-        else if (strcmp(property, "purchase_count") == 0) {
-            if (current->purchaseCount == *(int*)value) {
-                matches = 1;
-            }
-        }
-        else {
-            printf("Invalid property: %s\n", property);
-            return NULL;
+        else if (strcmp(property, "items_purchased") == 0 && current->itemsPurchased == *(int*)value) {
+            matches = 1;
         }
 
         if (matches) {
+            char logMessage[256];
+            snprintf(logMessage, sizeof(logMessage), "Found customer with %s: %s", property, (char*)value);
+            write_log("l.log", logMessage);
             return current;
         }
-
         current = current->next;
     }
-
-    printf("There are no customers that matched your search!\n");
+    printf("No customer found with %s matching value.\n", property);
+    char logMessage[256];
+    snprintf(logMessage, sizeof(logMessage), "No customer found with %s: %s", property, (char*)value);
+    write_log("l.log", logMessage);
     return NULL;
 }
 
 Customer* removeCustomer(char* id) {
-    Customer* head = getAllCustomers();
-    Customer* current = head;
+    Customer* current = globalCustomers;
     Customer* prev = NULL;
     Customer* removed = NULL;
 
     while (current != NULL) {
         if (strcmp(current->id, id) == 0) {
             removed = current;
+
             if (prev == NULL) {
-                head = current->next;
+                globalCustomers = current->next;
             }
             else {
                 prev->next = current->next;
             }
+
             removed->next = NULL;
-            break;
+
+            free(removed->id);
+            free(removed->name);
+            free(removed->joinDate);
+
+            if (removed->purchases != NULL) {
+                for (int i = 0; i < removed->purchaseCount; i++) {
+                    free(removed->purchases[i].serialNumber);
+                    free(removed->purchases[i].purchaseDate);
+                }
+                free(removed->purchases);
+            }
+
+            free(removed);
+
+            printf("Customer with ID %s has been removed.\n", id);
+            return globalCustomers;
         }
+
+        // Move to the next node
         prev = current;
         current = current->next;
     }
 
-    if (removed == NULL) {
-        printf("Customer with ID %s not found.\n", id);
-        current = head;
-        while (current != NULL) {
-            Customer* temp = current;
-            current = current->next;
-            free(temp->id);
-            free(temp->name);
-            free(temp->joinDate);
-            if (temp->purchases != NULL) {
-                for (int i = 0; i < temp->purchaseCount; i++) {
-                    free(temp->purchases[i].serialNumber);
-                    free(temp->purchases[i].purchaseDate);
-                }
-                free(temp->purchases);
-            }
-            free(temp);
-        }
-        return NULL;
-    }
-
-    printf("Customer with ID %s has been removed.\n", id);
-
-    current = head;
-    while (current != NULL) {
-        Customer* temp = current;
-        current = current->next;
-        free(temp->id);
-        free(temp->name);
-        free(temp->joinDate);
-        if (temp->purchases != NULL) {
-            for (int i = 0; i < temp->purchaseCount; i++) {
-                free(temp->purchases[i].serialNumber);
-                free(temp->purchases[i].purchaseDate);
-            }
-            free(temp->purchases);
-        }
-        free(temp);
-    }
-
-    return removed;
+    // If no node with the matching ID was found
+    printf("Customer with ID %s not found.\n", id);
+    return globalCustomers;
 }
 
 Customer* updateCustomer(char* id, char* property, void* value) {
-    Customer* head = getAllCustomers();
+    Customer* head = globalCustomers;
     Customer* current = head;
 
     while (current != NULL) {
         if (strcmp(current->id, id) == 0) {
+            char logMessage[256];
+
             if (strcmp(property, "id") == 0) {
                 char* trimmedID = trimwhitespace((char*)value);
                 current->id = (char*)realloc(current->id, strlen(trimmedID) + 1);
@@ -502,6 +478,7 @@ Customer* updateCustomer(char* id, char* property, void* value) {
                     return NULL;
                 }
                 strcpy(current->id, trimmedID);
+                snprintf(logMessage, sizeof(logMessage), "Updated customer ID to: %s", trimmedID);
             }
             else if (strcmp(property, "name") == 0) {
                 char* trimmedName = trimwhitespace((char*)value);
@@ -511,42 +488,21 @@ Customer* updateCustomer(char* id, char* property, void* value) {
                     return NULL;
                 }
                 strcpy(current->name, trimmedName);
+                snprintf(logMessage, sizeof(logMessage), "Updated customer Name to: %s", trimmedName);
             }
             else if (strcmp(property, "total_amount_spent") == 0) {
                 current->totalAmountSpent = *(double*)value;
+                snprintf(logMessage, sizeof(logMessage), "Updated customer total amount spent to: %.2f", *(double*)value);
             }
             else if (strcmp(property, "items_purchased") == 0) {
                 current->itemsPurchased = *(int*)value;
-            }
-            else if (strcmp(property, "purchases") == 0) {
-                int itemFound = 0;
-                for (int i = 0; i < current->purchaseCount; i++) {
-                    if (strcmp(current->purchases[i].serialNumber, (*(Purchase*)value).serialNumber) == 0) {
-                        current->purchases[i].amount += (*(Purchase*)value).amount;
-                        strncpy(current->purchases[i].purchaseDate, (*(Purchase*)value).purchaseDate, PURCHASE_DATE_LENGTH);
-                        itemFound = 1;
-                        break;
-                    }
-                }
-                if (!itemFound) {
-                    current->purchases = (Purchase*)realloc(current->purchases,
-                        sizeof(Purchase) * (current->purchaseCount + 1));
-                    if (current->purchases == NULL) {
-                        printf("Error: Memory allocation failed for new purchase.\n");
-                        return NULL;
-                    }
-                    current->purchases[current->purchaseCount].serialNumber = (char*)malloc(sizeof(char) * SERIAL_NUMBER_LENGTH);
-                    current->purchases[current->purchaseCount].purchaseDate = (char*)malloc(sizeof(char) * PURCHASE_DATE_LENGTH);
-                    strcpy(current->purchases[current->purchaseCount].serialNumber, (*(Purchase*)value).serialNumber);
-                    strcpy(current->purchases[current->purchaseCount].purchaseDate, (*(Purchase*)value).purchaseDate);
-                    current->purchases[current->purchaseCount].amount = (*(Purchase*)value).amount;
-                    current->purchaseCount++;
-                }
+                snprintf(logMessage, sizeof(logMessage), "Updated customer items purchased to: %d", *(int*)value);
             }
             else {
                 printf("Invalid property: %s\n", property);
                 return NULL;
             }
+            write_log("l.log", logMessage);
             printf("Customer with ID %s has been updated.\n", id);
             return current;
         }
@@ -556,37 +512,103 @@ Customer* updateCustomer(char* id, char* property, void* value) {
     return NULL;
 }
 
+// another option for sorting
+//void sortCustomers() {
+//    if (globalCustomers == NULL || globalCustomers->next == NULL) {
+//        return;
+//    }
+//
+//    int swapped;
+//    Customer** ptr;
+//    Customer* temp;
+//    Customer* lastSorted = NULL;
+//
+//    do {
+//        swapped = 0;
+//        ptr = &globalCustomers;
+//
+//        while ((*ptr)->next != lastSorted) {
+//            if (strcmp((*ptr)->joinDate, (*ptr)->next->joinDate) > 0) {
+//                temp = *ptr;
+//                *ptr = (*ptr)->next;
+//                temp->next = (*ptr)->next;
+//                (*ptr)->next = temp;
+//                swapped = 1;
+//            }
+//            ptr = &((*ptr)->next);
+//        }
+//        lastSorted = *ptr;
+//    } while (swapped);
+//
+//    printf("Customers sorted by join date (oldest first).\n");
+//    write_log("l.log", "Sorted customers by join date.");
+//}
+
 
 void removeCustomerMenu() {
     clrscr();
     printf("Remove Customer Menu:\n");
-    char customerID[ID_LENGTH];
+
+    char* id = (char*)malloc(sizeof(char) * ID_LENGTH);
     printf("Please enter Customer ID: ");
-    scanf("%s", customerID);
-    removeCustomer(customerID);
+    clearBuffer();
+    getInputString(id, ID_LENGTH);
+
+    Customer* removedCustomer = removeCustomer(id);
+    if (removedCustomer != NULL) {
+        char logMessage[256];
+        snprintf(logMessage, sizeof(logMessage), "Removed customer with ID: %s", id);
+        write_log("l.log", logMessage);
+    }
+    else {
+        char logMessage[256];
+        snprintf(logMessage, sizeof(logMessage), "Attempted to remove customer with ID: %s but customer not found.", id);
+        write_log("l.log", logMessage);
+    }
 }
 
+
 void addNewCustomer() {
-    char id[ID_LENGTH], name[NAME_LENGTH];
-    clearBuffer();
+    char* id = (char*)malloc(sizeof(char) * ID_LENGTH);
+    char* name = (char*)malloc(sizeof(char) * NAME_LENGTH);
     printf("Add Customer Menu:\n");
     printf("Please enter Customer ID: ");
-    scanf("%s", id);
     clearBuffer();
+    getInputString(id, ID_LENGTH);
+
     printf("Please enter Customer Name: ");
     getInputString(name, NAME_LENGTH);
+
     Customer* customer = createCustomer(id, name);
     addCustomer(customer);
+
     printCustomers();
     printf("Customer has been added successfully!\n");
+
+    char logMessage[256];
+    snprintf(logMessage, sizeof(logMessage), "Added new customer with ID: %s, Name: %s", id, name);
+    write_log("l.log", logMessage);
 }
 
 void checkCustomerPurchases() {
-    char id[ID_LENGTH];
+    char* id = (char*)malloc(sizeof(char) * ID_LENGTH);
     printf("Check Customer Purchases Menu:\n");
     printf("Please enter Customer ID: ");
-    scanf("%s", id);
+    clearBuffer();
+    getInputString(id, ID_LENGTH);
     Customer* customer = findCustomersByProperty("id", id);
-    if (customer != NULL)
+    if (customer != NULL) {
         printCustomer(id);
+        // Log successful lookup and display of customer purchases.
+        char logMessage[256];
+        snprintf(logMessage, sizeof(logMessage), "Checked purchases for customer with ID %s", id);
+        write_log("l.log", logMessage);
+    }
+    else {
+        printf("Customer not found.\n");
+        // Log the failure to find the customer.
+        char logMessage[256];
+        snprintf(logMessage, sizeof(logMessage), "Customer with ID %s not found during purchase check", id);
+        write_log("l.log", logMessage);
+    }
 }

@@ -1,0 +1,966 @@
+[2025-02-28 19:57:52] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 19:57:52] login: Login process started.
+[2025-02-28 19:57:55] Employee details successfully read from file.
+[2025-02-28 19:57:55] Failed to read employee details from file.
+[2025-02-28 19:57:55] Loaded 1 employees from file: employees.txt
+[2025-02-28 19:57:55] Failed login attempt with invalid credentials.
+[2025-02-28 19:57:55] login: Failed login attempt 1.
+[2025-02-28 19:59:05] checkIfEmployeeFileExists: Employee file does not exist.
+[2025-02-28 19:59:15] createDefaultAdmin: Creating default admin user.
+[2025-02-28 19:59:16] Created employee: admin, Level: 1
+[2025-02-28 19:59:17] Wrote employee admin to file employees.txt
+[2025-02-28 19:59:19] createDefaultAdmin: Default admin user created and written to file.
+[2025-02-28 19:59:25] login: Login process started.
+[2025-02-28 20:00:22] checkIfEmployeeFileExists: Employee file does not exist.
+[2025-02-28 20:00:24] createDefaultAdmin: Creating default admin user.
+[2025-02-28 20:00:24] Created employee: admin, Level: 1
+[2025-02-28 20:00:24] Wrote employee admin to file employees.txt
+[2025-02-28 20:00:25] createDefaultAdmin: Default admin user created and written to file.
+[2025-02-28 20:00:28] login: Login process started.
+[2025-02-28 20:00:47] checkIfEmployeeFileExists: Employee file does not exist.
+[2025-02-28 20:00:48] createDefaultAdmin: Creating default admin user.
+[2025-02-28 20:00:48] Created employee: admin, Level: 1
+[2025-02-28 20:00:48] Wrote employee admin to file employees.txt
+[2025-02-28 20:00:48] createDefaultAdmin: Default admin user created and written to file.
+[2025-02-28 20:00:51] login: Login process started.
+[2025-02-28 20:01:07] Employee details successfully read from file.
+[2025-02-28 20:01:07] Failed to read employee details from file.
+[2025-02-28 20:01:07] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:01:11] Failed login attempt with invalid credentials.
+[2025-02-28 20:01:36] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:01:36] login: Login process started.
+[2025-02-28 20:01:40] Employee details successfully read from file.
+[2025-02-28 20:01:40] Failed to read employee details from file.
+[2025-02-28 20:01:40] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:01:42] Successful login for user.
+[2025-02-28 20:02:04] checkIfEmployeeFileExists: Employee file does not exist.
+[2025-02-28 20:02:04] createDefaultAdmin: Creating default admin user.
+[2025-02-28 20:02:04] Created employee: admin, Level: 1
+[2025-02-28 20:02:04] Wrote employee admin to file employees.txt
+[2025-02-28 20:02:04] createDefaultAdmin: Default admin user created and written to file.
+[2025-02-28 20:02:04] login: Login process started.
+[2025-02-28 20:02:08] Employee details successfully read from file.
+[2025-02-28 20:02:08] Failed to read employee details from file.
+[2025-02-28 20:02:08] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:02:09] Successful login for user.
+[2025-02-28 20:02:14] login: Successful login.
+[2025-02-28 20:04:59] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:04:59] login: Login process started.
+[2025-02-28 20:05:09] checkIfEmployeeFileExists: Employee file does not exist.
+[2025-02-28 20:05:09] createDefaultAdmin: Creating default admin user.
+[2025-02-28 20:05:09] Created employee: admin, Level: 1
+[2025-02-28 20:05:09] Wrote employee admin to file employees.txt
+[2025-02-28 20:05:09] createDefaultAdmin: Default admin user created and written to file.
+[2025-02-28 20:05:09] login: Login process started.
+[2025-02-28 20:05:18] Employee details successfully read from file.
+[2025-02-28 20:05:18] Failed to read employee details from file.
+[2025-02-28 20:05:18] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:05:20] Failed login attempt with invalid credentials.
+[2025-02-28 20:05:24] login: Failed login attempt 1.
+[2025-02-28 20:05:44] Employee details successfully read from file.
+[2025-02-28 20:06:00] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:06:00] login: Login process started.
+[2025-02-28 20:06:06] Employee details successfully read from file.
+[2025-02-28 20:06:06] Failed to read employee details from file.
+[2025-02-28 20:06:06] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:06:08] Successful login for user.
+[2025-02-28 20:06:13] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:06:13] login: Login process started.
+[2025-02-28 20:06:15] Employee details successfully read from file.
+[2025-02-28 20:06:15] Failed to read employee details from file.
+[2025-02-28 20:06:15] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:06:17] Failed login attempt with invalid credentials.
+[2025-02-28 20:06:18] login: Failed login attempt 1.
+[2025-02-28 20:06:27] Employee details successfully read from file.
+[2025-02-28 20:06:31] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:06:31] login: Login process started.
+[2025-02-28 20:06:50] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:06:50] login: Login process started.
+[2025-02-28 20:06:53] Employee details successfully read from file.
+[2025-02-28 20:06:53] Failed to read employee details from file.
+[2025-02-28 20:06:53] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:07:03] Successful login for user.
+[2025-02-28 20:07:03] login: Successful login.
+[2025-02-28 20:07:03] showMenu: Entered showMenu function.
+[2025-02-28 20:07:04] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:07:08] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:07:08] login: Login process started.
+[2025-02-28 20:07:13] Employee details successfully read from file.
+[2025-02-28 20:07:13] Failed to read employee details from file.
+[2025-02-28 20:07:13] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:07:13] Failed login attempt with invalid credentials.
+[2025-02-28 20:07:13] login: Failed login attempt 1.
+[2025-02-28 20:07:42] Employee details successfully read from file.
+[2025-02-28 20:13:16] Failed to read employee details from file.
+[2025-02-28 20:13:16] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:13:16] Successful login for user.
+[2025-02-28 20:13:16] login: Successful login.
+[2025-02-28 20:13:16] showMenu: Entered showMenu function.
+[2025-02-28 20:13:16] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:13:20] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:13:20] login: Login process started.
+[2025-02-28 20:13:26] Employee details successfully read from file.
+[2025-02-28 20:13:26] Failed to read employee details from file.
+[2025-02-28 20:13:26] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:13:32] Failed login attempt with invalid credentials.
+[2025-02-28 20:13:32] login: Failed login attempt 1.
+[2025-02-28 20:13:37] Employee details successfully read from file.
+[2025-02-28 20:13:37] Failed to read employee details from file.
+[2025-02-28 20:13:37] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:13:41] Successful login for user.
+[2025-02-28 20:13:42] login: Successful login.
+[2025-02-28 20:13:47] showMenu: Entered showMenu function.
+[2025-02-28 20:13:47] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:13:59] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:13:59] login: Login process started.
+[2025-02-28 20:14:02] Employee details successfully read from file.
+[2025-02-28 20:14:02] Failed to read employee details from file.
+[2025-02-28 20:14:02] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:14:02] Failed login attempt with invalid credentials.
+[2025-02-28 20:14:02] login: Failed login attempt 1.
+[2025-02-28 20:14:04] Employee details successfully read from file.
+[2025-02-28 20:14:04] Failed to read employee details from file.
+[2025-02-28 20:14:04] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:14:04] Failed login attempt with invalid credentials.
+[2025-02-28 20:14:04] login: Failed login attempt 2.
+[2025-02-28 20:14:07] Employee details successfully read from file.
+[2025-02-28 20:14:07] Failed to read employee details from file.
+[2025-02-28 20:14:07] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:14:07] Successful login for user.
+[2025-02-28 20:14:07] login: Successful login.
+[2025-02-28 20:14:07] showMenu: Entered showMenu function.
+[2025-02-28 20:14:07] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:15:27] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:15:27] login: Login process started.
+[2025-02-28 20:15:29] Employee details successfully read from file.
+[2025-02-28 20:15:29] Failed to read employee details from file.
+[2025-02-28 20:15:29] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:15:29] Failed login attempt with invalid credentials.
+[2025-02-28 20:15:29] login: Failed login attempt 1.
+[2025-02-28 20:15:32] Employee details successfully read from file.
+[2025-02-28 20:15:32] Failed to read employee details from file.
+[2025-02-28 20:15:32] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:15:32] Successful login for user.
+[2025-02-28 20:15:32] login: Successful login.
+[2025-02-28 20:15:32] showMenu: Entered showMenu function.
+[2025-02-28 20:15:32] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:15:37] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:17:16] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:17:16] login: Login process started.
+[2025-02-28 20:17:21] Employee details successfully read from file.
+[2025-02-28 20:17:21] Failed to read employee details from file.
+[2025-02-28 20:17:21] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:17:21] Successful login for user.
+[2025-02-28 20:17:21] login: Successful login.
+[2025-02-28 20:17:21] showMenu: Entered showMenu function.
+[2025-02-28 20:17:21] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:17:27] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:17:37] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:17:37] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:17:37] Printed all customers.
+[2025-02-28 20:17:37] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:17:49] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:17:55] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:17:55] Printed all customers.
+[2025-02-28 20:17:56] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:18:02] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:22:48] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:22:48] login: Login process started.
+[2025-02-28 20:22:49] Employee details successfully read from file.
+[2025-02-28 20:22:49] Failed to read employee details from file.
+[2025-02-28 20:22:49] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:22:49] Failed login attempt with invalid credentials.
+[2025-02-28 20:22:49] login: Failed login attempt 1.
+[2025-02-28 20:22:52] Employee details successfully read from file.
+[2025-02-28 20:22:52] Failed to read employee details from file.
+[2025-02-28 20:22:52] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:22:52] Successful login for user.
+[2025-02-28 20:22:52] login: Successful login.
+[2025-02-28 20:22:52] Error opening customers file for reading.
+[2025-02-28 20:22:52] showMenu: Entered showMenu function.
+[2025-02-28 20:22:52] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:22:54] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:23:00] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:23:00] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:23:00] Printed all customers.
+[2025-02-28 20:23:00] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:23:02] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:23:21] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:23:48] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:23:48] login: Login process started.
+[2025-02-28 20:23:50] Employee details successfully read from file.
+[2025-02-28 20:23:50] Failed to read employee details from file.
+[2025-02-28 20:23:50] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:23:50] Successful login for user.
+[2025-02-28 20:23:50] login: Successful login.
+[2025-02-28 20:23:50] Error opening customers file for reading.
+[2025-02-28 20:23:50] showMenu: Entered showMenu function.
+[2025-02-28 20:23:50] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:23:59] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:24:05] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:24:05] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:24:05] Printed all customers.
+[2025-02-28 20:24:05] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:24:06] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:24:08] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:24:26] Error opening customers file for reading.
+[2025-02-28 20:30:32] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:30:32] login: Login process started.
+[2025-02-28 20:30:43] Employee details successfully read from file.
+[2025-02-28 20:30:43] Failed to read employee details from file.
+[2025-02-28 20:30:43] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:30:43] Successful login for user.
+[2025-02-28 20:30:43] login: Successful login.
+[2025-02-28 20:30:43] Error opening customers file for reading.
+[2025-02-28 20:30:43] showMenu: Entered showMenu function.
+[2025-02-28 20:30:43] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:30:47] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:31:25] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:31:25] login: Login process started.
+[2025-02-28 20:31:27] Employee details successfully read from file.
+[2025-02-28 20:31:27] Failed to read employee details from file.
+[2025-02-28 20:31:27] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:31:27] Successful login for user.
+[2025-02-28 20:31:27] login: Successful login.
+[2025-02-28 20:31:27] Error opening customers file for reading.
+[2025-02-28 20:31:27] showMenu: Entered showMenu function.
+[2025-02-28 20:31:27] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:31:28] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:31:50] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:31:50] login: Login process started.
+[2025-02-28 20:31:53] Employee details successfully read from file.
+[2025-02-28 20:31:53] Failed to read employee details from file.
+[2025-02-28 20:31:53] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:31:53] Successful login for user.
+[2025-02-28 20:31:53] login: Successful login.
+[2025-02-28 20:31:53] Error opening customers file for reading.
+[2025-02-28 20:31:53] showMenu: Entered showMenu function.
+[2025-02-28 20:31:53] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:31:55] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:32:42] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:32:42] login: Login process started.
+[2025-02-28 20:32:59] Employee details successfully read from file.
+[2025-02-28 20:32:59] Failed to read employee details from file.
+[2025-02-28 20:32:59] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:32:59] Successful login for user.
+[2025-02-28 20:32:59] login: Successful login.
+[2025-02-28 20:32:59] Error opening customers file for reading.
+[2025-02-28 20:32:59] showMenu: Entered showMenu function.
+[2025-02-28 20:32:59] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:33:00] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:34:36] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:35:05] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:35:31] Printed all customers.
+[2025-02-28 20:35:38] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:35:48] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:36:02] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:36:52] Removed customer with ID: 322356346
+[2025-02-28 20:37:08] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:37:19] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:37:19] login: Login process started.
+[2025-02-28 20:37:22] Employee details successfully read from file.
+[2025-02-28 20:37:22] Failed to read employee details from file.
+[2025-02-28 20:37:22] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:37:22] Successful login for user.
+[2025-02-28 20:37:22] login: Successful login.
+[2025-02-28 20:37:22] Error opening customers file for reading.
+[2025-02-28 20:37:22] showMenu: Entered showMenu function.
+[2025-02-28 20:37:22] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:37:23] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:37:35] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:37:35] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:37:35] Printed all customers.
+[2025-02-28 20:37:35] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:37:36] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:37:37] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:38:03] Created new customer with ID: 323835041, Name: Orel Ahavan
+[2025-02-28 20:38:03] Added customer with ID: 323835041, Name: Orel Ahavan
+[2025-02-28 20:38:03] Printed all customers.
+[2025-02-28 20:38:03] Added new customer with ID: 323835041, Name: Orel Ahavan
+[2025-02-28 20:38:04] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:38:08] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:38:08] Printed all customers.
+[2025-02-28 20:38:09] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:38:12] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:38:17] Removed customer with ID: 322356346
+[2025-02-28 20:38:19] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:38:22] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:38:22] Printed all customers.
+[2025-02-28 20:38:28] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:38:30] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:38:30] Printed all customers.
+[2025-02-28 20:38:31] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:38:41] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:38:46] Created new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 20:38:46] Added customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 20:38:46] Printed all customers.
+[2025-02-28 20:38:46] Added new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 20:38:47] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:38:49] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:38:49] Printed all customers.
+[2025-02-28 20:38:51] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:38:59] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:39:00] Removed customer with ID: 322356346
+[2025-02-28 20:39:01] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:39:02] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:39:02] Printed all customers.
+[2025-02-28 20:39:04] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:42:54] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:42:54] login: Login process started.
+[2025-02-28 20:43:05] Employee details successfully read from file.
+[2025-02-28 20:43:05] Failed to read employee details from file.
+[2025-02-28 20:43:05] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:43:05] Failed login attempt with invalid credentials.
+[2025-02-28 20:43:05] login: Failed login attempt 1.
+[2025-02-28 20:43:08] Employee details successfully read from file.
+[2025-02-28 20:43:08] Failed to read employee details from file.
+[2025-02-28 20:43:08] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:43:08] Successful login for user.
+[2025-02-28 20:43:08] login: Successful login.
+[2025-02-28 20:43:08] Error opening customers file for reading.
+[2025-02-28 20:43:08] showMenu: Entered showMenu function.
+[2025-02-28 20:43:08] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:43:16] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:43:16] Attempted to print customers but list is empty.
+[2025-02-28 20:43:17] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:43:18] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:43:23] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:43:23] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:43:23] Printed all customers.
+[2025-02-28 20:43:23] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 20:43:24] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:43:25] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 20:43:31] Created new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 20:43:31] Added customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 20:43:31] Printed all customers.
+[2025-02-28 20:43:31] Added new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 20:43:32] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:43:38] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:43:40] Removed customer with ID: 322356346
+[2025-02-28 20:43:41] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:43:46] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:43:46] Printed all customers.
+[2025-02-28 20:43:47] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:43:52] showMenu: User selected option 7 (mapped to function 7).
+[2025-02-28 20:43:55] Attempted to remove customer with ID: 444555666 but customer not found.
+[2025-02-28 20:43:56] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:43:57] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 20:43:57] Attempted to print customers but list is empty.
+[2025-02-28 20:43:57] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:44:27] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 20:44:27] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:45:49] checkIfEmployeeFileExists: Employee file does not exist.
+[2025-02-28 20:45:49] createDefaultAdmin: Creating default admin user.
+[2025-02-28 20:45:49] Created employee: admin, Level: 1
+[2025-02-28 20:45:49] Wrote employee admin to file employees.txt
+[2025-02-28 20:45:49] createDefaultAdmin: Default admin user created and written to file.
+[2025-02-28 20:45:49] login: Login process started.
+[2025-02-28 20:45:52] Employee details successfully read from file.
+[2025-02-28 20:45:52] Failed to read employee details from file.
+[2025-02-28 20:45:52] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:45:52] Successful login for user.
+[2025-02-28 20:45:52] login: Successful login.
+[2025-02-28 20:45:52] Error opening customers file for reading.
+[2025-02-28 20:45:52] showMenu: Entered showMenu function.
+[2025-02-28 20:45:52] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:45:54] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 20:47:16] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:47:16] login: Login process started.
+[2025-02-28 20:47:19] Employee details successfully read from file.
+[2025-02-28 20:47:19] Failed to read employee details from file.
+[2025-02-28 20:47:19] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:47:19] Successful login for user.
+[2025-02-28 20:47:19] login: Successful login.
+[2025-02-28 20:47:19] Error opening customers file for reading.
+[2025-02-28 20:47:19] showMenu: Entered showMenu function.
+[2025-02-28 20:47:19] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:47:20] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 20:54:57] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:54:57] login: Login process started.
+[2025-02-28 20:54:59] Employee details successfully read from file.
+[2025-02-28 20:54:59] Failed to read employee details from file.
+[2025-02-28 20:54:59] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:54:59] Successful login for user.
+[2025-02-28 20:54:59] login: Successful login.
+[2025-02-28 20:54:59] Error opening customers file for reading.
+[2025-02-28 20:54:59] showMenu: Entered showMenu function.
+[2025-02-28 20:54:59] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:55:00] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 20:57:16] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:57:16] login: Login process started.
+[2025-02-28 20:57:45] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 20:57:45] login: Login process started.
+[2025-02-28 20:57:49] Employee details successfully read from file.
+[2025-02-28 20:57:49] Failed to read employee details from file.
+[2025-02-28 20:57:49] Loaded 1 employees from file: employees.txt
+[2025-02-28 20:57:49] Successful login for user.
+[2025-02-28 20:57:49] login: Successful login.
+[2025-02-28 20:57:49] Error opening customers file for reading.
+[2025-02-28 20:57:49] showMenu: Entered showMenu function.
+[2025-02-28 20:57:49] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:57:50] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 20:59:10] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:59:15] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 20:59:17] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:59:19] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 20:59:21] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 20:59:23] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 21:01:07] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:01:07] login: Login process started.
+[2025-02-28 21:01:10] Employee details successfully read from file.
+[2025-02-28 21:01:10] Failed to read employee details from file.
+[2025-02-28 21:01:10] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:01:10] Failed login attempt with invalid credentials.
+[2025-02-28 21:01:10] login: Failed login attempt 1.
+[2025-02-28 21:01:12] Employee details successfully read from file.
+[2025-02-28 21:01:12] Failed to read employee details from file.
+[2025-02-28 21:01:12] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:01:12] Failed login attempt with invalid credentials.
+[2025-02-28 21:01:12] login: Failed login attempt 2.
+[2025-02-28 21:01:17] Employee details successfully read from file.
+[2025-02-28 21:01:17] Failed to read employee details from file.
+[2025-02-28 21:01:17] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:01:17] Successful login for user.
+[2025-02-28 21:01:17] login: Successful login.
+[2025-02-28 21:01:17] Error opening customers file for reading.
+[2025-02-28 21:01:17] showMenu: Entered showMenu function.
+[2025-02-28 21:01:17] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:01:18] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 21:04:43] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:04:52] showMenu: User selected option 2 (mapped to function 2).
+[2025-02-28 21:05:13] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:05:24] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:05:48] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:08:15] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:08:15] login: Login process started.
+[2025-02-28 21:17:30] checkIfEmployeeFileExists: Employee file does not exist.
+[2025-02-28 21:17:30] createDefaultAdmin: Creating default admin user.
+[2025-02-28 21:17:30] Created employee: admin, Level: 1
+[2025-02-28 21:17:30] Wrote employee admin to file employees.txt
+[2025-02-28 21:17:30] createDefaultAdmin: Default admin user created and written to file.
+[2025-02-28 21:17:30] login: Login process started.
+[2025-02-28 21:17:35] Employee details successfully read from file.
+[2025-02-28 21:17:35] Failed to read employee details from file.
+[2025-02-28 21:17:35] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:17:35] Failed login attempt with invalid credentials.
+[2025-02-28 21:17:35] login: Failed login attempt 1.
+[2025-02-28 21:17:40] Employee details successfully read from file.
+[2025-02-28 21:17:40] Failed to read employee details from file.
+[2025-02-28 21:17:40] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:17:40] Successful login for user.
+[2025-02-28 21:17:40] login: Successful login.
+[2025-02-28 21:17:40] Error opening customers file for reading.
+[2025-02-28 21:17:40] showMenu: Entered showMenu function.
+[2025-02-28 21:17:40] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:17:43] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 21:17:55] Created new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:17:55] Added customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:17:55] Printed all customers.
+[2025-02-28 21:17:55] Added new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:17:57] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:17:58] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 21:18:05] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:18:05] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:18:05] Printed all customers.
+[2025-02-28 21:18:05] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:18:06] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:18:09] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:18:22] No sorting needed (empty list or only one employee).
+[2025-02-28 21:19:23] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:19:23] login: Login process started.
+[2025-02-28 21:19:32] Employee details successfully read from file.
+[2025-02-28 21:19:32] Failed to read employee details from file.
+[2025-02-28 21:19:32] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:19:32] Successful login for user.
+[2025-02-28 21:19:32] login: Successful login.
+[2025-02-28 21:19:32] Error opening customers file for reading.
+[2025-02-28 21:19:32] showMenu: Entered showMenu function.
+[2025-02-28 21:19:32] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:19:34] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 21:19:46] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:20:06] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:20:23] Printed all customers.
+[2025-02-28 21:20:26] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:20:35] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:20:39] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 21:20:50] Created new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:21:16] Added customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:21:25] Printed all customers.
+[2025-02-28 21:21:38] Added new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:21:42] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:21:51] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:22:05] No sorting needed (empty list or only one employee).
+[2025-02-28 21:22:36] Wrote employee admin to file employees.txt
+[2025-02-28 21:23:34] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:24:19] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:24:19] login: Login process started.
+[2025-02-28 21:24:21] Employee details successfully read from file.
+[2025-02-28 21:24:21] Failed to read employee details from file.
+[2025-02-28 21:24:21] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:24:21] Successful login for user.
+[2025-02-28 21:24:21] login: Successful login.
+[2025-02-28 21:24:21] Error opening customers file for reading.
+[2025-02-28 21:24:21] showMenu: Entered showMenu function.
+[2025-02-28 21:24:21] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:24:24] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 21:24:35] Created new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:24:35] Added customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:24:35] Printed all customers.
+[2025-02-28 21:24:35] Added new customer with ID: 322356346, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:24:37] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:24:43] showMenu: User selected option 3 (mapped to function 3).
+[2025-02-28 21:24:49] Created new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:24:49] Added customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:24:49] Printed all customers.
+[2025-02-28 21:24:49] Added new customer with ID: 444555666, Name: Orel Ahavan
+[2025-02-28 21:24:50] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:24:53] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:24:57] No sorting needed (empty list or only one employee).
+[2025-02-28 21:26:10] Wrote employee admin to file employees.txt
+[2025-02-28 21:26:12] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:27:28] Successfully wrote customers to file.
+[2025-02-28 21:28:01] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:28:01] login: Login process started.
+[2025-02-28 21:28:06] Employee details successfully read from file.
+[2025-02-28 21:28:06] Failed to read employee details from file.
+[2025-02-28 21:28:06] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:28:06] Successful login for user.
+[2025-02-28 21:28:06] login: Successful login.
+[2025-02-28 21:28:06] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:28:06] showMenu: Entered showMenu function.
+[2025-02-28 21:28:06] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:28:09] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:28:13] No sorting needed (empty list or only one employee).
+[2025-02-28 21:28:26] Wrote employee admin to file employees.txt
+[2025-02-28 21:28:26] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:28:26] Successfully wrote customers to file.
+[2025-02-28 21:28:26] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 21:28:26] showMenu: Exited menu loop.
+[2025-02-28 21:29:12] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:29:12] login: Login process started.
+[2025-02-28 21:29:15] Employee details successfully read from file.
+[2025-02-28 21:29:15] Failed to read employee details from file.
+[2025-02-28 21:29:15] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:29:15] Successful login for user.
+[2025-02-28 21:29:15] login: Successful login.
+[2025-02-28 21:29:15] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:29:15] showMenu: Entered showMenu function.
+[2025-02-28 21:29:15] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:29:18] showMenu: User selected option 10 (mapped to function 10).
+[2025-02-28 21:29:35] Created employee: Tal, Level: 2
+[2025-02-28 21:29:35] Added new Employe with ID: Tal, Name: Tal-Shalom Ben Ovadia
+[2025-02-28 21:29:35] Displayed details for employee: Tal
+[2025-02-28 21:29:35] addNewEmployee: New employee added successfully.
+[2025-02-28 21:29:37] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:29:43] showMenu: User selected option 11 (mapped to function 11).
+[2025-02-28 21:29:43] Displayed all employees successfully in table format.
+[2025-02-28 21:29:46] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:29:47] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:29:50] Employees sorted by level (ascending order) successfully.
+[2025-02-28 21:29:50] Wrote employee admin to file employees.txt
+[2025-02-28 21:29:50] Wrote employee Tal to file employees.txt
+[2025-02-28 21:29:50] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:29:50] Successfully wrote customers to file.
+[2025-02-28 21:29:50] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 21:29:50] showMenu: Exited menu loop.
+[2025-02-28 21:30:11] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:30:11] login: Login process started.
+[2025-02-28 21:30:14] Employee details successfully read from file.
+[2025-02-28 21:30:14] Employee details successfully read from file.
+[2025-02-28 21:30:14] Failed to read employee details from file.
+[2025-02-28 21:30:14] Loaded 2 employees from file: employees.txt
+[2025-02-28 21:30:14] Successful login for user.
+[2025-02-28 21:30:14] login: Successful login.
+[2025-02-28 21:30:14] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:30:14] showMenu: Entered showMenu function.
+[2025-02-28 21:30:14] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:30:17] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:30:17] Employees sorted by level (ascending order) successfully.
+[2025-02-28 21:30:17] Wrote employee Tal to file employees.txt
+[2025-02-28 21:30:17] Wrote employee admin to file employees.txt
+[2025-02-28 21:30:17] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:30:17] Successfully wrote customers to file.
+[2025-02-28 21:30:17] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 21:30:17] showMenu: Exited menu loop.
+[2025-02-28 21:30:42] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:30:42] login: Login process started.
+[2025-02-28 21:30:45] Employee details successfully read from file.
+[2025-02-28 21:30:45] Failed to read employee details from file.
+[2025-02-28 21:30:45] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:30:45] Failed login attempt with invalid credentials.
+[2025-02-28 21:30:45] login: Failed login attempt 1.
+[2025-02-28 21:30:48] Employee details successfully read from file.
+[2025-02-28 21:30:48] Failed to read employee details from file.
+[2025-02-28 21:30:48] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:30:48] Successful login for user.
+[2025-02-28 21:30:48] login: Successful login.
+[2025-02-28 21:30:48] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:30:48] showMenu: Entered showMenu function.
+[2025-02-28 21:30:48] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:33:08] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:33:08] login: Login process started.
+[2025-02-28 21:33:12] Employee details successfully read from file.
+[2025-02-28 21:33:12] Failed to read employee details from file.
+[2025-02-28 21:33:12] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:33:12] Successful login for user.
+[2025-02-28 21:33:12] login: Successful login.
+[2025-02-28 21:33:12] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:33:12] showMenu: Entered showMenu function.
+[2025-02-28 21:33:12] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:33:17] showMenu: User selected option 2 (mapped to function 2).
+[2025-02-28 21:34:59] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:34:59] login: Login process started.
+[2025-02-28 21:35:03] Employee details successfully read from file.
+[2025-02-28 21:35:03] Failed to read employee details from file.
+[2025-02-28 21:35:03] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:35:03] Successful login for user.
+[2025-02-28 21:35:03] login: Successful login.
+[2025-02-28 21:35:03] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:35:03] showMenu: Entered showMenu function.
+[2025-02-28 21:35:03] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:35:06] showMenu: User selected option 2 (mapped to function 2).
+[2025-02-28 21:37:43] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:37:43] login: Login process started.
+[2025-02-28 21:37:46] Employee details successfully read from file.
+[2025-02-28 21:37:46] Failed to read employee details from file.
+[2025-02-28 21:37:46] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:37:46] Successful login for user.
+[2025-02-28 21:37:46] login: Successful login.
+[2025-02-28 21:37:46] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:37:46] showMenu: Entered showMenu function.
+[2025-02-28 21:37:46] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:37:48] showMenu: User selected option 2 (mapped to function 2).
+[2025-02-28 21:39:26] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:39:36] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:39:36] No sorting needed (empty list or only one employee).
+[2025-02-28 21:39:36] Wrote employee admin to file employees.txt
+[2025-02-28 21:39:36] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:39:36] Successfully wrote customers to file.
+[2025-02-28 21:42:07] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 21:43:22] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:43:22] login: Login process started.
+[2025-02-28 21:43:25] Employee details successfully read from file.
+[2025-02-28 21:43:25] Failed to read employee details from file.
+[2025-02-28 21:43:25] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:43:25] Successful login for user.
+[2025-02-28 21:43:25] login: Successful login.
+[2025-02-28 21:43:25] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:43:25] showMenu: Entered showMenu function.
+[2025-02-28 21:43:25] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:43:28] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 21:43:28] Printed all customers.
+[2025-02-28 21:43:39] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:43:46] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:44:43] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:44:45] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:44:45] No sorting needed (empty list or only one employee).
+[2025-02-28 21:44:45] Wrote employee admin to file employees.txt
+[2025-02-28 21:44:45] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:44:45] Successfully wrote customers to file.
+[2025-02-28 21:44:48] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 21:44:48] showMenu: Exited menu loop.
+[2025-02-28 21:45:06] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:45:06] login: Login process started.
+[2025-02-28 21:45:08] Employee details successfully read from file.
+[2025-02-28 21:45:08] Failed to read employee details from file.
+[2025-02-28 21:45:08] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:45:08] Successful login for user.
+[2025-02-28 21:45:08] login: Successful login.
+[2025-02-28 21:45:08] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:45:08] showMenu: Entered showMenu function.
+[2025-02-28 21:45:09] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:45:12] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:45:47] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:45:49] showMenu: User selected option 2 (mapped to function 2).
+[2025-02-28 21:46:16] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:46:21] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:46:24] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:46:28] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:46:28] No sorting needed (empty list or only one employee).
+[2025-02-28 21:46:28] Wrote employee admin to file employees.txt
+[2025-02-28 21:46:28] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:46:28] Successfully wrote customers to file.
+[2025-02-28 21:46:28] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 21:46:28] showMenu: Exited menu loop.
+[2025-02-28 21:46:34] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:46:34] login: Login process started.
+[2025-02-28 21:46:36] Employee details successfully read from file.
+[2025-02-28 21:46:36] Failed to read employee details from file.
+[2025-02-28 21:46:36] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:46:36] Successful login for user.
+[2025-02-28 21:46:36] login: Successful login.
+[2025-02-28 21:46:36] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:46:36] showMenu: Entered showMenu function.
+[2025-02-28 21:46:36] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:46:39] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:46:44] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:46:45] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 21:46:52] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:47:01] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:47:05] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:47:15] showMenu: User selected option 6 (mapped to function 6).
+[2025-02-28 21:47:47] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:47:47] login: Login process started.
+[2025-02-28 21:47:50] Employee details successfully read from file.
+[2025-02-28 21:47:50] Failed to read employee details from file.
+[2025-02-28 21:47:50] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:47:50] Successful login for user.
+[2025-02-28 21:47:50] login: Successful login.
+[2025-02-28 21:47:50] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:47:50] showMenu: Entered showMenu function.
+[2025-02-28 21:47:50] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:47:56] showMenu: User selected option 6 (mapped to function 6).
+[2025-02-28 21:48:30] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:48:30] login: Login process started.
+[2025-02-28 21:48:32] Employee details successfully read from file.
+[2025-02-28 21:48:32] Failed to read employee details from file.
+[2025-02-28 21:48:32] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:48:32] Successful login for user.
+[2025-02-28 21:48:32] login: Successful login.
+[2025-02-28 21:48:32] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:48:32] showMenu: Entered showMenu function.
+[2025-02-28 21:48:32] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:48:52] showMenu: User selected option 6 (mapped to function 6).
+[2025-02-28 21:49:33] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:49:39] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:49:50] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:50:26] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:50:26] login: Login process started.
+[2025-02-28 21:50:28] Employee details successfully read from file.
+[2025-02-28 21:50:28] Failed to read employee details from file.
+[2025-02-28 21:50:28] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:50:28] Successful login for user.
+[2025-02-28 21:50:28] login: Successful login.
+[2025-02-28 21:50:28] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:50:28] showMenu: Entered showMenu function.
+[2025-02-28 21:50:28] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:50:29] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:50:29] No sorting needed (empty list or only one employee).
+[2025-02-28 21:50:29] Wrote employee admin to file employees.txt
+[2025-02-28 21:50:29] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:50:29] Successfully wrote customers to file.
+[2025-02-28 21:50:29] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 21:50:29] showMenu: Exited menu loop.
+[2025-02-28 21:50:39] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:50:39] login: Login process started.
+[2025-02-28 21:50:42] Employee details successfully read from file.
+[2025-02-28 21:50:42] Failed to read employee details from file.
+[2025-02-28 21:50:42] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:50:42] Successful login for user.
+[2025-02-28 21:50:42] login: Successful login.
+[2025-02-28 21:50:42] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:50:42] showMenu: Entered showMenu function.
+[2025-02-28 21:50:42] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:50:48] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:50:57] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:50:58] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 21:50:58] No sorting needed (empty list or only one employee).
+[2025-02-28 21:50:58] Wrote employee admin to file employees.txt
+[2025-02-28 21:50:58] Successfully wrote all employees to file employees.txt.
+[2025-02-28 21:50:58] Successfully wrote customers to file.
+[2025-02-28 21:50:58] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 21:50:58] showMenu: Exited menu loop.
+[2025-02-28 21:51:50] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:51:50] login: Login process started.
+[2025-02-28 21:51:53] Employee details successfully read from file.
+[2025-02-28 21:51:53] Failed to read employee details from file.
+[2025-02-28 21:51:53] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:51:53] Successful login for user.
+[2025-02-28 21:51:53] login: Successful login.
+[2025-02-28 21:51:53] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:51:53] showMenu: Entered showMenu function.
+[2025-02-28 21:51:53] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:51:58] showMenu: User selected option 9 (mapped to function 9).
+[2025-02-28 21:52:46] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:52:46] login: Login process started.
+[2025-02-28 21:52:49] Employee details successfully read from file.
+[2025-02-28 21:52:49] Failed to read employee details from file.
+[2025-02-28 21:52:49] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:52:49] Successful login for user.
+[2025-02-28 21:52:49] login: Successful login.
+[2025-02-28 21:52:49] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:52:49] showMenu: Entered showMenu function.
+[2025-02-28 21:52:49] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:52:54] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 21:52:54] Printed all customers.
+[2025-02-28 21:52:59] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:53:01] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 21:53:01] Printed all customers.
+[2025-02-28 21:53:02] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:53:04] showMenu: User selected option 9 (mapped to function 9).
+[2025-02-28 21:54:39] Found customer with id: 322356346
+[2025-02-28 21:56:13] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:56:13] login: Login process started.
+[2025-02-28 21:56:16] Employee details successfully read from file.
+[2025-02-28 21:56:16] Failed to read employee details from file.
+[2025-02-28 21:56:16] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:56:16] Successful login for user.
+[2025-02-28 21:56:16] login: Successful login.
+[2025-02-28 21:56:16] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:56:16] showMenu: Entered showMenu function.
+[2025-02-28 21:56:16] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:56:21] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 21:56:21] Printed all customers.
+[2025-02-28 21:56:23] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:56:26] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:56:29] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:56:33] showMenu: User selected option 9 (mapped to function 9).
+[2025-02-28 21:57:31] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 21:57:31] login: Login process started.
+[2025-02-28 21:57:34] Employee details successfully read from file.
+[2025-02-28 21:57:34] Failed to read employee details from file.
+[2025-02-28 21:57:34] Loaded 1 employees from file: employees.txt
+[2025-02-28 21:57:34] Successful login for user.
+[2025-02-28 21:57:34] login: Successful login.
+[2025-02-28 21:57:34] Loaded 2 customers from file: customers.txt
+[2025-02-28 21:57:34] showMenu: Entered showMenu function.
+[2025-02-28 21:57:34] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:57:35] showMenu: User selected option 9 (mapped to function 9).
+[2025-02-28 21:58:03] Found customer with id: 322356346
+[2025-02-28 21:58:30] Found customer with id: 322356346
+[2025-02-28 21:58:46] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:58:54] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 21:58:58] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 21:59:02] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 21:59:02] Printed all customers.
+[2025-02-28 22:06:46] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 22:06:46] login: Login process started.
+[2025-02-28 22:06:48] Employee details successfully read from file.
+[2025-02-28 22:06:48] Failed to read employee details from file.
+[2025-02-28 22:06:48] Loaded 1 employees from file: employees.txt
+[2025-02-28 22:06:48] Successful login for user.
+[2025-02-28 22:06:48] login: Successful login.
+[2025-02-28 22:06:48] Loaded 2 customers from file: customers.txt
+[2025-02-28 22:06:48] showMenu: Entered showMenu function.
+[2025-02-28 22:06:49] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:06:51] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 22:06:53] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:06:58] showMenu: User selected option 9 (mapped to function 9).
+[2025-02-28 22:07:19] Found customer with id: 322356346
+[2025-02-28 22:07:54] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 22:07:54] login: Login process started.
+[2025-02-28 22:07:56] Employee details successfully read from file.
+[2025-02-28 22:07:56] Failed to read employee details from file.
+[2025-02-28 22:07:56] Loaded 1 employees from file: employees.txt
+[2025-02-28 22:07:56] Failed login attempt with invalid credentials.
+[2025-02-28 22:07:56] login: Failed login attempt 1.
+[2025-02-28 22:08:00] Employee details successfully read from file.
+[2025-02-28 22:08:00] Failed to read employee details from file.
+[2025-02-28 22:08:00] Loaded 1 employees from file: employees.txt
+[2025-02-28 22:08:00] Successful login for user.
+[2025-02-28 22:08:00] login: Successful login.
+[2025-02-28 22:08:00] Loaded 2 customers from file: customers.txt
+[2025-02-28 22:08:00] showMenu: Entered showMenu function.
+[2025-02-28 22:08:00] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:08:01] showMenu: User selected option 9 (mapped to function 9).
+[2025-02-28 22:08:12] Found customer with id: 322356346
+[2025-02-28 22:08:16] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:08:24] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 22:08:27] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:08:31] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 22:08:33] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:08:35] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 22:08:35] Printed all customers.
+[2025-02-28 22:08:38] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:11:18] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 22:11:18] login: Login process started.
+[2025-02-28 22:12:14] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 22:12:14] login: Login process started.
+[2025-02-28 22:12:17] Employee details successfully read from file.
+[2025-02-28 22:12:17] Failed to read employee details from file.
+[2025-02-28 22:12:17] Loaded 1 employees from file: employees.txt
+[2025-02-28 22:12:17] Successful login for user.
+[2025-02-28 22:12:17] login: Successful login.
+[2025-02-28 22:12:17] Loaded 2 customers from file: customers.txt
+[2025-02-28 22:12:17] showMenu: Entered showMenu function.
+[2025-02-28 22:12:18] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:12:24] showMenu: User selected option 9 (mapped to function 9).
+[2025-02-28 22:12:32] Found customer with id: 322356346
+[2025-02-28 22:12:33] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:12:37] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 22:12:37] Printed all customers.
+[2025-02-28 22:12:47] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:12:50] showMenu: User selected option 11 (mapped to function 11).
+[2025-02-28 22:12:50] Displayed all employees successfully in table format.
+[2025-02-28 22:12:51] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:12:52] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 22:12:54] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:13:23] showMenu: User selected option 5 (mapped to function 5).
+[2025-02-28 22:13:39] Found customer with id: 322356346
+[2025-02-28 22:17:33] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:17:43] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 22:17:45] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:17:47] showMenu: User selected option 11 (mapped to function 11).
+[2025-02-28 22:17:47] Displayed all employees successfully in table format.
+[2025-02-28 22:17:48] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:17:49] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 22:17:49] Printed all customers.
+[2025-02-28 22:17:51] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:17:52] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 22:17:52] Printed all customers.
+[2025-02-28 22:17:53] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:17:54] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 22:17:54] Printed all customers.
+[2025-02-28 22:17:59] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:18:12] showMenu: User selected option 10 (mapped to function 10).
+[2025-02-28 22:18:38] Created employee: Tal    , Level: 1
+[2025-02-28 22:18:38] Added new Employe with ID: Tal    , Name: Tal-Shalom Ben Ovadia
+[2025-02-28 22:18:38] Displayed details for employee: Tal    
+[2025-02-28 22:18:38] addNewEmployee: New employee added successfully.
+[2025-02-28 22:18:41] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:18:45] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 22:18:45] Employees sorted by level (ascending order) successfully.
+[2025-02-28 22:18:45] Wrote employee admin to file employees.txt
+[2025-02-28 22:18:45] Wrote employee Tal     to file employees.txt
+[2025-02-28 22:18:45] Successfully wrote all employees to file employees.txt.
+[2025-02-28 22:18:45] Successfully wrote customers to file.
+[2025-02-28 22:18:45] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 22:18:45] showMenu: Exited menu loop.
+[2025-02-28 22:46:15] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 22:46:15] login: Login process started.
+[2025-02-28 22:46:19] Employee details successfully read from file.
+[2025-02-28 22:46:19] Employee details successfully read from file.
+[2025-02-28 22:46:19] Failed to read employee details from file.
+[2025-02-28 22:46:19] Loaded 2 employees from file: employees.txt
+[2025-02-28 22:46:19] Successful login for user.
+[2025-02-28 22:46:19] login: Successful login.
+[2025-02-28 22:46:19] Loaded 2 customers from file: customers.txt
+[2025-02-28 22:46:19] showMenu: Entered showMenu function.
+[2025-02-28 22:46:19] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:46:20] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 22:46:43] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:46:47] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 22:46:51] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:46:53] showMenu: User selected option 8 (mapped to function 8).
+[2025-02-28 22:47:01] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:47:05] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 22:47:09] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:47:17] showMenu: User selected option 1 (mapped to function 1).
+[2025-02-28 22:47:33] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:47:35] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 22:47:39] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:47:44] showMenu: User selected option 14 (mapped to function 14).
+[2025-02-28 22:47:44] Employees sorted by level (ascending order) successfully.
+[2025-02-28 22:47:44] Wrote employee admin to file employees.txt
+[2025-02-28 22:47:44] Wrote employee Tal to file employees.txt
+[2025-02-28 22:47:44] Successfully wrote all employees to file employees.txt.
+[2025-02-28 22:47:44] Successfully wrote customers to file.
+[2025-02-28 22:47:44] showMenu: Exit option selected. Exiting menu.
+[2025-02-28 22:47:44] showMenu: Exited menu loop.
+[2025-02-28 22:47:46] checkIfEmployeeFileExists: Employee file exists.
+[2025-02-28 22:47:46] login: Login process started.
+[2025-02-28 22:47:56] Employee details successfully read from file.
+[2025-02-28 22:47:56] Employee details successfully read from file.
+[2025-02-28 22:47:56] Failed to read employee details from file.
+[2025-02-28 22:47:56] Loaded 2 employees from file: employees.txt
+[2025-02-28 22:47:56] Successful login for user.
+[2025-02-28 22:47:56] login: Successful login.
+[2025-02-28 22:47:56] Loaded 2 customers from file: customers.txt
+[2025-02-28 22:47:56] showMenu: Entered showMenu function.
+[2025-02-28 22:47:56] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:47:59] showMenu: User selected option 13 (mapped to function 13).
+[2025-02-28 22:47:59] Printed all customers.
+[2025-02-28 22:48:01] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:48:02] showMenu: User selected option 12 (mapped to function 12).
+[2025-02-28 22:48:04] menuItems: Displayed menu for level 1 with 14 options.
+[2025-02-28 22:48:10] showMenu: User selected option 1 (mapped to function 1).

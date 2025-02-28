@@ -1,3 +1,7 @@
+// Tal-Shalom Ben Ovadia 322356346 
+// Stav Moalem 211500657
+// Rafi Erez 301420352
+
 #ifndef CUSTOMER_H
 #define CUSTOMER_H
 

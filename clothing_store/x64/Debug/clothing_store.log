@@ -1,2 +1,11 @@
-﻿  Item.c
+﻿  Customer.c
+  main.c
+  Item.c
+  StringOperations.c
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\StringOperations.c(14,16): warning C4996: 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _strdup. See online help for details.
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\StringOperations.c(23,12): warning C4996: 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO C and C++ conformant name: _strdup. See online help for details.
+C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\StringOperations.c(163,17): warning C4244: 'function': conversion from 'double' to 'int', possible loss of data
+  Employee.c
+  utils.c
+  Generating Code...
   clothing_store.vcxproj -> C:\Users\talsh\OneDrive\Desktop\Files\Electrical Engineering Degree - HiT Institute of Technology\Year 3\מעבדה מתקדמת בתכנות\clothing_store\clothing_store\x64\Debug\clothing_store.exe

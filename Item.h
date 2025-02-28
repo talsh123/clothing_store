@@ -1,3 +1,7 @@
+// Tal-Shalom Ben Ovadia 322356346 
+// Stav Moalem 211500657
+// Rafi Erez 301420352
+
 #ifndef ITEM_H
 #define ITEM_H
 
@@ -32,10 +36,10 @@ extern ItemNode* globalItems;
 ItemNode* createItem(char* serialNumber, char* brand, char* type, double price, int isPopular, char* releaseDate, int stock); // done
 void writeItem(Item* item, FILE* file); // done
 Item* readItem(FILE* file); // done
-ItemNode* createItemNode(Item* item);
 Item* getAllItems(); // done, didnt changed
 void viewItemsMenu(); // upgraded menu to table
 void printItems();
+void printGivenItems(ItemNode* items);
 void freeItem(Item* item);
 ItemNode* findByBrandType(char* userBrand, char* userType, int filterType); // done
 ItemNode* findByPrice(double price, char identifier); // done
@@ -50,14 +54,20 @@ Item* sellItem(char* itemSerialNumber, char* userCustomerID, int amount);
 void sellItemMenu(); // done
 void removeItemMenu(); // done
 void updateItemMenu(); // done
-void searchByBrandOrType();
-void searchByPriceorStock();
-void searchByEquals();
-void searchByDate();
+void updateItemMenuWithSerialNumber(char* serialNumber);
+ItemNode* searchByBrandOrType();
+ItemNode* searchByPriceorStock();
+ItemNode* searchByEquals();
+ItemNode* searchByDate();
 void viewItems();
 void addNewItem();
 ItemNode* loadItemsLinkedList(const char* filename); // new
 void saveItemsFromLinkedList(const char* fileName); // new
 void addItemToList(ItemNode* newNode); // new
+void freeItems();
+ItemNode* mergeSortItems(ItemNode* head);
+static void frontBackSplit(ItemNode* source, ItemNode** frontRef, ItemNode** backRef);
+static ItemNode* mergeSortedLists(ItemNode* a, ItemNode* b);
+void returnItemMenu();
 
 #endif // ITEM_H

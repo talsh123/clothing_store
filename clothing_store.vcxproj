@@ -124,12 +124,14 @@
     <ClCompile Include="Item.c" />
     <ClCompile Include="StringOperations.c" />
     <ClCompile Include="Employee.c" />
+    <ClCompile Include="utils.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Customer.h" />
     <ClInclude Include="Item.h" />
     <ClInclude Include="StringOperations.h" />
     <ClInclude Include="Employee.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="items.bin" />
